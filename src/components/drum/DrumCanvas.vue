@@ -22,7 +22,9 @@ let idCounter = 0
 function addRipple(x: number, y: number, color: string) {
   const id = ++idCounter
   ripples.push({ id, x, y, color })
-  setTimeout(() => removeRipple(id), RIPPLE_DURATION_MS)
+  setTimeout(() => {
+    removeRipple(id)
+  }, RIPPLE_DURATION_MS)
 }
 
 function removeRipple(id: number) {

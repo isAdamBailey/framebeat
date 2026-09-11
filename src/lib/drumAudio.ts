@@ -7,7 +7,9 @@ let noiseBuffer: AudioBuffer | null = null
 const listeners = new Set<(state: AudioContextState | null) => void>()
 
 function notify() {
-  listeners.forEach((cb) => cb(ctx ? ctx.state : null))
+  listeners.forEach((cb) => {
+    cb(ctx ? ctx.state : null)
+  })
 }
 
 // Subscribe to audio-context state changes (returns an unsubscribe function).
@@ -32,8 +34,9 @@ function unlockSilent(audioCtx: AudioContext) {
 
 export function getAudioContext(): AudioContext {
   if (!ctx) {
-    const AC = window.AudioContext || (window as any).webkitAudioContext
-    ctx = new AC()
+    // The vendor-prefixed webkitAudioContext hasn't been needed since Safari
+    // 14.1 (2021); every currently-supported browser exposes AudioContext.
+    ctx = new AudioContext()
     masterGain = ctx.createGain()
     masterGain.gain.value = 0.85
     const compressor = ctx.createDynamicsCompressor()

@@ -1,0 +1,44 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project
+
+FrameBeat is a frame drum & polyrhythmic step sequencer: click the drum to play it directly, or program two step lines (each with its own step count, sound, and mute) and hit play. The bottom line sets the tempo/bar length; the top line divides the same bar into its own number of steps, so the two lines can run independent polyrhythms while always landing together on beat one.
+
+This is a client-only Vue 3 + TypeScript + Vite app. There is no backend, database, or persistence — all state is in-memory for the current session, and all audio is synthesized live via the Web Audio API (no samples, no audio library).
+
+## Commands
+
+```bash
+npm install
+npm run dev          # start Vite dev server
+npm run build        # vue-tsc -b && vite build (type-checks, then builds)
+npm run preview      # preview the production build
+npm run lint         # eslint . (type-aware; strict + strictTypeChecked)
+npx vue-tsc --noEmit  # type-check only, without building
+```
+
+There is no test script configured, so there is no single-test command since no test suite exists.
+
+ESLint (`eslint.config.js`) is configured strict and type-aware (`typescript-eslint`'s `strictTypeChecked`/`stylisticTypeChecked` plus Vue's `essential` tier) — it will catch `any`, unused vars, unsafe/unnecessary conditionals, and similar mistakes. Run `npm run lint` before finishing changes, and fix root causes (e.g. type the value properly) rather than suppressing with `eslint-disable` or widening a type to `any`.
+
+## Architecture
+
+**State ownership**: `src/App.vue` is the sole "smart" component — it owns all app state (`bpm`, `top`/`bottom` step-line objects, `strikes`, `bellTrigger`, `soundBlocked`) and passes it down to presentational components via props, with changes bubbling back up via emitted events (`toggle`, `patch`, `toggle-play`, `bpm-change`). There is no Pinia/store — the app is small enough that this single-owner pattern is sufficient.
+
+**Audio scheduling** (`src/composables/useSequencer.ts`): a look-ahead scheduler + animation-frame sync, the standard Web Audio precise-timing pattern. Two independent step "streams" (top and bottom) are booked ahead of time on the `AudioContext` clock via a 25ms `setInterval`, while a `requestAnimationFrame` loop drains a queue of already-booked events to update visual state (`currentTop`/`currentBottom`/`progress`) in sync with when the sound is actually *heard* (accounting for output latency). The bottom line's `count` and the global `bpm` define the bar length; the top line divides that same bar into its own step count (`topStepDur = barDur / top.count`), which is what makes the two lines land together on step 0 regardless of independent step counts. When `bpm`/`top.count`/`bottom.count` change mid-playback, both streams re-anchor together on the next bar via the `anchor()` function (used by both `start()` and the reanchor path) so they never drift apart. This composable is timing-sensitive — verify any change by actually playing the sequencer in a browser, not just type-checking.
+
+**Audio synthesis** (`src/lib/drumAudio.ts`): pure Web Audio API, framework-agnostic, no external assets. A singleton `AudioContext` → `GainNode` → `DynamicsCompressorNode` chain. Exposes `triggerDrumSound(type, when)` and `triggerDing(when)`, both of which internally resolve the shared `AudioContext` and clamp `when` to `>= currentTime` — callers don't need to fetch the context themselves. Also handles the iOS audio-unlock workaround and exposes `subscribeAudioState`/`isAudioBlocked` for the "sound is blocked" banner (autoplay policy).
+
+**Drum canvas** (`src/components/drum/DrumCanvas.vue`): despite the name, not a literal `<canvas>` — it's a DOM/CSS-based frame drum built from layered gradient `div`s. `src/lib/geometry.ts` holds the pure math (drum-ellipse geometry, mallet pivot points, `zonePoint`/`swingFor`) that maps a sound type or click coordinate to a point on the drum and the mallet rotation/offset needed to land there. Clicking the canvas classifies the click into a zone (bass/tone/click) by distance from center and triggers both the sound and a matching visual strike (ripple + mallet swing). Sequencer playback strikes arrive via the `strikes` prop and trigger the same visual strike path.
+
+**Animations**: hand-rolled with the Web Animations API and Vue's `<TransitionGroup>` — no animation library. `src/composables/useAnimate.ts` provides a small shared `replay(keyframes, options)` helper (cancels any in-flight animation on the element, then plays new keyframes) used by both `Mallet.vue` and `Bell.vue`. Ripples in `DrumCanvas.vue` are a reactive array rendered via `<TransitionGroup>` for the enter animation, and each ripple removes itself from the array via a `setTimeout` matching the CSS transition duration (`RIPPLE_DURATION_MS`) — keep those two values in sync if either changes.
+
+**Types**: shared domain types (`Sound`, `Line`, `Strike`, `Strikes`, `Swing`, `Ripple`) live in `src/types/drum.ts` and are imported wherever needed rather than redefined.
+
+## Working Notes
+
+- Don't reintroduce a backend, database, auth, or persistence layer unless explicitly asked — the lack of these is intentional.
+- Keep new animations consistent with the hand-rolled Web Animations API / `<TransitionGroup>` approach rather than adding an animation library.
+- For anything touching playback timing or animation, start the dev server and manually verify in a browser (play/pause, tempo changes mid-play, mute, step-count/polyrhythm changes) — type-checking alone won't catch scheduler drift or visual glitches.

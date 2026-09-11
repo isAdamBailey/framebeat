@@ -19,5 +19,5 @@ Start with `README.md` for setup and project structure.
 
 - No backend or persistence exists on purpose — don't reintroduce a database, API client, or auth layer unless explicitly asked.
 - Animations are hand-rolled (Web Animations API + Vue `<TransitionGroup>`), not a library — keep new animations consistent with that approach.
-- Run `npx vue-tsc --noEmit` before finishing changes.
+- Run `npm run lint` and `npx vue-tsc --noEmit` before finishing changes. Lint is strict and type-aware — fix the root cause rather than adding `eslint-disable` comments or widening a type to `any`.
 - For anything touching playback timing or animation, start the dev server and manually verify in a browser (play/pause, tempo changes mid-play, mute, step-count/polyrhythm changes) — type-checking alone won't catch scheduler drift or visual glitches.
