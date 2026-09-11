@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-11T00:00:00Z",
+  "title": "Design System: FrameBeat",
+  "extensions": {
+    "colorMeta": {
+      "stage": { "role": "neutral", "displayName": "Stage Black", "canonical": "#020617" },
+      "panel": { "role": "neutral", "displayName": "Panel", "canonical": "rgba(15,23,42,0.7)" },
+      "panel-border": { "role": "neutral", "displayName": "Panel Border", "canonical": "#1e293b" },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#f1f5f9" },
+      "label-muted": { "role": "neutral", "displayName": "Label Muted", "canonical": "#64748b" },
+      "wood-neutral": { "role": "neutral", "displayName": "Wood Neutral", "canonical": "#78716c" },
+      "wood-neutral-strong": { "role": "neutral", "displayName": "Wood Neutral Strong", "canonical": "#d6d3d1" },
+      "wood-neutral-border": { "role": "neutral", "displayName": "Wood Neutral Border", "canonical": "#44403c" },
+      "wood-neutral-surface": { "role": "neutral", "displayName": "Wood Neutral Surface", "canonical": "#292524" },
+      "bass-sky": { "role": "primary", "displayName": "Bass Sky", "canonical": "#38bdf8" },
+      "tone-amber": { "role": "secondary", "displayName": "Tone Amber", "canonical": "#fbbf24" },
+      "click-ember": { "role": "tertiary", "displayName": "Click Ember", "canonical": "#f97316" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The page's single h1 title only." },
+      "numeral": { "displayName": "Numeral", "purpose": "Step-count digits per line and the BPM readout — the app's headline numbers." },
+      "body": { "displayName": "Body", "purpose": "All functional UI text: buttons, captions, sound names." },
+      "label": { "displayName": "Label", "purpose": "Uppercase micro-labels for sections and units (TOP LINE, TEMPO, BPM)." }
+    },
+    "shadows": [
+      { "name": "drum-ground", "value": "drop-shadow(0 20px 40px rgba(0,0,0,0.55))", "purpose": "Seats the drum illustration on the stage; the system's one dimensional object." },
+      { "name": "primary-glow", "value": "0 8px 24px rgba(56,189,248,0.35)", "purpose": "Play/Pause button only — the one lit control, brightens to 0.5 alpha on hover." },
+      { "name": "playhead-glow", "value": "0 0 12px rgba(56,189,248,0.9)", "purpose": "The thin vertical bar sweeping across the two step lines during playback." }
+    ],
+    "motion": [
+      { "name": "mallet-strike", "value": "Web Animations API keyframes, 260ms ease-out", "purpose": "Mallet wind-up + strike toward the aimed drum zone, replayed on every strike (click, sequencer step, or keyboard)." },
+      { "name": "ripple-strike", "value": "CSS transition, 700ms ease-out, scale 0.2->1.4 + opacity 0.85->0", "purpose": "Color-coded ring expanding from the struck point on the drumhead." },
+      { "name": "bell-swing", "value": "Web Animations API keyframes, 700-800ms ease-out", "purpose": "Bell body + clapper swing on the bar-one chime." },
+      { "name": "press-scale", "value": "transform scale(0.97) on :active", "purpose": "Play/Pause button tactile press feedback." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button (Play/Pause)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The transport's single control; full pill, solid Bass Sky fill, near-black text, glow shadow, scale-down on press.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M8 5v14l11-7z\"/></svg>Play</button>",
+      "css": ".ds-btn-primary { display:inline-flex; align-items:center; justify-content:center; gap:10px; height:64px; padding:0 32px; border:none; border-radius:9999px; background:#38bdf8; color:#020617; font-size:18px; font-weight:700; box-shadow:0 8px 24px rgba(56,189,248,0.35); transition:background 0.2s, box-shadow 0.2s, transform 0.1s; } .ds-btn-primary:hover { background:#7dd3fc; box-shadow:0 8px 28px rgba(56,189,248,0.5); } .ds-btn-primary:focus-visible { outline:2px solid #38bdf8; outline-offset:3px; } .ds-btn-primary:active { transform:scale(0.97); }"
+    },
+    {
+      "name": "Step Dot (on)",
+      "kind": "custom",
+      "refersTo": "step-dot-on",
+      "description": "A filled, sound-colored step in a sequencer line.",
+      "html": "<button class=\"ds-step-dot-on\" aria-label=\"step 1\"></button>",
+      "css": ".ds-step-dot-on { width:24px; height:24px; border-radius:9999px; background:#fbbf24; border:none; box-shadow:0 4px 10px rgba(0,0,0,0.35); }"
+    },
+    {
+      "name": "Step Dot (off)",
+      "kind": "custom",
+      "refersTo": "step-dot-off",
+      "description": "An empty step slot in a sequencer line.",
+      "html": "<button class=\"ds-step-dot-off\" aria-label=\"step 2\"></button>",
+      "css": ".ds-step-dot-off { width:20px; height:20px; border-radius:9999px; background:#0f172a; border:2px solid #334155; } .ds-step-dot-off:hover { border-color:#64748b; }"
+    },
+    {
+      "name": "Sound Picker Swatch",
+      "kind": "chip",
+      "refersTo": "sound-swatch",
+      "description": "One dot per Bass/Tone/Click on a line's header; the active sound is larger and fully opaque.",
+      "html": "<button class=\"ds-swatch ds-swatch--active\" title=\"Tone\" aria-label=\"Play Tone on this line\"></button>",
+      "css": ".ds-swatch { width:8px; height:8px; border-radius:9999px; background:#fbbf24; opacity:0.35; border:none; padding:0; } .ds-swatch--active { width:12px; height:12px; opacity:1; }"
+    },
+    {
+      "name": "Kbd Key",
+      "kind": "chip",
+      "refersTo": "kbd-key",
+      "description": "A physical-key hint used in the header caption beneath the title.",
+      "html": "<kbd class=\"ds-kbd\">Q W E</kbd>",
+      "css": ".ds-kbd { display:inline-block; border-radius:6px; border:1px solid #44403c; background:rgba(41,37,36,0.6); color:#d6d3d1; padding:2px 6px; font-family:ui-sans-serif,system-ui,sans-serif; font-size:12px; }"
+    },
+    {
+      "name": "Step-Count Numeral",
+      "kind": "custom",
+      "refersTo": "numeral",
+      "description": "The line's step count in the display serif, colored by its sound — the app's largest read-out, bound tightly to the slider beside it.",
+      "html": "<span class=\"ds-numeral\">3</span>",
+      "css": ".ds-numeral { font-family:'Fraunces Variable', ui-serif, Georgia, serif; font-weight:900; font-size:48px; line-height:1; font-variant-numeric:tabular-nums; color:#fbbf24; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Midnight Workshop",
+    "overview": "FrameBeat reads as one warm, hand-built instrument sitting under a single light in an otherwise dark, quiet workshop. The drum and bell are the only objects rendered with real material depth — turned wood, stretched hide, cast brass — lit by a soft radial glow against a near-black stage. Everything below that light is deliberately flat: a plain dark control panel with circular pills, thin sliders, and bold serif numerals, the way a mixing console sits beneath the instrument it drives. The two halves are intentionally unlike each other; that contrast is the point. Nothing else in the UI competes with the drum's illustration for dimensionality, and nothing on the drum competes with the panel for information density.",
+    "keyCharacteristics": [
+      "One lit, dimensional object (the drum + bell) against an otherwise flat dark stage",
+      "Exactly three accent colors, each tied to a real drum sound — never decorative",
+      "A single warm serif voice for the instrument's name and its big numbers; everything else is plain UI sans",
+      "Circular, pill-shaped controls throughout, echoing the drum's own form"
+    ],
+    "rules": [
+      { "name": "The Three-Sound Rule", "body": "Sky, amber, and orange mean Bass, Tone, and Click, full stop. Never reach for one of them as a generic UI highlight or a fourth unrelated accent.", "section": "colors" },
+      { "name": "The One Glow Rule", "body": "Only the Play/Pause button carries a colored shadow glow. It is the page's single primary action; no other element earns that treatment, including on hover.", "section": "colors" },
+      { "name": "The One Display Face Rule", "body": "Fraunces appears only where the content itself is the instrument's name or one of its headline numbers (title, step counts, BPM). Every label, button, and sentence of body copy stays in the system sans.", "section": "typography" },
+      { "name": "The Flat-Panel Rule", "body": "The control panel and everything inside it render flat at rest. Depth is never added to signal 'this is a container' — only the drum illustration and the Play/Pause button earn a shadow.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep Bass Sky, Tone Amber, and Click Ember meaning exactly one thing each (Bass/Tone/Click) everywhere they appear.",
+      "Do keep Fraunces confined to the title and the app's headline numerals (step counts, BPM); everything else stays in the system sans.",
+      "Do make new interactive controls circular or pill-shaped unless they represent a physical key (kbd) or the one flat rectangular panel container.",
+      "Do keep the drum illustration a real <button> — a div[role=\"button\"] loses correct :focus-visible behavior, which a native button gets right automatically."
+    ],
+    "donts": [
+      "Don't add a second colored glow shadow anywhere; the Play/Pause button is the one lit control.",
+      "Don't add a second illustrated/skeuomorphic element — the drum is the system's one dimensional object, everything else stays flat.",
+      "Don't use stone (warm neutral) outside the header/keyboard-hint area, or slate (cool neutral) inside it — the two neutral families are currently segregated by zone, not mixed freely.",
+      "Don't widen the sound-color palette past three; a fourth accent would break The Three-Sound Rule's information mapping."
+    ]
+  }
+}

@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --font-heading: ui-sans-serif, system-ui, sans-serif;
+    --font-heading: 'Fraunces Variable', ui-serif, Georgia, serif;
     --font-body: ui-sans-serif, system-ui, sans-serif;
   }
 

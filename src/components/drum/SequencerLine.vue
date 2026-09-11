@@ -19,8 +19,8 @@ const leftPct = (i: number) => (i / props.dots.length) * 100
 </script>
 
 <template>
-  <div :data-line="line" class="relative h-10 transition-opacity" :class="muted ? 'opacity-40' : ''">
-    <div class="absolute inset-x-0 top-1/2 h-0.5 -translate-y-1/2 rounded-full bg-slate-700" />
+  <div :data-line="line" class="relative h-12 transition-opacity" :class="muted ? 'opacity-40' : ''">
+    <div class="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-slate-800" />
     <button
       v-for="(on, i) in dots"
       :key="i"
@@ -31,7 +31,7 @@ const leftPct = (i: number) => (i / props.dots.length) * 100
       :aria-label="`${line} step ${i + 1}`"
       class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       :class="[
-        on ? `h-5 w-5 ${meta.dot} shadow-lg` : 'h-4 w-4 border-2 border-slate-600 bg-slate-800 hover:border-slate-400',
+        on ? `h-6 w-6 ${meta.dot} shadow-lg` : 'h-5 w-5 border-2 border-slate-700 bg-slate-900 hover:border-slate-500',
         current === i ? 'z-10 scale-125 ring-2 ring-white/80' : '',
       ]"
       @click="emit('toggle', i)"

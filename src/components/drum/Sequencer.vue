@@ -35,10 +35,10 @@ const bottomDots = computed(() => props.bottom.dots.slice(0, props.bottom.count)
         @mute-toggle="emit('patch', 'top', { muted: !top.muted })"
       />
     </div>
-    <div class="relative mx-6 py-1 sm:mx-10">
+    <div class="relative mx-6 py-2 sm:mx-10">
       <div
         data-testid="playhead"
-        class="absolute inset-y-0 w-0.5 -translate-x-1/2 rounded-full bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.8)]"
+        class="absolute inset-y-0 w-1 -translate-x-1/2 rounded-full bg-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.9)]"
         :style="{ left: `${progress * 100}%` }"
       />
       <SequencerLine
@@ -49,7 +49,7 @@ const bottomDots = computed(() => props.bottom.dots.slice(0, props.bottom.count)
         :muted="top.muted"
         @toggle="(i) => emit('toggle', 'top', i)"
       />
-      <div class="h-4" />
+      <div class="h-6" />
       <SequencerLine
         line="bottom"
         :dots="bottomDots"
@@ -59,9 +59,9 @@ const bottomDots = computed(() => props.bottom.dots.slice(0, props.bottom.count)
         @toggle="(i) => emit('toggle', 'bottom', i)"
       />
     </div>
-    <div class="mx-6 mt-3 sm:mx-10">
+    <div class="mx-6 mt-4 sm:mx-10">
       <LineHeader
-        label="Bottom line · sets the pulse"
+        label="Bottom line — sets the pulse"
         :count="bottom.count"
         :sound="bottom.sound"
         :muted="bottom.muted"

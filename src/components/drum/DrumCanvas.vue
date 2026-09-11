@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { triggerDrumSound } from '../../lib/drumAudio'
 import { SOUND_META } from '../../lib/drumSounds'
 import { DRUM, swingFor, zonePoint } from '../../lib/geometry'
@@ -10,7 +10,7 @@ import type { Ripple, Strikes, Swing } from '../../types/drum'
 // Must match the CSS transition duration on .ripple-enter-active below.
 const RIPPLE_DURATION_MS = 700
 
-const props = defineProps<{ strikes: Strikes }>()
+const props = defineProps<{ strikes: Strikes; playing: boolean }>()
 
 const ripples = reactive<Ripple[]>([])
 // One mallet per sequencer line: top line plays the left mallet,
@@ -40,6 +40,9 @@ function visualStrike(sound: keyof typeof SOUND_META, dx: number, dy: number, li
 }
 
 function strike(e: PointerEvent) {
+  // A plain <button> already focuses itself on click with correct native
+  // :focus-visible behavior (no ring from a mouse click, a ring when
+  // Tab-focused) — no manual focus/ring management needed here.
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
   const x = (e.clientX - rect.left) / rect.width
   const y = (e.clientY - rect.top) / rect.height
@@ -73,14 +76,64 @@ function watchLineStrikes(line: 'top' | 'bottom') {
 }
 watchLineStrikes('top')
 watchLineStrikes('bottom')
+
+// Q W E / I O P mirror the qwerty row's own left-right symmetry outward-in:
+// Q and P sit at the outer ends, so they play the rim Click zone; E and I
+// sit innermost (closest to the row's centre), so they play the centre
+// Bass zone; W and O in between play Tone — matching the drum's own
+// centre-to-rim zone layout. The arrows are a quick tone strike per side.
+const KEY_MAP: Partial<Record<string, { side: 'left' | 'right'; sound: keyof typeof SOUND_META }>> = {
+  q: { side: 'left', sound: 'click' },
+  w: { side: 'left', sound: 'edge' },
+  e: { side: 'left', sound: 'bass' },
+  arrowleft: { side: 'left', sound: 'edge' },
+  i: { side: 'right', sound: 'bass' },
+  o: { side: 'right', sound: 'edge' },
+  p: { side: 'right', sound: 'click' },
+  arrowright: { side: 'right', sound: 'edge' },
+}
+
+// Bound to the drum element itself (not window) so it only fires while the
+// drum is focused — arrow/letter keys still behave normally everywhere else,
+// including for screen-reader virtual-cursor navigation of the rest of the page.
+function keyStrike(side: 'left' | 'right', sound: keyof typeof SOUND_META) {
+  const [zx, zy] = zonePoint(sound, side)
+  triggerDrumSound(sound, 0)
+  visualStrike(sound, zx, zy, side === 'left' ? 'top' : 'bottom')
+}
+
+function handleKeydown(e: KeyboardEvent) {
+  const mapped = KEY_MAP[e.key.toLowerCase()]
+  if (mapped) {
+    e.preventDefault()
+    keyStrike(mapped.side, mapped.sound)
+  }
+}
+
+const drumEl = ref<HTMLElement | null>(null)
+// Hand the drum keyboard focus the moment playback starts, so the shortcuts
+// are ready to go alongside the sequencer without an extra Tab or click.
+// A plain .focus() call here gets the correct native :focus-visible ring
+// behavior "for free": no ring if Play was clicked, a ring if Play was
+// reached and activated by keyboard.
+watch(
+  () => props.playing,
+  (playing) => {
+    if (playing) drumEl.value?.focus()
+  }
+)
 </script>
 
 <template>
   <div class="flex flex-col items-center gap-4">
-    <div
+    <button
+      ref="drumEl"
+      type="button"
       data-testid="drum-canvas"
-      class="relative aspect-[32/30] w-[min(320px,80vw)] cursor-pointer touch-none select-none"
+      aria-label="Frame drum. Click a spot to strike it. When focused: Q, W, E play the left mallet's click, tone, and bass zones from outer to inner; I, O, P play the right mallet's bass, tone, and click zones from inner to outer; the left and right arrow keys are a quick tone strike on either side."
+      class="relative aspect-[32/30] w-[min(420px,60vw)] cursor-pointer touch-none select-none rounded-[50%] border-0 bg-transparent p-0 drop-shadow-[0_20px_40px_rgba(0,0,0,0.55)] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950 sm:w-[min(420px,78vw)]"
       @pointerdown="strike"
+      @keydown="handleKeydown"
     >
       <!-- ground shadow -->
       <div class="absolute inset-x-[4%] top-[78%] h-[16%] rounded-[50%] bg-black/50 blur-md" />
@@ -121,8 +174,8 @@ watchLineStrikes('bottom')
       <!-- one mallet per sequencer line -->
       <Mallet side="left" :swing="swings.top" />
       <Mallet side="right" :swing="swings.bottom" />
-    </div>
-    <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-slate-400">
+    </button>
+    <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-slate-500">
       <span v-for="(meta, key) in SOUND_META" :key="key" class="flex items-center gap-1.5">
         <SoundDot :dot-class="meta.dot" :label="meta.label" />
       </span>

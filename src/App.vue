@@ -54,21 +54,29 @@ function patchLine(line: 'top' | 'bottom', patch: Partial<Line>) {
 
 <template>
   <div class="min-h-screen bg-slate-950 text-slate-100">
-    <div class="mx-auto max-w-3xl px-4 py-10 sm:py-12">
-      <header class="mb-8 text-center">
-        <h1 class="font-heading text-2xl font-bold tracking-tight sm:text-3xl">
-          Frame Drum &amp; Step Sequencer
+    <div class="mx-auto max-w-3xl px-4 py-8 sm:py-10">
+      <header class="mb-6 text-center">
+        <h1 class="font-heading text-balance text-2xl font-semibold tracking-tight text-stone-300 sm:text-3xl">
+          Frame Drum <span class="italic text-stone-500">&amp;</span> Step Sequencer
         </h1>
-        <p class="mt-2 text-sm text-slate-400">
-          Click the drum to play · toggle steps on either line · pick each line's sound
+        <p class="mt-2.5 text-xs text-stone-500 sm:text-sm">
+          Click the drum, or focus it and drum along on
+          <kbd class="rounded border border-stone-700 bg-stone-800/60 px-1.5 py-0.5 font-sans text-stone-300">Q W E</kbd>
+          /
+          <kbd class="rounded border border-stone-700 bg-stone-800/60 px-1.5 py-0.5 font-sans text-stone-300">I O P</kbd>
         </p>
       </header>
 
       <SoundBanner v-if="soundBlocked" />
 
-      <div class="mb-8 flex items-end justify-center gap-6 sm:gap-10">
-        <DrumCanvas :strikes="strikes" />
-        <Bell :trigger="bellTrigger" />
+      <div class="relative mb-8 flex items-end justify-center gap-2 py-4 sm:gap-10">
+        <div
+          class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(30,41,59,0.55),transparent_65%)]"
+        />
+        <DrumCanvas :strikes="strikes" :playing="playing" />
+        <div class="origin-bottom scale-75 sm:scale-100">
+          <Bell :trigger="bellTrigger" />
+        </div>
       </div>
 
       <section class="mb-6 rounded-xl border border-slate-800 bg-slate-900/70 p-4 sm:p-6">
@@ -85,6 +93,17 @@ function patchLine(line: 'top' | 'bottom', patch: Partial<Line>) {
           />
         </div>
       </section>
+
+      <footer class="pb-2 text-center text-xs text-slate-600">
+        <a
+          href="https://adambailey.io"
+          target="_blank"
+          rel="noopener"
+          class="transition-colors hover:text-slate-400"
+        >
+          &copy; Adam Bailey
+        </a>
+      </footer>
     </div>
   </div>
 </template>
