@@ -1,0 +1,59 @@
+name: FrameBeat
+options:
+  createIntermediateGroups: true
+  deploymentTarget:
+    macOS: "14.0"
+
+packages:
+  FrameBeatCore:
+    path: FrameBeatCore
+
+targets:
+  FrameBeat:
+    type: application
+    platform: macOS
+    sources:
+      - path: FrameBeat
+        excludes:
+          - "Resources/Fonts/**"
+      - path: FrameBeat/Resources/Fonts
+        type: folder
+    dependencies:
+      - package: FrameBeatCore
+        product: FrameBeatCore
+    settings:
+      base:
+        PRODUCT_NAME: FrameBeat
+        PRODUCT_BUNDLE_IDENTIFIER: io.adambailey.framebeat
+        MARKETING_VERSION: "0.1"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+        ENABLE_HARDENED_RUNTIME: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: FrameBeat/Info.plist
+        CODE_SIGN_ENTITLEMENTS: FrameBeat/FrameBeat.entitlements
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_ASSET_PATHS: ""
+    info:
+      path: FrameBeat/Info.plist
+      properties:
+        CFBundleDisplayName: FrameBeat
+        CFBundleName: "$(PRODUCT_NAME)"
+        CFBundleExecutable: "$(EXECUTABLE_NAME)"
+        CFBundleIdentifier: "$(PRODUCT_BUNDLE_IDENTIFIER)"
+        CFBundlePackageType: APPL
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleInfoDictionaryVersion: "6.0"
+        LSMinimumSystemVersion: "$(MACOSX_DEPLOYMENT_TARGET)"
+        LSApplicationCategoryType: public.app-category.music
+        NSPrincipalClass: NSApplication
+        NSHumanReadableCopyright: "© 2026 Adam Bailey"
+        ITSAppUsesNonExemptEncryption: false
+        ATSApplicationFontsPath: "Fonts/"
+    entitlements:
+      path: FrameBeat/FrameBeat.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
