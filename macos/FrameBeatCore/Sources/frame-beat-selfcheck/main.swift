@@ -10,7 +10,10 @@ import Foundation
 // survives and travels with the repo. Re-run the real XCTest suite once
 // `swift test` works and consider retiring this once that's confirmed.
 
-var failures = 0
+// Swift 6's strict concurrency checking treats top-level `var`s in a `main`
+// file as main-actor-isolated; `nonisolated(unsafe)` is safe here since this
+// script is single-threaded and top-to-bottom.
+nonisolated(unsafe) var failures = 0
 func check(_ name: String, _ pass: Bool) {
     print(pass ? "ok   \(name)" : "FAIL \(name)")
     if !pass { failures += 1 }
