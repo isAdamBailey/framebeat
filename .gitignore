@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# macOS native port (Swift/Xcode)
+macos/**/.build/
+macos/**/*.xcodeproj/xcuserdata/
+macos/**/*.xcodeproj/project.xcworkspace/xcuserdata/
+macos/**/*.xcworkspace/xcuserdata/
+macos/**/DerivedData/
+macos/**/*.moved-aside
