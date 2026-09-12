@@ -6,7 +6,10 @@ import FrameBeatCore
 /// when this stopped being a pre-render/player-node-pool shortcut and
 /// became the real thing.
 public final class RealtimeAudio {
-    private let engine: LiveAudioEngine
+    /// Exposed so `LiveSequencer` (Phase 4) can trigger against the exact
+    /// same engine instance/clock that direct drum taps use — otherwise the
+    /// sequencer's `now` and a tap's `now` would be two unrelated clocks.
+    public let engine: LiveAudioEngine
 
     public init() {
         engine = LiveAudioEngine()

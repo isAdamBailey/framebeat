@@ -203,19 +203,41 @@ private struct RippleAnimator: ViewModifier {
     }
 }
 
+/// Ported from `Mallet.vue`'s box model, since that's what
+/// `DrumGeometry.swing`'s numbers are computed against:
+///
+/// - The mallet's container div is `bottom-[2%] left-[2%]` (or `right-[2%]`
+///   for the right mallet), sized `h-[58%] w-[38%]` of the drum
+///   illustration — i.e. anchored by its own edge, not centered on the
+///   pivot point.
+/// - Its `transform-origin` is `12% 96%` (left) / `88% 96%` (right) *within
+///   that box* — an off-center point near the bottom-outer corner, not
+///   plain bottom-center. Rotating around bottom-center instead (as an
+///   earlier version of this file did) visibly misaims every strike.
+/// - The animated transform is `translate(x%, y%) rotate(rot deg)`, and CSS
+///   composes that as "rotate first (around transform-origin), then
+///   translate" — matching SwiftUI's `.rotationEffect` before `.offset`
+///   below, since each later modifier acts in the outer/parent space.
+/// - The stick itself carries its own *static* tilt (`rotate-[24deg]` /
+///   `rotate-[-24deg]`) independent of the animated transform —
+///   `DrumGeometry.swing`'s rotation is relative to that rest tilt
+///   (`angle - baseRot`), so it must be added back here since this view has
+///   no separate static-tilt inner element.
 private struct MalletView: View {
     let side: DrumGeometry.Side
     let state: SwingState
     let containerSize: CGSize
 
     var body: some View {
-        let pivotCanvas = side == .left ? (x: 6.56, y: 89.7) : (x: 93.44, y: 89.7)
-        let pivot = CGPoint(
-            x: pivotCanvas.x / DrumGeometry.canvasW * containerSize.width,
-            y: pivotCanvas.y / DrumGeometry.canvasH * containerSize.height
-        )
         let boxW = 0.38 * containerSize.width
         let boxH = 0.58 * containerSize.height
+        let marginX = 0.02 * containerSize.width
+        let marginBottom = 0.02 * containerSize.height
+        let boxOriginX = side == .left ? marginX : containerSize.width - marginX - boxW
+        let boxOriginY = containerSize.height - marginBottom - boxH
+        let boxCenter = CGPoint(x: boxOriginX + boxW / 2, y: boxOriginY + boxH / 2)
+        let anchor: UnitPoint = side == .left ? UnitPoint(x: 0.12, y: 0.96) : UnitPoint(x: 0.88, y: 0.96)
+        let baseRotation = DrumGeometry.baseRotationDegrees(side: side)
 
         ZStack(alignment: .bottom) {
             Capsule()
@@ -227,8 +249,8 @@ private struct MalletView: View {
                 .offset(y: -boxH * 0.78)
         }
         .frame(width: boxW, height: boxH, alignment: .bottom)
-        .rotationEffect(.degrees(state.rotation), anchor: .bottom)
+        .rotationEffect(.degrees(state.rotation + baseRotation), anchor: anchor)
         .offset(x: state.dx * boxW, y: state.dy * boxH)
-        .position(x: pivot.x, y: pivot.y - boxH / 2)
+        .position(boxCenter)
     }
 }
