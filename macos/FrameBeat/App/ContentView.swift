@@ -52,11 +52,7 @@ struct ContentView: View {
                     .frame(width: 80)
 
                     Slider(value: $appState.bpm, in: 40...200, step: 1)
-                        .onChange(of: appState.bpm) { _, newValue in
-                            if playing {
-                                sequencer?.update(top: appState.top, bottom: appState.bottom, bpm: newValue)
-                            }
-                        }
+                        .onChange(of: appState.bpm) { _, _ in reanchorIfPlaying() }
                     Text("\(Int(appState.bpm)) BPM")
                         .font(.system(.body, design: .serif).weight(.bold))
                         .frame(width: 70, alignment: .trailing)
@@ -64,7 +60,14 @@ struct ContentView: View {
                 .frame(width: 360)
 
                 stepRow(label: "Top (\(appState.top.count), \(appState.top.sound.rawValue))", current: currentTop, count: appState.top.count, color: soundColor(appState.top.sound))
+                Stepper("Top steps: \(appState.top.count)", value: $appState.top.count, in: 1...16)
+                    .onChange(of: appState.top.count) { _, _ in reanchorIfPlaying() }
+                    .frame(width: 360, alignment: .leading)
+
                 stepRow(label: "Bottom (\(appState.bottom.count), \(appState.bottom.sound.rawValue))", current: currentBottom, count: appState.bottom.count, color: soundColor(appState.bottom.sound))
+                Stepper("Bottom steps: \(appState.bottom.count)", value: $appState.bottom.count, in: 1...16)
+                    .onChange(of: appState.bottom.count) { _, _ in reanchorIfPlaying() }
+                    .frame(width: 360, alignment: .leading)
             }
         }
         .padding(32)
@@ -91,6 +94,12 @@ struct ContentView: View {
             }
         }
         .frame(width: 360, alignment: .leading)
+    }
+
+    private func reanchorIfPlaying() {
+        if playing {
+            sequencer?.update(top: appState.top, bottom: appState.bottom, bpm: appState.bpm)
+        }
     }
 
     private func togglePlay() {

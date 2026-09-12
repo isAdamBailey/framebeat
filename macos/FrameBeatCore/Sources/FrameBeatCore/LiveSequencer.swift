@@ -37,6 +37,9 @@ public final class LiveSequencer {
     private var bottomIndex = 0
     private var topIndex = 0
     private var reanchorRequested = false
+    private var pendingTop: Line?
+    private var pendingBottom: Line?
+    private var pendingBpm: Double?
 
     private enum QueueEvent {
         case bell(sample: Int64)
@@ -92,17 +95,24 @@ public final class LiveSequencer {
     }
 
     /// Update the pattern/tempo. If the bar shape actually changed (bpm or
-    /// either line's step count), re-anchors both streams together on the
-    /// next scheduler tick — mirrors `useSequencer.ts`'s `watch([bpm,
-    /// top.count, bottom.count])`. Sound/mute/dot changes take effect on
-    /// the next natural step without needing a re-anchor.
+    /// either line's step count), the new values are held as pending and
+    /// swapped in exactly on the next bar boundary — mirrors
+    /// `useSequencer.ts`'s `watch([bpm, top.count, bottom.count])`. Until
+    /// then, scheduling continues under the *old* shape so the current bar
+    /// isn't truncated and no events collide with what's already been
+    /// committed to the audio engine. Sound/mute/dot changes (no shape
+    /// change) take effect immediately, on the next natural step.
     public func update(top: Line, bottom: Line, bpm: Double) {
         if top.count != self.top.count || bottom.count != self.bottom.count || bpm != self.bpm {
+            pendingTop = top
+            pendingBottom = bottom
+            pendingBpm = bpm
             reanchorRequested = true
+        } else {
+            self.top = top
+            self.bottom = bottom
+            self.bpm = bpm
         }
-        self.top = top
-        self.bottom = bottom
-        self.bpm = bpm
     }
 
     private func anchor(atSample sample: Int64) {
@@ -121,11 +131,38 @@ public final class LiveSequencer {
 
     private func scheduleTick() {
         guard isPlaying else { return }
-        if reanchorRequested {
-            reanchorRequested = false
-            anchor(atSample: engine.now + Int64(0.05 * engine.sampleRate))
-        }
         let horizon = engine.now + Int64(0.12 * engine.sampleRate)
+        if reanchorRequested {
+            performReanchor(notBefore: horizon)
+        }
+        scheduleUpTo(horizon)
+    }
+
+    /// Finishes the current (old-shape) bar up to its next boundary at or
+    /// after `notBefore`, then swaps in the pending top/bottom/bpm and
+    /// re-anchors exactly there. Booking the old shape right up to the
+    /// boundary — rather than jumping straight to the new anchor — means
+    /// nothing already committed to the engine (everything before
+    /// `notBefore`) is ever contradicted or duplicated, and the visual
+    /// queue never gets an out-of-order entry needing a separate flush.
+    private func performReanchor(notBefore: Int64) {
+        let barDurationSamples = Int64((barDuration * engine.sampleRate).rounded())
+        let boundary = LiveScheduleMath.nextBarBoundary(anchorSample: anchorSample, barDurationSamples: barDurationSamples, notBefore: notBefore)
+        scheduleUpTo(boundary)
+
+        if let newTop = pendingTop, let newBottom = pendingBottom, let newBpm = pendingBpm {
+            top = newTop
+            bottom = newBottom
+            bpm = newBpm
+        }
+        pendingTop = nil
+        pendingBottom = nil
+        pendingBpm = nil
+        reanchorRequested = false
+        anchor(atSample: boundary)
+    }
+
+    private func scheduleUpTo(_ horizon: Int64) {
         while bottomSample(bottomIndex) < horizon || topSample(topIndex) < horizon {
             let bSample = bottomSample(bottomIndex)
             let tSample = topSample(topIndex)
