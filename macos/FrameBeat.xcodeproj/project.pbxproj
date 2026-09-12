@@ -13,12 +13,14 @@
 		7B9B4BDB08A814CA83651788 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14AE6343DFC26F2BD0783A16 /* AppState.swift */; };
 		A28DF4423A1DEFFDFB4A1DBF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66C2365E6E6A96A2C4167F6 /* ContentView.swift */; };
 		ACAF7E39CC9E3FA59FEC6F14 /* DrumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66FBDAD471A46E912491E015 /* DrumView.swift */; };
+		B40827E549662DBCA1984A5D /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240B0DBD01B70590BC0920C0 /* Theme.swift */; };
 		E8030AE80668C474378E0350 /* RealtimeAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E0931B6F83A3494B7C486F0 /* RealtimeAudio.swift */; };
 		F515AD3071DCE47DCF79E805 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 6BD7DD2C38724316F42E2D56 /* Fonts */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		14AE6343DFC26F2BD0783A16 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		240B0DBD01B70590BC0920C0 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		372290A9EED2105933756168 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		66FBDAD471A46E912491E015 /* DrumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrumView.swift; sourceTree = "<group>"; };
 		6BD7DD2C38724316F42E2D56 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = FrameBeat/Resources/Fonts; sourceTree = SOURCE_ROOT; };
@@ -43,6 +45,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0C2E9DC7FCD886706557665D /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				240B0DBD01B70590BC0920C0 /* Theme.swift */,
+			);
+			path = Design;
+			sourceTree = "<group>";
+		};
 		1E69155204AF200B74CC19EC /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -83,6 +93,7 @@
 				7119459FE361F18A90411EBC /* Info.plist */,
 				418E69ADF34EC2B78F359089 /* App */,
 				72908C618BBF3023E1F1CE14 /* Audio */,
+				0C2E9DC7FCD886706557665D /* Design */,
 				E94C91F51D1FD0A45532007E /* Model */,
 				EC05BA33512DC3AC6EE9F154 /* Resources */,
 				EB40EBB8586E5218CC557513 /* Views */,
@@ -213,6 +224,7 @@
 				ACAF7E39CC9E3FA59FEC6F14 /* DrumView.swift in Sources */,
 				00AA8F1B8E57CE064B3B5CE9 /* FrameBeatApp.swift in Sources */,
 				E8030AE80668C474378E0350 /* RealtimeAudio.swift in Sources */,
+				B40827E549662DBCA1984A5D /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,13 +1,11 @@
 import SwiftUI
 import FrameBeatCore
 
-// Phase 1 scaffold content, carried over from FrameBeatCore's
-// FrameBeatDemo package target (which stays in place as a lightweight,
-// no-Xcode-build way to smoke-test engine/geometry changes). Uses the
-// real Phase 3/4 engine end to end: LiveAudioEngine for sample-accurate
-// playback and LiveSequencer for drift-free scheduling, plus Phase 2's
-// AppState for the shared model. NOT Phase 5's final UI — no DESIGN.md
-// token layer or transport-panel styling pass yet.
+// Phase 1 scaffold content. Uses the real Phase 3/4 engine end to end:
+// LiveAudioEngine for sample-accurate playback and LiveSequencer for
+// drift-free scheduling, plus Phase 2's AppState for the shared model.
+// NOT Phase 5's final UI — no DESIGN.md token layer or transport-panel
+// styling pass yet.
 
 struct ContentView: View {
     @State private var appState = AppState()
@@ -25,10 +23,10 @@ struct ContentView: View {
         VStack(spacing: 24) {
             VStack(spacing: 4) {
                 Text("FrameBeat")
-                    .font(.system(size: 30, weight: .semibold, design: .serif))
+                    .font(Theme.Typography.display())
                 Text("Click the drum, or press Play")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(Theme.Typography.body)
+                    .foregroundStyle(Theme.Color.labelMuted)
             }
 
             DrumView(
@@ -52,40 +50,46 @@ struct ContentView: View {
                     .frame(width: 80)
 
                     Slider(value: $appState.bpm, in: 40...200, step: 1)
+                        .tint(Theme.Color.bassSky)
                         .onChange(of: appState.bpm) { _, _ in reanchorIfPlaying() }
                     Text("\(Int(appState.bpm)) BPM")
-                        .font(.system(.body, design: .serif).weight(.bold))
+                        .font(Theme.Typography.numeral(size: 20))
                         .frame(width: 70, alignment: .trailing)
                 }
                 .frame(width: 360)
 
-                stepRow(label: "Top (\(appState.top.count), \(appState.top.sound.rawValue))", current: currentTop, count: appState.top.count, color: soundColor(appState.top.sound))
-                Stepper("Top steps: \(appState.top.count)", value: $appState.top.count, in: 1...16)
-                    .onChange(of: appState.top.count) { _, _ in reanchorIfPlaying() }
-                    .frame(width: 360, alignment: .leading)
-
-                stepRow(label: "Bottom (\(appState.bottom.count), \(appState.bottom.sound.rawValue))", current: currentBottom, count: appState.bottom.count, color: soundColor(appState.bottom.sound))
-                Stepper("Bottom steps: \(appState.bottom.count)", value: $appState.bottom.count, in: 1...16)
-                    .onChange(of: appState.bottom.count) { _, _ in reanchorIfPlaying() }
-                    .frame(width: 360, alignment: .leading)
+                lineRow(label: "Top line", sound: appState.top.sound, current: currentTop, count: $appState.top.count) { reanchorIfPlaying() }
+                lineRow(label: "Bottom line", sound: appState.bottom.sound, current: currentBottom, count: $appState.bottom.count) { reanchorIfPlaying() }
             }
         }
         .padding(32)
-        .frame(width: 460, height: 620)
-        .background(Color(red: 0.008, green: 0.023, blue: 0.09))
-        .foregroundStyle(.white)
+        .frame(width: 460, height: 640)
+        .background(Theme.Color.stage)
+        .foregroundStyle(Theme.Color.ink)
         .preferredColorScheme(.dark)
     }
 
-    private func stepRow(label: String, current: Int?, count: Int, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(label)
-                .font(.system(size: 11, weight: .semibold))
-                .tracking(1.2)
-                .textCase(.uppercase)
-                .foregroundStyle(.secondary)
+    private func lineRow(label: String, sound: Sound, current: Int?, count: Binding<Int>, onCountChange: @escaping () -> Void) -> some View {
+        let color = Theme.Color.forSound(sound)
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text(label.uppercased())
+                    .font(Theme.Typography.label)
+                    .tracking(1.4)
+                    .foregroundStyle(Theme.Color.labelMuted)
+                Text(sound.rawValue.uppercased())
+                    .font(Theme.Typography.label)
+                    .tracking(1.4)
+                    .foregroundStyle(color)
+                Spacer()
+                Text("\(count.wrappedValue)")
+                    .font(Theme.Typography.numeral(size: 24))
+                Stepper("", value: count, in: 1...16)
+                    .labelsHidden()
+                    .onChange(of: count.wrappedValue) { _, _ in onCountChange() }
+            }
             HStack(spacing: 8) {
-                ForEach(0..<count, id: \.self) { i in
+                ForEach(0..<count.wrappedValue, id: \.self) { i in
                     Circle()
                         .fill(i == current ? color : Color.white.opacity(0.12))
                         .frame(width: i == current ? 16 : 12, height: i == current ? 16 : 12)

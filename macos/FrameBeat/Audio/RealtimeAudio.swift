@@ -1,10 +1,7 @@
 import FrameBeatCore
 
-/// Thin demo-app wrapper around `LiveAudioEngine` (the real Phase 3
-/// real-time engine, now implemented in FrameBeatCore) — kept as its own
-/// type so `ContentView`/`DrumView`/`DemoSequencer` didn't need to change
-/// when this stopped being a pre-render/player-node-pool shortcut and
-/// became the real thing.
+/// Thin app-side wrapper around `LiveAudioEngine` (the real Phase 3
+/// real-time engine, implemented in FrameBeatCore).
 public final class RealtimeAudio {
     /// Exposed so `LiveSequencer` (Phase 4) can trigger against the exact
     /// same engine instance/clock that direct drum taps use — otherwise the

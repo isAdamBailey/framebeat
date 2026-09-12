@@ -1,13 +1,16 @@
-# FrameBeat for macOS — native port
+# FrameBeat for macOS
 
-Status: **Phase 1 of the port plan** (Xcode app project scaffold) done on
-top of Phase 3/4 (synth engine + polyrhythm scheduler), which are
-implemented and verified as a standalone Swift package, `FrameBeatCore`.
-See `/Users/adambailey/.claude/plans/what-steps-do-i-abundant-turing.md`
-(or ask Claude to re-surface it) for the full phased plan through App
-Store submission. Phase 0 (Apple Developer Program enrollment, bundle ID,
-privacy policy URL) is not done — needed before Phase 6/7 (store
-submission), not before further UI/engine work.
+A native SwiftUI port of FrameBeat — a frame drum and polyrhythmic step
+sequencer. Click the drum to play it directly, or program two step lines
+(each with its own step count, sound, and mute) and hit play; the bottom
+line sets the tempo/bar length, the top line divides the same bar into its
+own step count, so the two lines run independent polyrhythms while always
+landing together on beat one.
+
+All audio is synthesized live (no samples) via a custom `AVAudioEngine`
+render graph. There's no backend, database, or persistence — all state is
+in-memory for the current session, matching the web app this is ported
+from (see the repo root's `CLAUDE.md`/`DESIGN.md`).
 
 ## What's here
 
@@ -15,33 +18,31 @@ submission), not before further UI/engine work.
 macos/project.yml               xcodegen spec for FrameBeat.xcodeproj — edit this,
                                  not the generated project, then `xcodegen generate`
 macos/FrameBeat.xcodeproj/      generated Xcode project (tracked; regenerate, don't hand-edit)
-macos/FrameBeat/                the real app target
+macos/FrameBeat/                the app target
   App/                           FrameBeatApp.swift (SwiftUI @main), ContentView.swift
   Audio/                         RealtimeAudio.swift
+  Model/                         AppState.swift — @Observable bpm/top/bottom/strikes/bellTrigger
   Views/Drum/                    DrumView.swift
-  Model/, Sequencer/, Design/    empty — Phase 2/5 work
-  Resources/                     Assets.xcassets (AppIcon placeholder — real art is
-                                 still Phase 5), Fonts/ (bundled Fraunces, OFL license)
+  Design/                        Theme.swift — DESIGN.md color/typography tokens
+  Sequencer/                     SequencerLineView etc.
+  Resources/                     Assets.xcassets (AppIcon), Fonts/ (bundled Fraunces TTF, OFL license)
 macos/FrameBeatCore/
   Package.swift
-  Sources/FrameBeatCore/       the ported engine (library), used by both FrameBeat and FrameBeatDemo
-    Sound.swift                 Sound/Line — from src/types/drum.ts
+  Sources/FrameBeatCore/       the synth/scheduler engine (library), depended on by FrameBeat
+    Sound.swift                 Sound/Line/Strike/Strikes — from src/types/drum.ts
     Envelope.swift               Web Audio AudioParam automation (exp ramps)
     Biquad.swift                 lowpass/highpass/bandpass filter coefficients
     DrumSynth.swift               the four voices — 1:1 port of src/lib/drumAudio.ts
-    Sequencer.swift               polyrhythm event generator — from useSequencer.ts
-    LiveSequencer.swift/LiveScheduleMath.swift  real-time look-ahead scheduler (Phase 4)
+    Sequencer.swift               offline polyrhythm event generator — from useSequencer.ts
+    LiveAudioEngine.swift         real-time AVAudioEngine/AVAudioSourceNode graph
+    LiveSequencer.swift/LiveScheduleMath.swift  real-time look-ahead scheduler
     WavWriter.swift               plain PCM16 WAV writer, no AVFoundation needed
-  Sources/FrameBeatDemo/        SwiftUI demo app, runnable as a bare executable — no
-                                 Xcode build/signing needed, useful for quick iteration;
-                                 FrameBeat/ (the real app target) is a copy of this content
-                                 wired into a proper sandboxed Xcode project instead
   Sources/frame-beat-render/    CLI: renders a pattern to WAV + prints timing checks
-  Sources/frame-beat-selfcheck/ CLI: 11-check regression suite (belt-and-braces alongside XCTest)
+  Sources/frame-beat-selfcheck/ CLI: regression suite (belt-and-braces alongside XCTest)
   Tests/FrameBeatCoreTests/     XCTest suite
 ```
 
-## Build & run the app (Phase 1 scaffold)
+## Build & run the app
 
 ```bash
 cd macos
@@ -52,23 +53,29 @@ open "$(xcodebuild -project FrameBeat.xcodeproj -scheme FrameBeat -configuration
 
 Or just open `macos/FrameBeat.xcodeproj` in Xcode and hit Run. The app
 builds sandboxed (`com.apple.security.app-sandbox`) with hardened runtime
-on, per the plan's Phase 1 capabilities — confirm with `codesign -dv
---entitlements - FrameBeat.app`. `xcodegen` is required to regenerate the
-project after editing `project.yml` (`brew install xcodegen`); the
-`.xcodeproj` itself is tracked in git so a fresh clone can build without it.
+on — confirm with `codesign -dv --entitlements - FrameBeat.app`. `xcodegen`
+is required to regenerate the project after editing `project.yml` (`brew
+install xcodegen`); the `.xcodeproj` itself is tracked in git so a fresh
+clone can build without it.
+
+**If the app is already running when you rebuild**, `open` just refocuses
+the existing (stale) process instead of relaunching the new build — quit it
+first (`osascript -e 'tell application id "io.adambailey.framebeat" to quit'`)
+or use `open -n` to force a new instance.
 
 Every voice's envelope timings/values, and the scheduler's bar/step math, are
 copied verbatim from `src/lib/drumAudio.ts` and
 `src/composables/useSequencer.ts` — see the doc comments in each Swift file
-for the mapping.
+for the mapping. Anything touching playback timing needs a real by-ear check
+in the running app, not just `swift test`.
 
-## Build & test
+## Build & test the engine package
 
 ```bash
 cd macos/FrameBeatCore
 swift build
-swift test                          # 9 XCTest cases
-swift run frame-beat-selfcheck      # 11 regression checks, same ground as XCTest
+swift test                          # 13 XCTest cases
+swift run frame-beat-selfcheck      # regression checks, same ground as XCTest
 swift run frame-beat-render --bpm 90 --top 3 --top-sound edge \
   --bottom 4 --bottom-sound bass --bars 4 --out pattern.wav
 ```
@@ -76,8 +83,7 @@ swift run frame-beat-render --bpm 90 --top 3 --top-sound edge \
 Requires Xcode installed with its license accepted (`sudo xcodebuild
 -license`) — without that, `swift build`/`swift test` fail with `error:
 'framebeatcore': Invalid manifest ...` even on a trivial manifest, which is
-`xcrun`'s license gate breaking SwiftPM, not a bug here. Confirmed fixed
-once the license was accepted.
+`xcrun`'s license gate breaking SwiftPM, not a bug here.
 
 `frame-beat-selfcheck` includes golden impulse-response samples captured
 from a live `OfflineAudioContext` in Chrome for each of the three filter
@@ -96,11 +102,7 @@ is not directly A/B-able against a web-app recording** — see the comment on
 `OfflineRenderer`'s noise table in `DrumSynth.swift` for why; compare
 individual voices/filters instead of whole renders.
 
-## Still unverified — do this before Phase 1 UI work
-
-**Listen and compare** the two apps by ear (`npm run dev` for the web
-version alongside `frame-beat-render`'s WAV output for individual strikes).
-Two specific things flagged during the port:
+## Known audio differences from the web app
 
 - `DrumSynth.swift`'s triangle oscillator is a plain (non-band-limited)
   triangle wave; Web Audio's built-in triangle oscillator is band-limited.
@@ -112,10 +114,13 @@ Two specific things flagged during the port:
   against each other even if the filters are correct — judge them by ear/
   spectrum shape, not by diffing samples.
 
-## Next: Phase 1 (Xcode project scaffold)
+## Fonts
 
-This package becomes the `FrameBeatCore` dependency of the app target, with
-`DrumSynth`'s offline voice-rendering math reused inside an
-`AVAudioSourceNode` render callback for real-time playback (see Phase 3 in
-the plan for the realtime wrapper design, including the accumulation-vs-
-multiplication note for the scheduler).
+Fraunces is bundled as a plain TTF (`FrameBeat/Resources/Fonts/`),
+registered via `ATSApplicationFontsPath`. **`ATSApplicationFontsPath` does
+not register `.woff2`** — the npm `@fontsource-variable/fraunces` package
+only ships `.woff2` files, so the TTF here was produced with `woff2_decompress`
+(`brew install woff2`) from `node_modules/@fontsource-variable/fraunces/files/fraunces-latin-soft-normal.woff2`.
+If a different weight/style is ever needed, convert the corresponding
+`.woff2` the same way rather than assuming any given file in that package
+will register as-is.

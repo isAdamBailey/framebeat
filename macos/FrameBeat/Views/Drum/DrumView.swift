@@ -170,14 +170,8 @@ struct DrumView: View {
     }
 }
 
-/// The three sound accents from DESIGN.md — used here directly; a
-/// Theme.swift token layer is still Phase 5 work.
 func soundColor(_ sound: Sound) -> Color {
-    switch sound {
-    case .bass: return Color(red: 0.22, green: 0.74, blue: 0.97)
-    case .edge: return Color(red: 0.98, green: 0.75, blue: 0.14)
-    case .click: return Color(red: 0.98, green: 0.45, blue: 0.09)
-    }
+    Theme.Color.forSound(sound)
 }
 
 /// A strike arriving from the sequencer (as opposed to a direct tap) —

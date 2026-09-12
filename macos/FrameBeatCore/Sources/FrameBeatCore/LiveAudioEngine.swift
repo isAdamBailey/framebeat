@@ -7,12 +7,10 @@ import os
 /// clock, so `trigger(_:atSample:)` with a future sample starts exactly on
 /// that sample — the native equivalent of Web Audio's `osc.start(t)`.
 ///
-/// This replaces `FrameBeatDemo`'s `RealtimeAudio.swift` shortcut (which
-/// pre-renders each hit to a buffer and hands it to a player-node pool).
-/// That approach works for a demo but can't guarantee sample-accurate start
-/// times or avoid per-hit allocation/rendering overhead; this engine does
-/// both properly by rendering incrementally, sample by sample, inside the
-/// real-time callback itself.
+/// Renders incrementally, sample by sample, inside the real-time callback
+/// itself, rather than pre-rendering each hit to a buffer and handing it to
+/// a player-node pool — that alternative can't guarantee sample-accurate
+/// start times or avoid per-hit allocation/rendering overhead.
 public final class LiveAudioEngine {
     private let engine = AVAudioEngine()
     private let format: AVAudioFormat

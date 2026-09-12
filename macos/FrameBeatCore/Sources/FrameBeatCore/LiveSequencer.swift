@@ -2,12 +2,11 @@ import Foundation
 
 /// The Phase 4 real-time scheduler: a 25ms look-ahead timer booking both
 /// step streams onto `LiveAudioEngine`'s own sample clock, matching
-/// `useSequencer.ts`'s `scheduler()`/`anchor()` design. This replaces
-/// `FrameBeatDemo`'s `DemoSequencer` shortcut (a fixed batch of events
-/// fired with `DispatchQueue.main.asyncAfter`), which drifts over time
-/// because `asyncAfter` measures against wall-clock time subject to main-
-/// run-loop scheduling jitter, not the audio hardware's own clock — and
-/// can't re-anchor mid-play at all.
+/// `useSequencer.ts`'s `scheduler()`/`anchor()` design. Booking against the
+/// engine's own sample clock (rather than firing events with
+/// `DispatchQueue.main.asyncAfter`, which measures wall-clock time subject
+/// to main-run-loop scheduling jitter) is what makes this drift-free and
+/// able to re-anchor mid-play.
 ///
 /// Each step's sample time is computed as `anchor + stepIndex *
 /// stepDuration` (see `LiveScheduleMath`), not by accumulating a running
