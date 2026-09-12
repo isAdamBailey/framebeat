@@ -22,6 +22,17 @@ public enum DrumGeometry {
     private static let leftBaseRot = 24.0
     private static let rightBaseRot = -24.0
 
+    /// The mallet's own static rest tilt (`Mallet.vue`'s stick div has its
+    /// own `rotate-[24deg]`/`rotate-[-24deg]` Tailwind class, independent of
+    /// the animated swing transform). `swing(side:gx:gy:)`'s returned
+    /// rotation is *relative to this rest tilt* (`angle - baseRot`) — a
+    /// renderer with only one rotatable mallet element (no separate static-
+    /// tilt inner stick) needs to add this back to get the same absolute
+    /// angle Mallet.vue ends up at.
+    public static func baseRotationDegrees(side: Side) -> Double {
+        side == .left ? leftBaseRot : rightBaseRot
+    }
+
     public static let reach = 0.7 * 0.58 * canvasH // felt-tip distance from the pivot
 
     // Each mallet rests on the frame's side — that resting spot is the Click

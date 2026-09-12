@@ -136,6 +136,29 @@ do {
     check("live-engine voices (bass/edge/click) produce bounded, non-NaN audio", allOK)
 }
 
+// --- LiveScheduleMath: the same "multiply from anchor" bar-lock invariant --
+// as the offline Sequencer, but in the sample domain that LiveSequencer
+// actually schedules in.
+do {
+    let sr = 48000.0
+    let bpm = 90.0
+    let topCount = 3, bottomCount = 4
+    let beatDur = 60.0 / bpm
+    let barDur = beatDur * Double(bottomCount)
+    let topStepDur = barDur / Double(topCount)
+    let anchorSample: Int64 = 12345 // arbitrary, non-zero anchor like a real re-anchor would produce
+
+    var allBarsLock = true
+    for bar in 0..<8 {
+        let bottomZeroIdx = bar * bottomCount
+        let topZeroIdx = bar * topCount
+        let bSample = LiveScheduleMath.sampleTime(anchorSample: anchorSample, stepIndex: bottomZeroIdx, stepDurationSeconds: beatDur, sampleRate: sr)
+        let tSample = LiveScheduleMath.sampleTime(anchorSample: anchorSample, stepIndex: topZeroIdx, stepDurationSeconds: topStepDur, sampleRate: sr)
+        if bSample != tSample { allBarsLock = false }
+    }
+    check("LiveScheduleMath: bottom/top step 0 land on the identical sample every bar", allBarsLock)
+}
+
 let unevenEvents = Sequencer.generateEvents(
     top: Line(count: 7, sound: .click), bottom: Line(count: 5, sound: .bass), bpm: 120, bars: 6
 )

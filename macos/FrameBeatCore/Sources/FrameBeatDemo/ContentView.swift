@@ -2,9 +2,11 @@ import SwiftUI
 import FrameBeatCore
 
 // Minimal proof-of-life for the ported Swift engine — NOT Phase 5's final
-// UI (no DESIGN.md token layer, no transport-panel styling pass yet), but
-// DrumView now exercises the real geometry math end to end: tap the drum,
-// the mallet swings to the exact zone and a ripple lands where you tapped.
+// UI. Now uses the real Phase 3/4 engine end to end: LiveAudioEngine for
+// sample-accurate playback and LiveSequencer for drift-free scheduling
+// (replacing the earlier DemoSequencer/DispatchQueue.asyncAfter shortcut,
+// which drifted over time since it measured against wall-clock timers
+// rather than the audio hardware's own clock).
 
 struct ContentView: View {
     @State private var bpm: Double = 90
@@ -14,9 +16,10 @@ struct ContentView: View {
     @State private var topStrike: StrikeEvent?
     @State private var bottomStrike: StrikeEvent?
     @State private var strikeIdCounter = 0
+    @State private var playing = false
 
     private let audio = RealtimeAudio()
-    @State private var sequencer: DemoSequencer?
+    @State private var sequencer: LiveSequencer?
 
     private let topCount = 3
     private let bottomCount = 4
@@ -45,13 +48,18 @@ struct ContentView: View {
 
             VStack(spacing: 14) {
                 HStack(spacing: 16) {
-                    Button(sequencer?.isPlaying == true ? "Pause" : "Play") {
+                    Button(playing ? "Pause" : "Play") {
                         togglePlay()
                     }
                     .keyboardShortcut(.space, modifiers: [])
                     .frame(width: 80)
 
                     Slider(value: $bpm, in: 40...200, step: 1)
+                        .onChange(of: bpm) { _, newValue in
+                            if playing {
+                                sequencer?.update(top: Line(count: topCount, sound: .edge), bottom: Line(count: bottomCount, sound: .bass), bpm: newValue)
+                            }
+                        }
                     Text("\(Int(bpm)) BPM")
                         .font(.system(.body, design: .serif).weight(.bold))
                         .frame(width: 70, alignment: .trailing)
@@ -89,30 +97,33 @@ struct ContentView: View {
     }
 
     private func togglePlay() {
-        if sequencer?.isPlaying == true {
+        if playing {
             sequencer?.stop()
+            playing = false
             currentTop = nil
             currentBottom = nil
         } else {
             let top = Line(count: topCount, sound: .edge)
             let bottom = Line(count: bottomCount, sound: .bass)
-            let seq = DemoSequencer(audio: audio)
-            seq.onStep = { line, index in
+            let seq = LiveSequencer(engine: audio.engine, top: top, bottom: bottom, bpm: bpm)
+            seq.onIndexUpdate = { line, index in
+                if line == .top { currentTop = index } else { currentBottom = index }
+            }
+            seq.onStrike = { line, _, sound in
                 strikeIdCounter += 1
                 if line == .top {
-                    currentTop = index
-                    topStrike = StrikeEvent(sound: .edge, id: strikeIdCounter)
+                    topStrike = StrikeEvent(sound: sound, id: strikeIdCounter)
                 } else {
-                    currentBottom = index
-                    bottomStrike = StrikeEvent(sound: .bass, id: strikeIdCounter)
+                    bottomStrike = StrikeEvent(sound: sound, id: strikeIdCounter)
                 }
             }
             seq.onBell = {
                 bellFlash = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { bellFlash = false }
             }
-            seq.start(top: top, bottom: bottom, bpm: bpm)
+            seq.start()
             sequencer = seq
+            playing = true
         }
     }
 }

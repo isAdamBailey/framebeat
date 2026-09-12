@@ -52,8 +52,8 @@ struct DrumView: View {
                         .stroke(ripple.color, lineWidth: 2)
                         .frame(width: size.width * 0.46, height: size.height * 0.30)
                         .position(
-                            x: size.width * (0.5 + ripple.x * 0.25),
-                            y: size.height * (0.40 + ripple.y * 0.17)
+                            x: size.width * (DrumGeometry.drumCenterX + ripple.x * DrumGeometry.drumHalfW),
+                            y: size.height * (DrumGeometry.drumCenterY + ripple.y * DrumGeometry.drumHalfH)
                         )
                         .modifier(RippleAnimator {
                             ripples.removeAll { $0.id == ripple.id }
@@ -203,32 +203,69 @@ private struct RippleAnimator: ViewModifier {
     }
 }
 
+/// Ported from `Mallet.vue`'s box model, since that's what
+/// `DrumGeometry.swing`'s numbers are computed against:
+///
+/// - The mallet's container div is `bottom-[2%] left-[2%]` (or `right-[2%]`
+///   for the right mallet), sized `h-[58%] w-[38%]` of the drum
+///   illustration — i.e. anchored by its own edge, not centered on the
+///   pivot point.
+/// - Its `transform-origin` is `12% 96%` (left) / `88% 96%` (right) *within
+///   that box* — an off-center point near the bottom-outer corner, not
+///   plain bottom-center. Rotating around bottom-center instead (as an
+///   earlier version of this file did) visibly misaims every strike.
+/// - The animated transform is `translate(x%, y%) rotate(rot deg)`, and CSS
+///   composes that as "rotate first (around transform-origin), then
+///   translate" — matching SwiftUI's `.rotationEffect` before `.offset`
+///   below, since each later modifier acts in the outer/parent space.
+/// - The stick itself carries its own *static* tilt (`rotate-[24deg]` /
+///   `rotate-[-24deg]`) independent of the animated transform —
+///   `DrumGeometry.swing`'s rotation is relative to that rest tilt
+///   (`angle - baseRot`), so it must be added back here since this view has
+///   no separate static-tilt inner element.
+/// - `Mallet.vue`'s inner stick div is itself offset toward the box's outer
+///   edge (`left-[8%]`/`right-[8%]`), not centered — its own rotation
+///   origin (default bottom-center) lands almost exactly on the box's
+///   `transform-origin` (the pivot). This view has one element for the
+///   whole stick assembly, so it needs an explicit static offset toward
+///   `anchor` before rotating to reproduce that: without it, the stick
+///   rotates on a lever arm anchored well outside its own body, producing
+///   wildly oversized swings that cross to the other mallet's side.
 private struct MalletView: View {
     let side: DrumGeometry.Side
     let state: SwingState
     let containerSize: CGSize
 
     var body: some View {
-        let pivotCanvas = side == .left ? (x: 6.56, y: 89.7) : (x: 93.44, y: 89.7)
-        let pivot = CGPoint(
-            x: pivotCanvas.x / DrumGeometry.canvasW * containerSize.width,
-            y: pivotCanvas.y / DrumGeometry.canvasH * containerSize.height
-        )
         let boxW = 0.38 * containerSize.width
         let boxH = 0.58 * containerSize.height
+        let marginX = 0.02 * containerSize.width
+        let marginBottom = 0.02 * containerSize.height
+        let boxOriginX = side == .left ? marginX : containerSize.width - marginX - boxW
+        let boxOriginY = containerSize.height - marginBottom - boxH
+        let boxCenter = CGPoint(x: boxOriginX + boxW / 2, y: boxOriginY + boxH / 2)
+        let anchor: UnitPoint = side == .left ? UnitPoint(x: 0.12, y: 0.96) : UnitPoint(x: 0.88, y: 0.96)
+        let baseRotation = DrumGeometry.baseRotationDegrees(side: side)
 
         ZStack(alignment: .bottom) {
             Capsule()
                 .fill(LinearGradient(colors: [.init(red: 0.36, green: 0.22, blue: 0.10), .black.opacity(0.7)], startPoint: .top, endPoint: .bottom))
-                .frame(width: boxW * 0.18, height: boxH * 0.82)
+                .frame(width: boxW * 0.18, height: boxH * 0.7)
             Circle()
                 .fill(Color(white: 0.88))
                 .frame(width: boxW * 0.46, height: boxW * 0.46)
-                .offset(y: -boxH * 0.78)
+                .offset(y: -boxH * 0.7)
         }
         .frame(width: boxW, height: boxH, alignment: .bottom)
-        .rotationEffect(.degrees(state.rotation), anchor: .bottom)
+        // Shift the stick assembly so its own base sits at `anchor` (the
+        // pivot) instead of the box's horizontal center — matching
+        // Mallet.vue's inner stick, which is offset toward the box's outer
+        // edge (`left-[8%]`/`right-[8%]`) rather than centered. Without
+        // this, the stick rotates on a lever arm far from its own body,
+        // producing wildly oversized swings that cross to the other side.
+        .offset(x: (anchor.x - 0.5) * boxW)
+        .rotationEffect(.degrees(state.rotation + baseRotation), anchor: anchor)
         .offset(x: state.dx * boxW, y: state.dy * boxH)
-        .position(x: pivot.x, y: pivot.y - boxH / 2)
+        .position(boxCenter)
     }
 }
