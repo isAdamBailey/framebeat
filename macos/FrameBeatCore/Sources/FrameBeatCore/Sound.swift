@@ -19,3 +19,29 @@ public struct Line: Sendable {
         self.muted = muted
     }
 }
+
+/// A strike arriving from the sequencer for one line — mirrors `Strike` in
+/// src/types/drum.ts. `id` bumps on every new strike so observers can detect
+/// a repeated identical sound as a distinct event.
+public struct Strike: Sendable, Equatable {
+    public var sound: Sound
+    public var line: LineId
+    public var id: Int
+
+    public init(sound: Sound, line: LineId, id: Int) {
+        self.sound = sound
+        self.line = line
+        self.id = id
+    }
+}
+
+/// Mirrors `Strikes` in src/types/drum.ts: the most recent strike per line.
+public struct Strikes: Sendable, Equatable {
+    public var top: Strike?
+    public var bottom: Strike?
+
+    public init(top: Strike? = nil, bottom: Strike? = nil) {
+        self.top = top
+        self.bottom = bottom
+    }
+}
