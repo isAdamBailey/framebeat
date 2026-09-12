@@ -87,6 +87,55 @@ let bottomAudible = events.contains { e in
 }
 check("muted line's steps are never marked audible", !bottomAudible)
 
+// --- LiveAudioEngine's streaming voices vs. OfflineRenderer's bulk ------
+// renderer: the ding (pure oscillators, no noise table involved) should
+// match sample-for-sample, since both paths now build from the same
+// VoiceSpec tables. This is the regression test that would catch the live
+// path drifting from the already-verified offline math.
+do {
+    let sr = 48000.0
+    let masterGain = 0.85
+    let n = Int(1.2 * sr)
+
+    let offline = OfflineRenderer(sampleRate: sr, durationSeconds: 1.2)
+    offline.triggerDing(atSample: 0)
+    let offlineSamples = offline.finalizeMono()
+
+    let liveComponents = VoiceSpec.dingComponents().map { LiveOscillatorComponent(spec: $0, sampleRate: sr) }
+    let liveVoice = ActiveVoice(startSample: 0, components: liveComponents, sampleRate: sr)
+    var maxDiff = 0.0
+    for i in 0..<n {
+        let live = tanh(liveVoice.sample(atGlobalSample: Int64(i)) * masterGain)
+        let diff = abs(live - Double(offlineSamples[i]))
+        maxDiff = max(maxDiff, diff)
+    }
+    check("live-engine ding matches offline renderer within 1e-5 (max diff: \(String(format: "%.2e", maxDiff)))", maxDiff < 1e-5)
+}
+
+// --- LiveAudioEngine's noise-based voices: sanity only (each side draws --
+// its own independent noise table, so exact parity isn't expected/possible
+// here — see NoiseTable.swift's doc comment).
+do {
+    let sr = 48000.0
+    let noiseTable = NoiseTable.make(sampleRate: sr)
+    var allOK = true
+    for sound in Sound.allCases {
+        let spec = VoiceSpec.components(for: sound)
+        var components: [LiveVoiceComponent] = spec.oscillators.map { LiveOscillatorComponent(spec: $0, sampleRate: sr) }
+        components += spec.noises.map { LiveFilteredNoiseComponent(spec: $0, sampleRate: sr, noiseTable: noiseTable) }
+        let voice = ActiveVoice(startSample: 0, components: components, sampleRate: sr)
+        var peak = 0.0
+        var sawNaN = false
+        for i in 0..<Int(0.8 * sr) {
+            let s = voice.sample(atGlobalSample: Int64(i))
+            if s.isNaN || s.isInfinite { sawNaN = true }
+            peak = max(peak, abs(s))
+        }
+        if peak <= 0 || sawNaN { allOK = false }
+    }
+    check("live-engine voices (bass/edge/click) produce bounded, non-NaN audio", allOK)
+}
+
 let unevenEvents = Sequencer.generateEvents(
     top: Line(count: 7, sound: .click), bottom: Line(count: 5, sound: .bass), bpm: 120, bars: 6
 )

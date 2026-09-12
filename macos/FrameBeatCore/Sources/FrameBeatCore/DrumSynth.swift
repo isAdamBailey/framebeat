@@ -40,84 +40,26 @@ public final class OfflineRenderer {
     // per-voice (single strikes, filter impulse responses) instead of whole
     // rendered patterns.
     private static func makeNoiseTable(sampleRate: Double) -> [Double] {
-        var rng = SystemRandomNumberGenerator()
-        let n = Int(sampleRate)
-        return (0..<n).map { _ in Double.random(in: -1...1, using: &rng) }
+        NoiseTable.make(sampleRate: sampleRate)
     }
 
     public func trigger(_ sound: Sound, atSample startSample: Int) {
-        switch sound {
-        case .bass: playOpenBass(startSample: startSample)
-        case .edge: playEdgeSlap(startSample: startSample)
-        case .click: playWoodClick(startSample: startSample)
+        let spec = VoiceSpec.components(for: sound)
+        for osc in spec.oscillators {
+            renderOscillator(startSample: startSample, waveform: osc.waveform, freq: osc.freq, gain: osc.gain)
+        }
+        for noise in spec.noises {
+            renderFilteredNoise(startSample: startSample, kind: noise.kind, frequency: noise.frequency, q: noise.q, gain: noise.gain)
         }
     }
 
     public func triggerDing(atSample startSample: Int) {
-        playDing(startSample: startSample)
-    }
-
-    // MARK: - Voices
-
-    private func playOpenBass(startSample: Int) {
-        renderOscillator(
-            startSample: startSample, waveform: .sine,
-            freq: Envelope([(0, 100), (0.3, 58)]),
-            gain: Envelope([(0, 0.0001), (0.008, 0.9), (0.55, 0.0001)])
-        )
-        renderFilteredNoise(
-            startSample: startSample, kind: .lowpass, frequency: 350, q: 1,
-            gain: Envelope([(0, 0.5), (0.06, 0.0001)])
-        )
-    }
-
-    private func playEdgeSlap(startSample: Int) {
-        renderFilteredNoise(
-            startSample: startSample, kind: .bandpass, frequency: 2600, q: 1.4,
-            gain: Envelope([(0, 0.7), (0.09, 0.0001)])
-        )
-        renderOscillator(
-            startSample: startSample, waveform: .triangle,
-            freq: Envelope([(0, 420), (0.06, 180)]),
-            gain: Envelope([(0, 0.4), (0.12, 0.0001)])
-        )
-    }
-
-    private func playWoodClick(startSample: Int) {
-        renderFilteredNoise(
-            startSample: startSample, kind: .highpass, frequency: 2200, q: 1,
-            gain: Envelope([(0, 1.0), (0.03, 0.0001)])
-        )
-        renderOscillator(
-            startSample: startSample, waveform: .triangle,
-            freq: Envelope([(0, 1450), (0.07, 1050)]),
-            gain: Envelope([(0, 0.55), (0.09, 0.0001)])
-        )
-        renderOscillator(
-            startSample: startSample, waveform: .sine,
-            freq: Envelope([(0, 2400)]),
-            gain: Envelope([(0, 0.25), (0.035, 0.0001)])
-        )
-    }
-
-    private func playDing(startSample: Int) {
-        let partials: [(freq: Double, gain: Double, dur: Double)] = [
-            (1318.5, 0.15, 1.1),
-            (1975.5, 0.06, 0.8),
-            (2637.0, 0.035, 0.6),
-        ]
-        for p in partials {
-            renderOscillator(
-                startSample: startSample, waveform: .sine,
-                freq: Envelope([(0, p.freq)]),
-                gain: Envelope([(0, 0.0001), (0.005, p.gain), (p.dur, 0.0001)])
-            )
+        for osc in VoiceSpec.dingComponents() {
+            renderOscillator(startSample: startSample, waveform: osc.waveform, freq: osc.freq, gain: osc.gain)
         }
     }
 
     // MARK: - Rendering primitives
-
-    private enum Waveform { case sine, triangle }
 
     /// Phase-accumulator oscillator: `phase += 2π·f[n]/sampleRate` per
     /// sample, i.e. numerically integrating instantaneous frequency, rather
