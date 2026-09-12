@@ -25,8 +25,10 @@ dist-ssr
 
 # macOS native port (Swift/Xcode)
 macos/**/.build/
+macos/**/.swiftpm/
 macos/**/*.xcodeproj/xcuserdata/
 macos/**/*.xcodeproj/project.xcworkspace/xcuserdata/
 macos/**/*.xcworkspace/xcuserdata/
+macos/**/xcuserdata/
 macos/**/DerivedData/
 macos/**/*.moved-aside

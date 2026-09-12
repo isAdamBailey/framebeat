@@ -1,6 +1,6 @@
 import Foundation
 
-public enum LineId: Sendable { case top, bottom }
+public enum LineId: Sendable, Equatable { case top, bottom }
 
 public struct ScheduledEvent: Sendable {
     public enum Kind: Sendable {
