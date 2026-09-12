@@ -19,7 +19,7 @@ import Foundation
 /// Each `BiquadFilter` instance corresponds to one `createBiquadFilter()`
 /// call in the original — a fresh, zero-state filter per drum strike.
 public struct BiquadFilter {
-    public enum Kind {
+    public enum Kind: Sendable {
         case lowpass
         case highpass
         case bandpass
