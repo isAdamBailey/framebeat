@@ -35,6 +35,7 @@ targets:
         INFOPLIST_FILE: FrameBeat/Info.plist
         CODE_SIGN_ENTITLEMENTS: FrameBeat/FrameBeat.entitlements
         CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: 883942B6M2
         DEVELOPMENT_ASSET_PATHS: ""
     info:
       path: FrameBeat/Info.plist
