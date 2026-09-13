@@ -12,7 +12,6 @@ struct ContentView: View {
     @State private var currentTop: Int?
     @State private var currentBottom: Int?
     @State private var progress: Double = 0
-    @State private var bellFlash = false
     @State private var playing = false
 
     private let audio = RealtimeAudio()
@@ -37,17 +36,16 @@ struct ContentView: View {
                             .foregroundStyle(Theme.Color.labelMuted)
                     }
 
-                    DrumView(
-                        onStrike: { sound, _ in audio.play(sound) },
-                        playing: playing,
-                        strikes: appState.strikes
-                    )
-                    .frame(width: 380)
+                    HStack(alignment: .bottom, spacing: 24) {
+                        DrumView(
+                            onStrike: { sound, _ in audio.play(sound) },
+                            playing: playing,
+                            strikes: appState.strikes
+                        )
+                        .frame(width: 340)
 
-                    Circle()
-                        .fill(bellFlash ? Color.white : Color.white.opacity(0.15))
-                        .frame(width: 12, height: 12)
-                        .animation(.easeOut(duration: 0.25), value: bellFlash)
+                        BellView(trigger: appState.bellTrigger)
+                    }
                 }
             }
 
@@ -122,8 +120,6 @@ struct ContentView: View {
             }
             seq.onBell = {
                 appState.ringBell()
-                bellFlash = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { bellFlash = false }
             }
             seq.onProgressUpdate = { value in
                 progress = value

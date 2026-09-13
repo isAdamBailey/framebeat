@@ -14,6 +14,7 @@
 		44AFAA56FF7EC0806B1165B8 /* LineHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 883E0FDD55AE0BA1A7AA70CB /* LineHeaderView.swift */; };
 		5E666290D57B7FDC63A6ACC9 /* SequencerPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF267A08BF1FBDD18F766692 /* SequencerPanel.swift */; };
 		623D90E924EB414C42F57188 /* SoundPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E331D6EEB4BF24BE55946C /* SoundPicker.swift */; };
+		64A1EE1F293CC054FDF6AB22 /* BellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B804BAAB2A3527DB047F1784 /* BellView.swift */; };
 		7B9B4BDB08A814CA83651788 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14AE6343DFC26F2BD0783A16 /* AppState.swift */; };
 		A1860AE527487BEE250ACD08 /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A2989D8EB2846020109D7A /* AppCommands.swift */; };
 		A28DF4423A1DEFFDFB4A1DBF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66C2365E6E6A96A2C4167F6 /* ContentView.swift */; };
@@ -36,6 +37,7 @@
 		9BF7F51C446314B464A32946 /* FrameBeatApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameBeatApp.swift; sourceTree = "<group>"; };
 		9E0931B6F83A3494B7C486F0 /* RealtimeAudio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeAudio.swift; sourceTree = "<group>"; };
 		A2A1097A4E8E2933D6AC34EB /* SequencerLineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerLineView.swift; sourceTree = "<group>"; };
+		B804BAAB2A3527DB047F1784 /* BellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BellView.swift; sourceTree = "<group>"; };
 		BE87DFE9654535AF96809B95 /* FrameBeat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FrameBeat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF267A08BF1FBDD18F766692 /* SequencerPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerPanel.swift; sourceTree = "<group>"; };
 		C50D676B518BE819AC9CB86C /* TransportControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportControls.swift; sourceTree = "<group>"; };
@@ -84,6 +86,7 @@
 		24217DE1B01121337AA9BD3B /* Drum */ = {
 			isa = PBXGroup;
 			children = (
+				B804BAAB2A3527DB047F1784 /* BellView.swift */,
 				66FBDAD471A46E912491E015 /* DrumView.swift */,
 			);
 			path = Drum;
@@ -247,6 +250,7 @@
 			files = (
 				A1860AE527487BEE250ACD08 /* AppCommands.swift in Sources */,
 				7B9B4BDB08A814CA83651788 /* AppState.swift in Sources */,
+				64A1EE1F293CC054FDF6AB22 /* BellView.swift in Sources */,
 				A28DF4423A1DEFFDFB4A1DBF /* ContentView.swift in Sources */,
 				ACAF7E39CC9E3FA59FEC6F14 /* DrumView.swift in Sources */,
 				00AA8F1B8E57CE064B3B5CE9 /* FrameBeatApp.swift in Sources */,
