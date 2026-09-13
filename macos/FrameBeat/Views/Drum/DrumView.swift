@@ -72,6 +72,19 @@ struct DrumView: View {
 
                 MalletView(side: .left, state: leftSwing, containerSize: size)
                 MalletView(side: .right, state: rightSwing, containerSize: size)
+
+                // A custom ring matching the drum's own circular silhouette,
+                // in place of `.focusable()`'s default system ring — which
+                // draws a plain rectangle around the whole view's bounding
+                // box, unaware that only the ellipse inside it is "the
+                // drum." `.focusEffectDisabled()` below suppresses that
+                // default so only this one shows.
+                if isFocused {
+                    Ellipse()
+                        .stroke(Theme.Color.bassSky, lineWidth: 3)
+                        .frame(width: size.width + 10, height: size.height + 10)
+                        .position(x: size.width / 2, y: size.height / 2)
+                }
             }
             .contentShape(Rectangle())
             .gesture(
@@ -94,6 +107,7 @@ struct DrumView: View {
         }
         .aspectRatio(32.0 / 30.0, contentMode: .fit)
         .focusable()
+        .focusEffectDisabled()
         .focused($isFocused)
         // Scoped to this element (not a window-level handler) so the
         // shortcuts don't hijack arrow/letter keys used elsewhere, matching
