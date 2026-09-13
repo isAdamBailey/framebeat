@@ -42,6 +42,8 @@ struct DrumView: View {
     @State private var ripples: [RippleModel] = []
     @State private var leftSwing = SwingState()
     @State private var rightSwing = SwingState()
+    @State private var leftStrikeTask: Task<Void, Never>?
+    @State private var rightStrikeTask: Task<Void, Never>?
     @State private var idCounter = 0
     @State private var dragActive = false
     @FocusState private var isFocused: Bool
@@ -156,10 +158,43 @@ struct DrumView: View {
         idCounter += 1
         ripples.append(RippleModel(id: idCounter, x: dx, y: dy, color: soundColor(sound)))
         let swing = DrumGeometry.swing(side: side, gx: dx, gy: dy)
-        let newState = SwingState(rotation: swing.rotationDegrees, dx: swing.dx, dy: swing.dy)
-        withAnimation(.interpolatingSpring(stiffness: 260, damping: 14)) {
-            if side == .left { leftSwing = newState } else { rightSwing = newState }
+        let target = SwingState(rotation: swing.rotationDegrees, dx: swing.dx, dy: swing.dy)
+        animateStrike(side: side, target: target)
+    }
+
+    private func setSwing(side: DrumGeometry.Side, _ state: SwingState) {
+        if side == .left { leftSwing = state } else { rightSwing = state }
+    }
+
+    /// Ports Mallet.vue's four-keyframe replay (rest → wind-up → strike →
+    /// rest, at offsets 0/0.28/0.5/1.0 of a 260ms `ease-out`) rather than a
+    /// single spring from wherever the mallet last parked — that one-shot
+    /// spring never returned to rest, which is what read as "floating" and
+    /// not actually striking. Cancels any in-flight animation for this side
+    /// first, matching `useAnimate.ts`'s `replay()`, so rapid same-side
+    /// strikes restart cleanly instead of stacking.
+    private func animateStrike(side: DrumGeometry.Side, target: SwingState) {
+        let existingTask = side == .left ? leftStrikeTask : rightStrikeTask
+        existingTask?.cancel()
+        let wind = side == .left ? -7.0 : 7.0
+
+        let task = Task { @MainActor in
+            setSwing(side: side, SwingState())
+            withAnimation(.easeOut(duration: 0.0728)) {
+                setSwing(side: side, SwingState(rotation: wind, dx: 0, dy: -0.03))
+            }
+            try? await Task.sleep(for: .seconds(0.0728))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: 0.0572)) {
+                setSwing(side: side, target)
+            }
+            try? await Task.sleep(for: .seconds(0.0572))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: 0.13)) {
+                setSwing(side: side, SwingState())
+            }
         }
+        if side == .left { leftStrikeTask = task } else { rightStrikeTask = task }
     }
 
     // MARK: - Layers (approximating DrumCanvas.vue's gradient divs)
@@ -299,14 +334,30 @@ private struct MalletView: View {
         let anchor: UnitPoint = side == .left ? UnitPoint(x: 0.12, y: 0.96) : UnitPoint(x: 0.88, y: 0.96)
         let baseRotation = DrumGeometry.baseRotationDegrees(side: side)
 
+        // The felt tip must sit exactly `DrumGeometry.reach` from `anchor`
+        // (the pivot) — that's the distance `DrumGeometry.swing()`'s aim
+        // math assumes. `reach` is defined as `0.7 * boxH` in this box's own
+        // units, so `anchorFromBottom + 0.7 * boxH` is the tip's target
+        // elevation above the box's bottom edge, not the box's own bottom
+        // edge (drawing the capsule/circle straight off `.bottom` — as an
+        // earlier version of this file did — put the tip ~7 boxW-units
+        // beyond `reach`, enough for the aim math to overshoot the drum
+        // center and swing each mallet past the midline into the other
+        // mallet's side).
+        let anchorFromBottom = (1 - anchor.y) * boxH
+        let tipDistance = 0.7 * boxH
+        let circleDiameter = boxW * 0.46
+        let capsuleLength = tipDistance - circleDiameter * 0.4
+
         ZStack(alignment: .bottom) {
             Capsule()
                 .fill(LinearGradient(colors: [.init(red: 0.36, green: 0.22, blue: 0.10), .black.opacity(0.7)], startPoint: .top, endPoint: .bottom))
-                .frame(width: boxW * 0.18, height: boxH * 0.7)
+                .frame(width: boxW * 0.18, height: capsuleLength)
+                .offset(y: -anchorFromBottom)
             Circle()
                 .fill(Color(white: 0.88))
-                .frame(width: boxW * 0.46, height: boxW * 0.46)
-                .offset(y: -boxH * 0.7)
+                .frame(width: circleDiameter, height: circleDiameter)
+                .offset(y: -(anchorFromBottom + tipDistance - circleDiameter / 2))
         }
         .frame(width: boxW, height: boxH, alignment: .bottom)
         // Shift the stick assembly so its own base sits at `anchor` (the
