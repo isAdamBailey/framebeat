@@ -5,10 +5,15 @@ struct FrameBeatApp: App {
     var body: some Scene {
         WindowGroup("FrameBeat") {
             ContentView()
+                #if os(macOS)
                 .frame(minWidth: 720, idealWidth: 780, minHeight: 820, idealHeight: 860)
+                #endif
         }
+        #if os(macOS)
         .windowResizability(.contentMinSize)
+        #endif
         .commands {
+            #if os(macOS)
             CommandGroup(replacing: .appInfo) {
                 Button("About FrameBeat") {
                     NSApp.orderFrontStandardAboutPanel(options: [
@@ -16,6 +21,11 @@ struct FrameBeatApp: App {
                     ])
                 }
             }
+            #endif
+            // Keyboard-only shortcuts — dead weight on iOS/iPadOS without a
+            // hardware keyboard, but harmless to keep declared (the APIs
+            // themselves are cross-platform); a touch-first About/Help
+            // surface for iPad is tracked as separate follow-up work.
             CommandMenu("Playback") {
                 Button("Play/Pause") {
                     NotificationCenter.default.post(name: .fbTogglePlay, object: nil)
@@ -45,9 +55,11 @@ struct FrameBeatApp: App {
                     NotificationCenter.default.post(name: .fbResetPattern, object: nil)
                 }
             }
+            #if os(macOS)
             CommandGroup(replacing: .help) {
                 Link("FrameBeat Help & Privacy", destination: URL(string: "https://isadambailey.github.io/framebeat/privacy.html")!)
             }
+            #endif
         }
     }
 }

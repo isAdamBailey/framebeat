@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "FrameBeatCore",
-    platforms: [.macOS(.v14)], // matches the plan's Phase 1 deployment target
+    platforms: [.macOS(.v14), .iOS(.v17)], // matches the plan's Phase 1 deployment target; iOS 17 for the iPad target
     products: [
         .library(name: "FrameBeatCore", targets: ["FrameBeatCore"]),
         .executable(name: "frame-beat-render", targets: ["frame-beat-render"]),

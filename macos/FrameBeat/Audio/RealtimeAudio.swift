@@ -1,4 +1,7 @@
 import FrameBeatCore
+#if os(iOS)
+import AVFoundation
+#endif
 
 /// Thin app-side wrapper around `LiveAudioEngine` (the real Phase 3
 /// real-time engine, implemented in FrameBeatCore).
@@ -9,6 +12,16 @@ public final class RealtimeAudio {
     public let engine: LiveAudioEngine
 
     public init() {
+        #if os(iOS)
+        // macOS has no session concept — audio output just works. iOS is
+        // silent (or worse, obeys the physical mute switch) without an
+        // active `.playback` session; unlike the Mac target this has no
+        // local way to verify short of running on an iOS
+        // device/simulator and actually listening.
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playback, mode: .default)
+        try? session.setActive(true)
+        #endif
         engine = LiveAudioEngine()
         try? engine.start()
     }

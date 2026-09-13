@@ -31,9 +31,15 @@ struct ContentView: View {
                     VStack(spacing: 4) {
                         Text("FrameBeat")
                             .font(Theme.Typography.display())
+                        #if os(macOS)
                         Text("Click the drum, or focus it and drum along on Q W E / I O P")
                             .font(Theme.Typography.body)
                             .foregroundStyle(Theme.Color.labelMuted)
+                        #else
+                        Text("Tap the drum to play it")
+                            .font(Theme.Typography.body)
+                            .foregroundStyle(Theme.Color.labelMuted)
+                        #endif
                     }
 
                     HStack(alignment: .bottom, spacing: 24) {
@@ -69,7 +75,9 @@ struct ContentView: View {
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.Color.panelBorder, lineWidth: 1))
         }
         .padding(32)
+        #if os(macOS)
         .frame(minWidth: 720, minHeight: 820)
+        #endif
         .background(Theme.Color.stage)
         .foregroundStyle(Theme.Color.ink)
         .preferredColorScheme(.dark)

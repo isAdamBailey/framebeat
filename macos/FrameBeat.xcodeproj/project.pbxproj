@@ -9,20 +9,37 @@
 /* Begin PBXBuildFile section */
 		00AA8F1B8E57CE064B3B5CE9 /* FrameBeatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF7F51C446314B464A32946 /* FrameBeatApp.swift */; };
 		078445D44B300685BABF789C /* FrameBeatCore in Frameworks */ = {isa = PBXBuildFile; productRef = AEDA0C141725E36CCA64675A /* FrameBeatCore */; };
+		09812BDAE6805EF24391FAEF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14AE6343DFC26F2BD0783A16 /* AppState.swift */; };
+		1A7881774A6995C2FF58612E /* LineHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 883E0FDD55AE0BA1A7AA70CB /* LineHeaderView.swift */; };
+		24F3E4A501D32947B2136176 /* FrameBeatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF7F51C446314B464A32946 /* FrameBeatApp.swift */; };
 		2B9A581C71A425D30436B159 /* TransportControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50D676B518BE819AC9CB86C /* TransportControls.swift */; };
+		2C385390EB154E04FB95C40C /* Info-iOS.plist in Resources */ = {isa = PBXBuildFile; fileRef = C6197A7B3DB0C00E14CADB1D /* Info-iOS.plist */; };
 		39ED7F1279B82D6BCDF23A0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 372290A9EED2105933756168 /* Assets.xcassets */; };
+		4403CADE719970D7723CDAE4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 372290A9EED2105933756168 /* Assets.xcassets */; };
 		44AFAA56FF7EC0806B1165B8 /* LineHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 883E0FDD55AE0BA1A7AA70CB /* LineHeaderView.swift */; };
+		5A6CAE05EF3B923ED94234F2 /* SequencerPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF267A08BF1FBDD18F766692 /* SequencerPanel.swift */; };
 		5E666290D57B7FDC63A6ACC9 /* SequencerPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF267A08BF1FBDD18F766692 /* SequencerPanel.swift */; };
+		617B7D87647914B4389CF6CC /* DrumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66FBDAD471A46E912491E015 /* DrumView.swift */; };
+		61AC0D7190E91774833FF44C /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A2989D8EB2846020109D7A /* AppCommands.swift */; };
 		623D90E924EB414C42F57188 /* SoundPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E331D6EEB4BF24BE55946C /* SoundPicker.swift */; };
 		64A1EE1F293CC054FDF6AB22 /* BellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B804BAAB2A3527DB047F1784 /* BellView.swift */; };
+		65F606EC7E06788EB439AEC5 /* RealtimeAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E0931B6F83A3494B7C486F0 /* RealtimeAudio.swift */; };
 		7B9B4BDB08A814CA83651788 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14AE6343DFC26F2BD0783A16 /* AppState.swift */; };
+		850246833CDD37DA5CB224D8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66C2365E6E6A96A2C4167F6 /* ContentView.swift */; };
+		893B62E9B652B758807CBC83 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 6BD7DD2C38724316F42E2D56 /* Fonts */; };
+		9C5A83E594AE6F7F7829FEED /* TransportControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50D676B518BE819AC9CB86C /* TransportControls.swift */; };
 		A1860AE527487BEE250ACD08 /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A2989D8EB2846020109D7A /* AppCommands.swift */; };
 		A28DF4423A1DEFFDFB4A1DBF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66C2365E6E6A96A2C4167F6 /* ContentView.swift */; };
 		ACAF7E39CC9E3FA59FEC6F14 /* DrumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66FBDAD471A46E912491E015 /* DrumView.swift */; };
 		B40827E549662DBCA1984A5D /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240B0DBD01B70590BC0920C0 /* Theme.swift */; };
 		BF99BB545C919F3C2BE1222F /* SequencerLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A1097A4E8E2933D6AC34EB /* SequencerLineView.swift */; };
+		D4B79C7B15004A15F4D780D7 /* FrameBeatCore in Frameworks */ = {isa = PBXBuildFile; productRef = 327E79C421664BBE776E3035 /* FrameBeatCore */; };
+		DB4D5CA730B55F81AAB40C4F /* SequencerLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A1097A4E8E2933D6AC34EB /* SequencerLineView.swift */; };
 		E8030AE80668C474378E0350 /* RealtimeAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E0931B6F83A3494B7C486F0 /* RealtimeAudio.swift */; };
+		F0A9B038D514280238779973 /* SoundPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E331D6EEB4BF24BE55946C /* SoundPicker.swift */; };
+		F32713F5D1EFB47BE32099A9 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240B0DBD01B70590BC0920C0 /* Theme.swift */; };
 		F515AD3071DCE47DCF79E805 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 6BD7DD2C38724316F42E2D56 /* Fonts */; };
+		F9A6C408548278C8C67F88E1 /* BellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B804BAAB2A3527DB047F1784 /* BellView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +51,7 @@
 		6BD7DD2C38724316F42E2D56 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = FrameBeat/Resources/Fonts; sourceTree = SOURCE_ROOT; };
 		7119459FE361F18A90411EBC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		883E0FDD55AE0BA1A7AA70CB /* LineHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineHeaderView.swift; sourceTree = "<group>"; };
+		96DE2F749DEC7B313B3D4B6D /* FrameBeat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FrameBeat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BF7F51C446314B464A32946 /* FrameBeatApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameBeatApp.swift; sourceTree = "<group>"; };
 		9E0931B6F83A3494B7C486F0 /* RealtimeAudio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeAudio.swift; sourceTree = "<group>"; };
 		A2A1097A4E8E2933D6AC34EB /* SequencerLineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerLineView.swift; sourceTree = "<group>"; };
@@ -41,10 +59,11 @@
 		BE87DFE9654535AF96809B95 /* FrameBeat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FrameBeat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF267A08BF1FBDD18F766692 /* SequencerPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerPanel.swift; sourceTree = "<group>"; };
 		C50D676B518BE819AC9CB86C /* TransportControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportControls.swift; sourceTree = "<group>"; };
+		C6197A7B3DB0C00E14CADB1D /* Info-iOS.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Info-iOS.plist"; sourceTree = "<group>"; };
 		C66C2365E6E6A96A2C4167F6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C7E331D6EEB4BF24BE55946C /* SoundPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundPicker.swift; sourceTree = "<group>"; };
 		E59EF6672ED6C3F6234A96D3 /* FrameBeat.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FrameBeat.entitlements; sourceTree = "<group>"; };
-		F3BCECE0665D79F1EBE82790 /* FrameBeatCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FrameBeatCore; path = FrameBeatCore; sourceTree = SOURCE_ROOT; };
+		F3BCECE0665D79F1EBE82790 /* FrameBeatCore */ = {isa = PBXFileReference; lastKnownFileType = folder; path = FrameBeatCore; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +72,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				078445D44B300685BABF789C /* FrameBeatCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F5CCB7E6B85B48EA4B84C8C5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D4B79C7B15004A15F4D780D7 /* FrameBeatCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				BE87DFE9654535AF96809B95 /* FrameBeat.app */,
+				96DE2F749DEC7B313B3D4B6D /* FrameBeat.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -106,6 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				E59EF6672ED6C3F6234A96D3 /* FrameBeat.entitlements */,
+				C6197A7B3DB0C00E14CADB1D /* Info-iOS.plist */,
 				7119459FE361F18A90411EBC /* Info.plist */,
 				418E69ADF34EC2B78F359089 /* App */,
 				72908C618BBF3023E1F1CE14 /* Audio */,
@@ -175,6 +204,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		5F8E89A6B53D432F67774EEA /* FrameBeatiPad */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 02A5273BE01448094C4F08F3 /* Build configuration list for PBXNativeTarget "FrameBeatiPad" */;
+			buildPhases = (
+				AC1AC33971BC20D524550596 /* Sources */,
+				3E65E03B810B3F8FE04E60F7 /* Resources */,
+				F5CCB7E6B85B48EA4B84C8C5 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FrameBeatiPad;
+			packageProductDependencies = (
+				327E79C421664BBE776E3035 /* FrameBeatCore */,
+			);
+			productName = FrameBeatiPad;
+			productReference = 96DE2F749DEC7B313B3D4B6D /* FrameBeat.app */;
+			productType = "com.apple.product-type.application";
+		};
 		9466657D7BE4C9DD693E8F44 /* FrameBeat */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = BFDC6827D138522BAFFAFC90 /* Build configuration list for PBXNativeTarget "FrameBeat" */;
@@ -227,24 +276,55 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				5F8E89A6B53D432F67774EEA /* FrameBeatiPad */,
 				9466657D7BE4C9DD693E8F44 /* FrameBeat */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3E65E03B810B3F8FE04E60F7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4403CADE719970D7723CDAE4 /* Assets.xcassets in Resources */,
+				893B62E9B652B758807CBC83 /* Fonts in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8CA7FD1BB6DE8CDBD8F89CBE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				39ED7F1279B82D6BCDF23A0F /* Assets.xcassets in Resources */,
 				F515AD3071DCE47DCF79E805 /* Fonts in Resources */,
+				2C385390EB154E04FB95C40C /* Info-iOS.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AC1AC33971BC20D524550596 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				61AC0D7190E91774833FF44C /* AppCommands.swift in Sources */,
+				09812BDAE6805EF24391FAEF /* AppState.swift in Sources */,
+				F9A6C408548278C8C67F88E1 /* BellView.swift in Sources */,
+				850246833CDD37DA5CB224D8 /* ContentView.swift in Sources */,
+				617B7D87647914B4389CF6CC /* DrumView.swift in Sources */,
+				24F3E4A501D32947B2136176 /* FrameBeatApp.swift in Sources */,
+				1A7881774A6995C2FF58612E /* LineHeaderView.swift in Sources */,
+				65F606EC7E06788EB439AEC5 /* RealtimeAudio.swift in Sources */,
+				DB4D5CA730B55F81AAB40C4F /* SequencerLineView.swift in Sources */,
+				5A6CAE05EF3B923ED94234F2 /* SequencerPanel.swift in Sources */,
+				F0A9B038D514280238779973 /* SoundPicker.swift in Sources */,
+				F32713F5D1EFB47BE32099A9 /* Theme.swift in Sources */,
+				9C5A83E594AE6F7F7829FEED /* TransportControls.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D06DBB7B0EC480C473A60A01 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -293,6 +373,56 @@
 				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
+		};
+		4CEC982CAEACCE73203061D5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 883942B6M2;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "FrameBeat/Info-iOS.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = io.adambailey.framebeat;
+				PRODUCT_NAME = FrameBeat;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Release;
+		};
+		554C85A63308FB9CA602D4F2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 883942B6M2;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "FrameBeat/Info-iOS.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = io.adambailey.framebeat;
+				PRODUCT_NAME = FrameBeat;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Debug;
 		};
 		9DCA8867988C1770E95914EE /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -345,12 +475,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -402,11 +532,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -442,6 +572,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		02A5273BE01448094C4F08F3 /* Build configuration list for PBXNativeTarget "FrameBeatiPad" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				554C85A63308FB9CA602D4F2 /* Debug */,
+				4CEC982CAEACCE73203061D5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		9C6DDE539B7246A4BB6CCF9E /* Build configuration list for PBXProject "FrameBeat" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -470,6 +609,10 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		327E79C421664BBE776E3035 /* FrameBeatCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FrameBeatCore;
+		};
 		AEDA0C141725E36CCA64675A /* FrameBeatCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FrameBeatCore;

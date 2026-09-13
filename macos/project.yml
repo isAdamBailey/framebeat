@@ -3,12 +3,72 @@ options:
   createIntermediateGroups: true
   deploymentTarget:
     macOS: "14.0"
+    iOS: "17.0"
 
 packages:
   FrameBeatCore:
     path: FrameBeatCore
 
 targets:
+  FrameBeatiPad:
+    type: application
+    platform: iOS
+    sources:
+      - path: FrameBeat
+        excludes:
+          - "Resources/Fonts/**"
+          - "Info.plist"
+          - "FrameBeat.entitlements"
+      - path: FrameBeat/Resources/Fonts
+        type: folder
+    dependencies:
+      - package: FrameBeatCore
+        product: FrameBeatCore
+    settings:
+      base:
+        PRODUCT_NAME: FrameBeat
+        # Same bundle ID as the macOS target so both can live under one
+        # Universal Purchase app record in App Store Connect — confirm this
+        # identifier is actually eligible for iOS in the developer portal
+        # before archiving; if not, this needs its own identifier.
+        PRODUCT_BUNDLE_IDENTIFIER: io.adambailey.framebeat
+        MARKETING_VERSION: "0.1"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: FrameBeat/Info-iOS.plist
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: 883942B6M2
+        # iPad only for this first pass — the current layout is a tall
+        # portrait panel that needs real redesign work before it's usable
+        # on iPhone's much narrower screen (tracked as separate follow-up).
+        TARGETED_DEVICE_FAMILY: "2"
+    info:
+      path: FrameBeat/Info-iOS.plist
+      properties:
+        CFBundleDisplayName: FrameBeat
+        CFBundleName: "$(PRODUCT_NAME)"
+        CFBundleExecutable: "$(EXECUTABLE_NAME)"
+        CFBundleIdentifier: "$(PRODUCT_BUNDLE_IDENTIFIER)"
+        CFBundlePackageType: APPL
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleInfoDictionaryVersion: "6.0"
+        LSApplicationCategoryType: public.app-category.music
+        NSHumanReadableCopyright: "© 2026 Adam Bailey"
+        ITSAppUsesNonExemptEncryption: false
+        UIAppFonts:
+          - "Fonts/fraunces-latin-soft-normal.ttf"
+        UILaunchScreen: {}
+        UIRequiresFullScreen: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+
   FrameBeat:
     type: application
     platform: macOS
