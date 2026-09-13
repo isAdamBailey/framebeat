@@ -23,18 +23,28 @@ private struct SwingState {
     var dy: Double = 0
 }
 
+/// Q/W/E and I/O/P mirror the qwerty row's own left-right symmetry
+/// outward-in, matching `DrumCanvas.vue`'s `KEY_MAP`: the outer keys of each
+/// cluster hit the rim (Click), the innermost hit the center (Bass).
+private let keyMap: [Character: (side: DrumGeometry.Side, sound: Sound)] = [
+    "q": (.left, .click), "w": (.left, .edge), "e": (.left, .bass),
+    "i": (.right, .bass), "o": (.right, .edge), "p": (.right, .click),
+]
+
 struct DrumView: View {
     /// Called with the classified sound + which mallet to animate whenever
-    /// the drum is tapped directly (not via the sequencer).
+    /// the drum is tapped directly or played via keyboard (not via the
+    /// sequencer).
     var onStrike: (Sound, DrumGeometry.Side) -> Void
-
-    @Binding var topStrike: StrikeEvent?
-    @Binding var bottomStrike: StrikeEvent?
+    var playing: Bool
+    let strikes: Strikes
 
     @State private var ripples: [RippleModel] = []
     @State private var leftSwing = SwingState()
     @State private var rightSwing = SwingState()
     @State private var idCounter = 0
+    @State private var dragActive = false
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         GeometryReader { geo in
@@ -65,26 +75,63 @@ struct DrumView: View {
             }
             .contentShape(Rectangle())
             .gesture(
+                // Fire on the initial touch/press (`.onChanged`, guarded to
+                // once per drag), not `.onEnded` — matching Vue's
+                // `@pointerdown`. Firing on release adds felt latency the
+                // web version doesn't have.
                 DragGesture(minimumDistance: 0)
-                    .onEnded { value in
+                    .onChanged { value in
+                        guard !dragActive else { return }
+                        dragActive = true
                         let x = value.location.x / size.width
                         let y = value.location.y / size.height
                         guard let hit = DrumGeometry.classify(x: x, y: y) else { return }
                         onStrike(hit.sound, hit.side)
                         visualStrike(sound: hit.sound, dx: hit.dx, dy: hit.dy, side: hit.side)
                     }
+                    .onEnded { _ in dragActive = false }
             )
         }
         .aspectRatio(32.0 / 30.0, contentMode: .fit)
-        .onChange(of: topStrike?.id) { _, _ in
-            if let s = topStrike { applySequencerStrike(s, side: .left) }
+        .focusable()
+        .focused($isFocused)
+        // Scoped to this element (not a window-level handler) so the
+        // shortcuts don't hijack arrow/letter keys used elsewhere, matching
+        // DrumCanvas.vue's element-bound @keydown.
+        .onKeyPress(phases: .down) { press in
+            if let chars = press.characters.lowercased().first, let mapped = keyMap[chars] {
+                keyStrike(side: mapped.side, sound: mapped.sound)
+                return .handled
+            }
+            switch press.key {
+            case .leftArrow:
+                keyStrike(side: .left, sound: .edge)
+                return .handled
+            case .rightArrow:
+                keyStrike(side: .right, sound: .edge)
+                return .handled
+            default:
+                return .ignored
+            }
         }
-        .onChange(of: bottomStrike?.id) { _, _ in
-            if let s = bottomStrike { applySequencerStrike(s, side: .right) }
+        .onChange(of: playing) { _, isPlaying in
+            if isPlaying { isFocused = true }
+        }
+        .onChange(of: strikes.top) { _, newValue in
+            if let s = newValue { applySequencerStrike(s, side: .left) }
+        }
+        .onChange(of: strikes.bottom) { _, newValue in
+            if let s = newValue { applySequencerStrike(s, side: .right) }
         }
     }
 
-    private func applySequencerStrike(_ strike: StrikeEvent, side: DrumGeometry.Side) {
+    private func keyStrike(side: DrumGeometry.Side, sound: Sound) {
+        onStrike(sound, side)
+        let point = DrumGeometry.zonePoint(sound: sound, side: side)
+        visualStrike(sound: sound, dx: point.x, dy: point.y, side: side)
+    }
+
+    private func applySequencerStrike(_ strike: Strike, side: DrumGeometry.Side) {
         let point = DrumGeometry.zonePoint(sound: strike.sound, side: side)
         let jitterX = Double.random(in: -0.06...0.06)
         let jitterY = Double.random(in: -0.06...0.06)
@@ -172,14 +219,6 @@ struct DrumView: View {
 
 func soundColor(_ sound: Sound) -> Color {
     Theme.Color.forSound(sound)
-}
-
-/// A strike arriving from the sequencer (as opposed to a direct tap) —
-/// mirrors `Strike`/`Strikes` in src/types/drum.ts. `id` bumps on every new
-/// strike so `onChange(of:)` fires even for repeated identical sounds.
-struct StrikeEvent: Equatable {
-    let sound: Sound
-    let id: Int
 }
 
 private struct RippleAnimator: ViewModifier {

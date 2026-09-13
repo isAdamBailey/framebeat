@@ -9,11 +9,17 @@
 /* Begin PBXBuildFile section */
 		00AA8F1B8E57CE064B3B5CE9 /* FrameBeatApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BF7F51C446314B464A32946 /* FrameBeatApp.swift */; };
 		078445D44B300685BABF789C /* FrameBeatCore in Frameworks */ = {isa = PBXBuildFile; productRef = AEDA0C141725E36CCA64675A /* FrameBeatCore */; };
+		2B9A581C71A425D30436B159 /* TransportControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50D676B518BE819AC9CB86C /* TransportControls.swift */; };
 		39ED7F1279B82D6BCDF23A0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 372290A9EED2105933756168 /* Assets.xcassets */; };
+		44AFAA56FF7EC0806B1165B8 /* LineHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 883E0FDD55AE0BA1A7AA70CB /* LineHeaderView.swift */; };
+		5E666290D57B7FDC63A6ACC9 /* SequencerPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF267A08BF1FBDD18F766692 /* SequencerPanel.swift */; };
+		623D90E924EB414C42F57188 /* SoundPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E331D6EEB4BF24BE55946C /* SoundPicker.swift */; };
 		7B9B4BDB08A814CA83651788 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14AE6343DFC26F2BD0783A16 /* AppState.swift */; };
+		A1860AE527487BEE250ACD08 /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66A2989D8EB2846020109D7A /* AppCommands.swift */; };
 		A28DF4423A1DEFFDFB4A1DBF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66C2365E6E6A96A2C4167F6 /* ContentView.swift */; };
 		ACAF7E39CC9E3FA59FEC6F14 /* DrumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66FBDAD471A46E912491E015 /* DrumView.swift */; };
 		B40827E549662DBCA1984A5D /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240B0DBD01B70590BC0920C0 /* Theme.swift */; };
+		BF99BB545C919F3C2BE1222F /* SequencerLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2A1097A4E8E2933D6AC34EB /* SequencerLineView.swift */; };
 		E8030AE80668C474378E0350 /* RealtimeAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E0931B6F83A3494B7C486F0 /* RealtimeAudio.swift */; };
 		F515AD3071DCE47DCF79E805 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 6BD7DD2C38724316F42E2D56 /* Fonts */; };
 /* End PBXBuildFile section */
@@ -22,13 +28,19 @@
 		14AE6343DFC26F2BD0783A16 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		240B0DBD01B70590BC0920C0 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		372290A9EED2105933756168 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		66A2989D8EB2846020109D7A /* AppCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCommands.swift; sourceTree = "<group>"; };
 		66FBDAD471A46E912491E015 /* DrumView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrumView.swift; sourceTree = "<group>"; };
 		6BD7DD2C38724316F42E2D56 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = FrameBeat/Resources/Fonts; sourceTree = SOURCE_ROOT; };
 		7119459FE361F18A90411EBC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		883E0FDD55AE0BA1A7AA70CB /* LineHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineHeaderView.swift; sourceTree = "<group>"; };
 		9BF7F51C446314B464A32946 /* FrameBeatApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameBeatApp.swift; sourceTree = "<group>"; };
 		9E0931B6F83A3494B7C486F0 /* RealtimeAudio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeAudio.swift; sourceTree = "<group>"; };
+		A2A1097A4E8E2933D6AC34EB /* SequencerLineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerLineView.swift; sourceTree = "<group>"; };
 		BE87DFE9654535AF96809B95 /* FrameBeat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FrameBeat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BF267A08BF1FBDD18F766692 /* SequencerPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerPanel.swift; sourceTree = "<group>"; };
+		C50D676B518BE819AC9CB86C /* TransportControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportControls.swift; sourceTree = "<group>"; };
 		C66C2365E6E6A96A2C4167F6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C7E331D6EEB4BF24BE55946C /* SoundPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundPicker.swift; sourceTree = "<group>"; };
 		E59EF6672ED6C3F6234A96D3 /* FrameBeat.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FrameBeat.entitlements; sourceTree = "<group>"; };
 		F3BCECE0665D79F1EBE82790 /* FrameBeatCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FrameBeatCore; path = FrameBeatCore; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -80,6 +92,7 @@
 		418E69ADF34EC2B78F359089 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				66A2989D8EB2846020109D7A /* AppCommands.swift */,
 				C66C2365E6E6A96A2C4167F6 /* ContentView.swift */,
 				9BF7F51C446314B464A32946 /* FrameBeatApp.swift */,
 			);
@@ -130,6 +143,7 @@
 			isa = PBXGroup;
 			children = (
 				24217DE1B01121337AA9BD3B /* Drum */,
+				ED0365938FC15480F2C8AA71 /* Panel */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -141,6 +155,18 @@
 				6BD7DD2C38724316F42E2D56 /* Fonts */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		ED0365938FC15480F2C8AA71 /* Panel */ = {
+			isa = PBXGroup;
+			children = (
+				883E0FDD55AE0BA1A7AA70CB /* LineHeaderView.swift */,
+				A2A1097A4E8E2933D6AC34EB /* SequencerLineView.swift */,
+				BF267A08BF1FBDD18F766692 /* SequencerPanel.swift */,
+				C7E331D6EEB4BF24BE55946C /* SoundPicker.swift */,
+				C50D676B518BE819AC9CB86C /* TransportControls.swift */,
+			);
+			path = Panel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -219,12 +245,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1860AE527487BEE250ACD08 /* AppCommands.swift in Sources */,
 				7B9B4BDB08A814CA83651788 /* AppState.swift in Sources */,
 				A28DF4423A1DEFFDFB4A1DBF /* ContentView.swift in Sources */,
 				ACAF7E39CC9E3FA59FEC6F14 /* DrumView.swift in Sources */,
 				00AA8F1B8E57CE064B3B5CE9 /* FrameBeatApp.swift in Sources */,
+				44AFAA56FF7EC0806B1165B8 /* LineHeaderView.swift in Sources */,
 				E8030AE80668C474378E0350 /* RealtimeAudio.swift in Sources */,
+				BF99BB545C919F3C2BE1222F /* SequencerLineView.swift in Sources */,
+				5E666290D57B7FDC63A6ACC9 /* SequencerPanel.swift in Sources */,
+				623D90E924EB414C42F57188 /* SoundPicker.swift in Sources */,
 				B40827E549662DBCA1984A5D /* Theme.swift in Sources */,
+				2B9A581C71A425D30436B159 /* TransportControls.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

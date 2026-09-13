@@ -26,6 +26,10 @@ public final class LiveSequencer {
     public var onStrike: ((LineId, Int, Sound) -> Void)?
     /// Fires on every bar boundary regardless of mute state.
     public var onBell: (() -> Void)?
+    /// Fires ~120Hz with the bottom line's fractional position through its
+    /// bar (0..<1), matching `useSequencer.ts`'s `progress` — drives the
+    /// sweeping playhead bar independent of per-step visual events.
+    public var onProgressUpdate: ((Double) -> Void)?
 
     private let engine: LiveAudioEngine
     private var top: Line
@@ -35,6 +39,8 @@ public final class LiveSequencer {
     private var anchorSample: Int64 = 0
     private var bottomIndex = 0
     private var topIndex = 0
+    private var lastBottomSample: Int64 = 0
+    private var lastBottomIndex = 0
     private var reanchorRequested = false
     private var pendingTop: Line?
     private var pendingBottom: Line?
@@ -118,6 +124,8 @@ public final class LiveSequencer {
         anchorSample = sample
         bottomIndex = 0
         topIndex = 0
+        lastBottomSample = sample
+        lastBottomIndex = 0
     }
 
     private func bottomSample(_ index: Int) -> Int64 {
@@ -203,10 +211,20 @@ public final class LiveSequencer {
             switch first {
             case .bell:
                 onBell?()
-            case .step(let line, let index, let sound, _, let audible):
+            case .step(let line, let index, let sound, let sample, let audible):
+                if line == .bottom {
+                    lastBottomSample = sample
+                    lastBottomIndex = index
+                }
                 onIndexUpdate?(line, index)
                 if audible { onStrike?(line, index, sound) }
             }
         }
+        guard isPlaying else { return }
+        let elapsedSamples = Double(now - lastBottomSample)
+        let beatSamples = beatDuration * engine.sampleRate
+        let frac = max(0, min(elapsedSamples / beatSamples, 1))
+        let progress = (Double(lastBottomIndex) + frac).truncatingRemainder(dividingBy: Double(bottom.count)) / Double(bottom.count)
+        onProgressUpdate?(progress)
     }
 }

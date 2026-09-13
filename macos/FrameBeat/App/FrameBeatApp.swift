@@ -5,7 +5,49 @@ struct FrameBeatApp: App {
     var body: some Scene {
         WindowGroup("FrameBeat") {
             ContentView()
+                .frame(minWidth: 720, idealWidth: 780, minHeight: 820, idealHeight: 860)
         }
-        .windowResizability(.contentSize)
+        .windowResizability(.contentMinSize)
+        .commands {
+            CommandGroup(replacing: .appInfo) {
+                Button("About FrameBeat") {
+                    NSApp.orderFrontStandardAboutPanel(options: [
+                        .credits: NSAttributedString(string: "A frame drum & polyrhythmic step sequencer.\nAll audio is synthesized live — no samples, no accounts, no network."),
+                    ])
+                }
+            }
+            CommandMenu("Playback") {
+                Button("Play/Pause") {
+                    NotificationCenter.default.post(name: .fbTogglePlay, object: nil)
+                }
+                .keyboardShortcut(.space, modifiers: [])
+
+                Button("Increase Tempo") {
+                    NotificationCenter.default.post(name: .fbTempoUp, object: nil)
+                }
+                .keyboardShortcut(.upArrow, modifiers: .command)
+
+                Button("Decrease Tempo") {
+                    NotificationCenter.default.post(name: .fbTempoDown, object: nil)
+                }
+                .keyboardShortcut(.downArrow, modifiers: .command)
+
+                Divider()
+
+                Button("Toggle Bottom-Line Mute") {
+                    NotificationCenter.default.post(name: .fbToggleMute, object: nil)
+                }
+                .keyboardShortcut("m", modifiers: .command)
+
+                Divider()
+
+                Button("Reset Pattern") {
+                    NotificationCenter.default.post(name: .fbResetPattern, object: nil)
+                }
+            }
+            CommandGroup(replacing: .help) {
+                Link("FrameBeat Help & Privacy", destination: URL(string: "https://isadambailey.github.io/framebeat/privacy.html")!)
+            }
+        }
     }
 }
