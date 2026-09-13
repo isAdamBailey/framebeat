@@ -1,11 +1,24 @@
-# FrameBeat for macOS
+# FrameBeat for macOS and iPad
 
 A native SwiftUI port of FrameBeat — a frame drum and polyrhythmic step
-sequencer. Click the drum to play it directly, or program two step lines
+sequencer. Click/tap the drum to play it directly, or program two step lines
 (each with its own step count, sound, and mute) and hit play; the bottom
 line sets the tempo/bar length, the top line divides the same bar into its
 own step count, so the two lines run independent polyrhythms while always
 landing together on beat one.
+
+Two Xcode targets share the same source tree and `FrameBeatCore` engine
+package: **FrameBeat** (macOS) and **FrameBeatiPad** (iPadOS 17+,
+`TARGETED_DEVICE_FAMILY=2` — iPad only; the layout is a tall portrait panel
+that needs real redesign work before it's usable on iPhone's narrower
+screen, so that's deliberately out of scope for now). Both ship under the
+same bundle ID (`io.adambailey.framebeat`) as one Universal Purchase App
+Store Connect app record. Platform differences are handled with
+`#if os(macOS)`/`#if os(iOS)` guards in `FrameBeatApp.swift` (menu bar/About
+panel/window-frame chrome is macOS-only) and `ContentView.swift` (the
+keyboard-shortcut hint text differs); almost everything else — including
+`DrumView`'s `.onKeyPress`/`.focusable()` keyboard handling — is genuinely
+cross-platform and works on iPad too when a hardware keyboard is attached.
 
 All audio is synthesized live (no samples) via a custom `AVAudioEngine`
 render graph. There's no backend, database, or persistence — all state is
@@ -68,6 +81,55 @@ copied verbatim from `src/lib/drumAudio.ts` and
 `src/composables/useSequencer.ts` — see the doc comments in each Swift file
 for the mapping. Anything touching playback timing needs a real by-ear check
 in the running app, not just `swift test`.
+
+### Building/running the iPad target
+
+```bash
+xcodebuild -project FrameBeat.xcodeproj -scheme FrameBeatiPad \
+  -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M5)' build
+```
+
+`FrameBeatCore`'s `Package.swift` must declare an iOS platform minimum
+(`.iOS(.v17)`) alongside macOS's — without it, SwiftPM silently falls back to
+a very old default iOS deployment target for that platform, which breaks on
+the `Task`/actor APIs `LiveSequencer` uses, with a confusing "only available
+in iOS 13.0" error that has nothing to do with the actual deployment target
+set on the app target itself.
+
+iOS needs an `AVAudioSession` `.playback` category activated before
+`LiveAudioEngine.start()` — macOS has no session concept and doesn't need
+this. See `RealtimeAudio.swift`'s `#if os(iOS)` block.
+
+**Archiving for the App Store requires manual signing on Release**, not
+automatic — this project's Apple Developer account has no registered iOS
+devices (simulator-only development), and Xcode's automatic signing tries
+to resolve provisioning for the *whole* scheme (including the
+Debug/Development side) even when only archiving Release, which fails hard
+against a device-less account. `project.yml`'s `FrameBeatiPad` target splits
+signing by config: Debug stays `Automatic` (fine — simulator builds need no
+provisioning profile at all), Release is `Manual` against an
+explicitly-created "FrameBeat iOS App Store" distribution profile (which,
+being a Distribution/App Store profile rather than Development, never needs
+devices). If archiving ever needs redone with a fresh profile, update both
+`CODE_SIGN_IDENTITY`/`PROVISIONING_PROFILE_SPECIFIER` in `project.yml` and
+regenerate — don't just re-toggle Automatic in Xcode, since that reopens the
+device-registration wall.
+
+**`xcodegen generate` does not reliably autogenerate scheme files** in this
+project (confirmed empirically — it silently produced an empty
+`xcshareddata/xcschemes/` on a plain `generate`, wiping a previously
+committed scheme). `project.yml` now declares `schemes:` explicitly for both
+targets so this can't silently regress; if you ever remove that block,
+verify `xcodebuild -list` still shows both schemes before relying on it.
+
+The shared `AppIcon.appiconset` carries both the mac 10-entry icon size
+matrix (`idiom: mac`) and one additional `idiom: universal, platform: ios`
+1024×1024 entry — Xcode 14+'s "single size" iOS icon format, which
+auto-generates every runtime size from that one image. If the mac icon set
+is ever regenerated (e.g. a fresh `sips`-based export), keep both entries in
+`Contents.json`; a single-idiom Contents.json will build fine but fail
+Archive validation (missing icon sizes) for whichever platform's idiom is
+absent.
 
 ## Build & test the engine package
 
