@@ -51,7 +51,7 @@
 		6BD7DD2C38724316F42E2D56 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = FrameBeat/Resources/Fonts; sourceTree = SOURCE_ROOT; };
 		7119459FE361F18A90411EBC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		883E0FDD55AE0BA1A7AA70CB /* LineHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineHeaderView.swift; sourceTree = "<group>"; };
-		96DE2F749DEC7B313B3D4B6D /* FrameBeat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FrameBeat.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		96DE2F749DEC7B313B3D4B6D /* FrameBeatiPad.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = FrameBeatiPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BF7F51C446314B464A32946 /* FrameBeatApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameBeatApp.swift; sourceTree = "<group>"; };
 		9E0931B6F83A3494B7C486F0 /* RealtimeAudio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeAudio.swift; sourceTree = "<group>"; };
 		A2A1097A4E8E2933D6AC34EB /* SequencerLineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerLineView.swift; sourceTree = "<group>"; };
@@ -63,7 +63,7 @@
 		C66C2365E6E6A96A2C4167F6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C7E331D6EEB4BF24BE55946C /* SoundPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundPicker.swift; sourceTree = "<group>"; };
 		E59EF6672ED6C3F6234A96D3 /* FrameBeat.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FrameBeat.entitlements; sourceTree = "<group>"; };
-		F3BCECE0665D79F1EBE82790 /* FrameBeatCore */ = {isa = PBXFileReference; lastKnownFileType = folder; path = FrameBeatCore; sourceTree = SOURCE_ROOT; };
+		F3BCECE0665D79F1EBE82790 /* FrameBeatCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FrameBeatCore; path = FrameBeatCore; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,7 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				BE87DFE9654535AF96809B95 /* FrameBeat.app */,
-				96DE2F749DEC7B313B3D4B6D /* FrameBeat.app */,
+				96DE2F749DEC7B313B3D4B6D /* FrameBeatiPad.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -221,7 +221,7 @@
 				327E79C421664BBE776E3035 /* FrameBeatCore */,
 			);
 			productName = FrameBeatiPad;
-			productReference = 96DE2F749DEC7B313B3D4B6D /* FrameBeat.app */;
+			productReference = 96DE2F749DEC7B313B3D4B6D /* FrameBeatiPad.app */;
 			productType = "com.apple.product-type.application";
 		};
 		9466657D7BE4C9DD693E8F44 /* FrameBeat */ = {
@@ -253,6 +253,9 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					5F8E89A6B53D432F67774EEA = {
+						DevelopmentTeam = 883942B6M2;
+					};
 					9466657D7BE4C9DD693E8F44 = {
 						DevelopmentTeam = 883942B6M2;
 						ProvisioningStyle = Automatic;
@@ -378,8 +381,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 883942B6M2;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -391,7 +394,7 @@
 				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = io.adambailey.framebeat;
 				PRODUCT_NAME = FrameBeat;
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "FrameBeat iOS App Store";
 				SDKROOT = iphoneos;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
@@ -403,7 +406,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 883942B6M2;
@@ -416,7 +419,6 @@
 				MARKETING_VERSION = 0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = io.adambailey.framebeat;
 				PRODUCT_NAME = FrameBeat;
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;

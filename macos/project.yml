@@ -9,6 +9,41 @@ packages:
   FrameBeatCore:
     path: FrameBeatCore
 
+# Explicit, so `xcodegen generate` reliably (re)writes both shared scheme
+# files every run — relying on xcodegen's scheme autogeneration silently
+# produced none at all for this project (empirically confirmed: an empty
+# xcshareddata/xcschemes/ after generate), which once wiped a manually
+# created FrameBeatiPad scheme that had been committed.
+schemes:
+  FrameBeat:
+    build:
+      targets:
+        FrameBeat: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+  FrameBeatiPad:
+    build:
+      targets:
+        FrameBeatiPad: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+
 targets:
   FrameBeatiPad:
     type: application
@@ -39,12 +74,27 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: FrameBeat/Info-iOS.plist
-        CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: 883942B6M2
         # iPad only for this first pass — the current layout is a tall
         # portrait panel that needs real redesign work before it's usable
         # on iPhone's much narrower screen (tracked as separate follow-up).
         TARGETED_DEVICE_FAMILY: "2"
+      configs:
+        # Automatic signing makes xcodebuild resolve provisioning for the
+        # *whole* scheme, including the Debug/Development-oriented actions,
+        # even when archiving only needs Release — and this account has no
+        # registered iOS devices (simulator-only), so that Development-side
+        # resolution fails and blocks the Release archive too. Manual
+        # signing for Release only, pointed at an explicitly-created App
+        # Store distribution profile (which never needs devices), sidesteps
+        # it entirely. Debug is left on automatic — fine since simulator
+        # builds don't need any provisioning profile regardless.
+        Debug:
+          CODE_SIGN_STYLE: Automatic
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Apple Distribution"
+          PROVISIONING_PROFILE_SPECIFIER: "FrameBeat iOS App Store"
     info:
       path: FrameBeat/Info-iOS.plist
       properties:
