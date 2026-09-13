@@ -53,16 +53,14 @@ struct ContentView: View {
                 TransportControls(
                     playing: playing,
                     bpm: $appState.bpm,
-                    onTogglePlay: togglePlay,
-                    onBpmChange: reanchorIfPlaying
+                    onTogglePlay: togglePlay
                 )
                 SequencerPanel(
                     top: $appState.top,
                     bottom: $appState.bottom,
                     currentTop: currentTop,
                     currentBottom: currentBottom,
-                    progress: progress,
-                    onLineChange: reanchorIfPlaying
+                    progress: progress
                 )
             }
             .padding(24)
@@ -78,17 +76,23 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .fbTogglePlay)) { _ in togglePlay() }
         .onReceive(NotificationCenter.default.publisher(for: .fbTempoUp)) { _ in
             appState.bpm = min(200, appState.bpm + 5)
-            reanchorIfPlaying()
         }
         .onReceive(NotificationCenter.default.publisher(for: .fbTempoDown)) { _ in
             appState.bpm = max(40, appState.bpm - 5)
-            reanchorIfPlaying()
         }
         .onReceive(NotificationCenter.default.publisher(for: .fbToggleMute)) { _ in
             appState.bottom.muted.toggle()
-            reanchorIfPlaying()
         }
         .onReceive(NotificationCenter.default.publisher(for: .fbResetPattern)) { _ in resetPattern() }
+        // A playing LiveSequencer holds its own copy of top/bottom/bpm (value
+        // types, not a live reference), so any change here — from a slider,
+        // a sound-picker tap, a step-dot toggle, a mute button, or a menu
+        // command — needs to be re-pushed. Observing the state itself here,
+        // once, means no individual control needs to remember to call back
+        // out after mutating its binding.
+        .onChange(of: appState.top) { _, _ in reanchorIfPlaying() }
+        .onChange(of: appState.bottom) { _, _ in reanchorIfPlaying() }
+        .onChange(of: appState.bpm) { _, _ in reanchorIfPlaying() }
     }
 
     private func reanchorIfPlaying() {
@@ -100,7 +104,6 @@ struct ContentView: View {
     private func resetPattern() {
         appState.top = Line(count: 3, sound: .edge)
         appState.bottom = Line(count: 4, sound: .bass)
-        reanchorIfPlaying()
     }
 
     private func togglePlay() {

@@ -6,7 +6,6 @@ struct TransportControls: View {
     var playing: Bool
     @Binding var bpm: Double
     var onTogglePlay: () -> Void
-    var onBpmChange: () -> Void = {}
 
     var body: some View {
         HStack(spacing: 20) {
@@ -45,18 +44,8 @@ struct TransportControls: View {
                             .foregroundStyle(Theme.Color.labelMuted)
                     }
                 }
-                Slider(
-                    value: Binding(
-                        get: { bpm },
-                        set: { newValue in
-                            bpm = newValue
-                            onBpmChange()
-                        }
-                    ),
-                    in: 40...200,
-                    step: 1
-                )
-                .tint(Theme.Color.bassSky)
+                Slider(value: $bpm, in: 40...200, step: 1)
+                    .tint(Theme.Color.bassSky)
             }
         }
     }

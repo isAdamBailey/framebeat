@@ -26,6 +26,26 @@ export function zonePoint(sound: Sound, side: 'left' | 'right'): [number, number
   return [0, 0]
 }
 
+// Classifies a tap at fractional position (x, y) within the illustration's
+// bounding box into a drum zone. Returns null for a tap in the empty space
+// around the drum. dx/dy come back clamped to the rim, in the same
+// drum-ellipse units zonePoint/swingFor use — kept here (rather than as
+// inline magic numbers in DrumCanvas.vue) so the zone radii stay next to the
+// zonePoint centres they must agree with.
+export function classify(
+  x: number,
+  y: number
+): { sound: Sound; side: 'left' | 'right'; dx: number; dy: number } | null {
+  const dx = (x - DRUM.cx) / DRUM.halfW
+  const dy = (y - DRUM.cy) / DRUM.halfH
+  const dist = Math.hypot(dx, dy)
+  if (dist > 1.35) return null
+  // Zone radii match the mallet aim: Bass < 0.26 < Edge < 0.65 < Click.
+  const sound: Sound = dist < 0.26 ? 'bass' : dist < 0.65 ? 'edge' : 'click'
+  const clamp = dist > 1.15 ? 1.15 / dist : 1
+  return { sound, side: dx < 0 ? 'left' : 'right', dx: dx * clamp, dy: dy * clamp }
+}
+
 // Rotation + shift (as % of the mallet's own box) that land the felt tip on
 // the drum-ellipse point (gx, gy).
 export function swingFor(side: 'left' | 'right', gx: number, gy: number) {

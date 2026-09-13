@@ -222,6 +222,11 @@ func soundColor(_ sound: Sound) -> Color {
 }
 
 private struct RippleAnimator: ViewModifier {
+    // Must match the CSS transition duration on DrumCanvas.vue's
+    // .ripple-enter-active — kept as one constant here so the animation and
+    // its cleanup timer below can't drift out of sync with each other.
+    static let duration: Double = 0.7
+
     let onFinished: () -> Void
     @State private var grown = false
 
@@ -230,8 +235,8 @@ private struct RippleAnimator: ViewModifier {
             .scaleEffect(grown ? 1.4 : 0.2)
             .opacity(grown ? 0 : 0.85)
             .onAppear {
-                withAnimation(.easeOut(duration: 0.7)) { grown = true }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { onFinished() }
+                withAnimation(.easeOut(duration: Self.duration)) { grown = true }
+                DispatchQueue.main.asyncAfter(deadline: .now() + Self.duration) { onFinished() }
             }
     }
 }
@@ -270,8 +275,8 @@ private struct MalletView: View {
     let containerSize: CGSize
 
     var body: some View {
-        let boxW = 0.38 * containerSize.width
-        let boxH = 0.58 * containerSize.height
+        let boxW = DrumGeometry.malletBoxWidthFraction * containerSize.width
+        let boxH = DrumGeometry.malletBoxHeightFraction * containerSize.height
         let marginX = 0.02 * containerSize.width
         let marginBottom = 0.02 * containerSize.height
         let boxOriginX = side == .left ? marginX : containerSize.width - marginX - boxW

@@ -33,7 +33,15 @@ public enum DrumGeometry {
         side == .left ? leftBaseRot : rightBaseRot
     }
 
-    public static let reach = 0.7 * 0.58 * canvasH // felt-tip distance from the pivot
+    /// The mallet's own box, as a fraction of the illustration — matching
+    /// `Mallet.vue`'s container div (`h-[58%] w-[38%]`). Shared by `swing`'s
+    /// aim math and the SwiftUI mallet view's own layout box so the two
+    /// can't drift apart (a `DrumView` that sizes its mallet differently
+    /// from what this aim math assumes would silently misaim every strike).
+    public static let malletBoxWidthFraction = 0.38
+    public static let malletBoxHeightFraction = 0.58
+
+    public static let reach = 0.7 * malletBoxHeightFraction * canvasH // felt-tip distance from the pivot
 
     // Each mallet rests on the frame's side — that resting spot is the Click
     // zone. Edge sits two-thirds of the way in from there, Bass at centre.
@@ -58,8 +66,8 @@ public enum DrumGeometry {
         let ry = (drumCenterY + drumHalfH * gy) * canvasH - pivot.y
         let d = max(Foundation.hypot(rx, ry), 1e-9)
         let angle = atan2(rx, -ry) * 180 / .pi // 0 = straight up
-        let boxW = 0.38 * canvasW
-        let boxH = 0.58 * canvasH
+        let boxW = malletBoxWidthFraction * canvasW
+        let boxH = malletBoxHeightFraction * canvasH
         return (
             rotationDegrees: angle - baseRot,
             dx: (rx - reach * rx / d) / boxW,

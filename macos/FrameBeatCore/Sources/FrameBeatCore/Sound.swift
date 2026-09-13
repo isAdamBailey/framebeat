@@ -1,12 +1,12 @@
 // Swift port of src/types/drum.ts — shared domain types.
 
-public enum Sound: String, Sendable, CaseIterable {
+public enum Sound: String, Sendable, CaseIterable, Equatable {
     case bass
     case edge
     case click
 }
 
-public struct Line: Sendable {
+public struct Line: Sendable, Equatable {
     public var count: Int
     public var sound: Sound
     public var dots: [Bool]

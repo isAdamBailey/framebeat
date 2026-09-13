@@ -170,15 +170,17 @@ public final class LiveSequencer {
     }
 
     private func scheduleUpTo(_ horizon: Int64) {
-        while bottomSample(bottomIndex) < horizon || topSample(topIndex) < horizon {
-            let bSample = bottomSample(bottomIndex)
-            let tSample = topSample(topIndex)
+        var bSample = bottomSample(bottomIndex)
+        var tSample = topSample(topIndex)
+        while bSample < horizon || tSample < horizon {
             if bSample <= tSample {
                 scheduleBottomStep(at: bSample)
                 bottomIndex += 1
+                bSample = bottomSample(bottomIndex)
             } else {
                 scheduleTopStep(at: tSample)
                 topIndex += 1
+                tSample = topSample(topIndex)
             }
         }
     }

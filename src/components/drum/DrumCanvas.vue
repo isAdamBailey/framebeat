@@ -2,7 +2,7 @@
 import { reactive, ref, watch } from 'vue'
 import { triggerDrumSound } from '../../lib/drumAudio'
 import { SOUND_META } from '../../lib/drumSounds'
-import { DRUM, swingFor, zonePoint } from '../../lib/geometry'
+import { classify, swingFor, zonePoint } from '../../lib/geometry'
 import Mallet from './Mallet.vue'
 import SoundDot from './SoundDot.vue'
 import type { Ripple, Strikes, Swing } from '../../types/drum'
@@ -46,18 +46,12 @@ function strike(e: PointerEvent) {
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
   const x = (e.clientX - rect.left) / rect.width
   const y = (e.clientY - rect.top) / rect.height
-  const dx = (x - DRUM.cx) / DRUM.halfW
-  const dy = (y - DRUM.cy) / DRUM.halfH
-  const dist = Math.hypot(dx, dy)
-  if (dist > 1.35) return // clicked the empty space around the drum
-  // Zone radii match the mallet aim: Bass < 0.26 < Edge < 0.65 < Click.
-  const sound = dist < 0.26 ? 'bass' : dist < 0.65 ? 'edge' : 'click'
+  const hit = classify(x, y)
+  if (!hit) return // clicked the empty space around the drum
   // triggerDrumSound clamps `when` to the audio clock's current time, so any
   // past timestamp plays immediately.
-  triggerDrumSound(sound, 0)
-  // The nearest mallet strikes the exact spot; clamp far clicks to the rim.
-  const clamp = dist > 1.15 ? 1.15 / dist : 1
-  visualStrike(sound, dx * clamp, dy * clamp, dx < 0 ? 'top' : 'bottom')
+  triggerDrumSound(hit.sound, 0)
+  visualStrike(hit.sound, hit.dx, hit.dy, hit.side === 'left' ? 'top' : 'bottom')
 }
 
 // Strikes arrive per line, each with an id that bumps on every new strike —

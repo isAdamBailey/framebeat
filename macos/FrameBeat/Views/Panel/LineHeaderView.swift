@@ -6,7 +6,6 @@ import FrameBeatCore
 struct LineHeaderView: View {
     let label: String
     @Binding var line: Line
-    var onLineChange: () -> Void = {}
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -18,7 +17,6 @@ struct LineHeaderView: View {
                 Spacer()
                 Button {
                     line.muted.toggle()
-                    onLineChange()
                 } label: {
                     Image(systemName: line.muted ? "speaker.slash.fill" : "speaker.wave.2.fill")
                         .foregroundStyle(line.muted ? Theme.Color.ink : Theme.Color.labelMuted)
@@ -37,16 +35,13 @@ struct LineHeaderView: View {
                 Slider(
                     value: Binding(
                         get: { Double(line.count) },
-                        set: { newValue in
-                            line.count = Int(newValue)
-                            onLineChange()
-                        }
+                        set: { line.count = Int($0) }
                     ),
                     in: 1...16,
                     step: 1
                 )
                 .tint(Theme.Color.bassSky)
-                SoundPicker(sound: $line.sound, onChange: onLineChange)
+                SoundPicker(sound: $line.sound)
             }
         }
     }

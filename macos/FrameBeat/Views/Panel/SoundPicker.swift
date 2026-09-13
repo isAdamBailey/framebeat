@@ -6,14 +6,12 @@ import FrameBeatCore
 /// smaller and dimmed.
 struct SoundPicker: View {
     @Binding var sound: Sound
-    var onChange: () -> Void = {}
 
     var body: some View {
         HStack(spacing: 6) {
             ForEach(Sound.allCases, id: \.self) { candidate in
                 Button {
                     sound = candidate
-                    onChange()
                 } label: {
                     Circle()
                         .fill(Theme.Color.forSound(candidate))

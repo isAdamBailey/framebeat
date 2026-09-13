@@ -8,9 +8,6 @@ import FrameBeatCore
 struct SequencerLineView: View {
     @Binding var line: Line
     let current: Int?
-    var onLineChange: () -> Void = {}
-
-    private var dots: [Bool] { Array(line.dots.prefix(line.count)) }
 
     var body: some View {
         GeometryReader { geo in
@@ -19,7 +16,7 @@ struct SequencerLineView: View {
                     .fill(Theme.Color.panelBorder)
                     .frame(height: 2)
                     .position(x: geo.size.width / 2, y: geo.size.height / 2)
-                ForEach(dots.indices, id: \.self) { i in
+                ForEach(0..<line.count, id: \.self) { i in
                     dotView(i, geo: geo)
                 }
             }
@@ -30,14 +27,13 @@ struct SequencerLineView: View {
     }
 
     private func dotView(_ i: Int, geo: GeometryProxy) -> some View {
-        let on = dots[i]
+        let on = line.dots[i]
         let isCurrent = current == i
-        let x = geo.size.width * (dots.count <= 1 ? 0.5 : CGFloat(i) / CGFloat(dots.count))
+        let x = geo.size.width * (line.count <= 1 ? 0.5 : CGFloat(i) / CGFloat(line.count))
         let size: CGFloat = on ? 24 : 20
 
         return Button {
             line.dots[i].toggle()
-            onLineChange()
         } label: {
             Circle()
                 .fill(on ? Theme.Color.forSound(line.sound) : Theme.Color.stage)
