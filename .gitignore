@@ -32,3 +32,4 @@ macos/**/*.xcworkspace/xcuserdata/
 macos/**/xcuserdata/
 macos/**/DerivedData/
 macos/**/*.moved-aside
+.vite-ssg-temp

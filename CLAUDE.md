@@ -17,7 +17,7 @@ This is a client-only Vue 3 + TypeScript + Vite app. There is no backend, databa
 ```bash
 npm install
 npm run dev          # start Vite dev server
-npm run build        # vue-tsc -b && vite build (type-checks, then builds)
+npm run build        # vue-tsc -b && vite-ssg build (type-checks, then builds + prerenders index.html)
 npm run preview      # preview the production build
 npm run lint         # eslint . (type-aware; strict + strictTypeChecked)
 npx vue-tsc --noEmit  # type-check only, without building
@@ -42,6 +42,8 @@ The drum is also fully keyboard-playable: it's a real `<button>` (not a `div[rol
 **Animations**: hand-rolled with the Web Animations API and Vue's `<TransitionGroup>` — no animation library. `src/composables/useAnimate.ts` provides a small shared `replay(keyframes, options)` helper (cancels any in-flight animation on the element, then plays new keyframes) used by both `Mallet.vue` and `Bell.vue`. Ripples in `DrumCanvas.vue` are a reactive array rendered via `<TransitionGroup>` for the enter animation, and each ripple removes itself from the array via a `setTimeout` matching the CSS transition duration (`RIPPLE_DURATION_MS`) — keep those two values in sync if either changes.
 
 **Marketing surface**: the page is also the marketing site for the native apps. `App.vue`'s header is a hero (FrameBeat wordmark, pitch, App Store link) sitting directly above the drum — keep the drum in the first viewport on phones, since playing it *is* the pitch. `src/components/site/` holds the marketing pieces below the control panel (`AboutSections.vue`, the animated `PolyrhythmFigure.vue`) and the shared `AppStoreLink.vue` pill. The App Store and privacy URLs live in `src/lib/links.ts` (one Universal Purchase listing covers Mac + iPad), and `index.html` carries the matching `apple-itunes-app` Smart App Banner meta tag — update both together if the app ID ever changes. App Store CTAs stay neutral (no sound colors, no glow), and marketing copy must stay sourced from real facts in the codebase or `docs/privacy.html` — no price or iPhone claims.
+
+**SEO / prerendering**: `main.ts` boots through `vite-ssg/single-page`, so `npm run build` renders `App.vue` to static HTML at build time and the client hydrates it. Keep components SSR-safe: touch browser-only APIs (`window`, `document`, `AudioContext`, `performance`) only inside `onMounted`, event handlers, or other client-only code paths — never at module top level or during `setup()` — or the build (and hydration) will break. Static SEO lives in `index.html` (canonical URL, Open Graph/X card tags, `WebApplication` JSON-LD, Google Analytics `gtag` for `G-G8TGTBLPZD`) plus `public/robots.txt`, `public/sitemap.xml`, and the 1200×630 `public/og-image.png` share card. The canonical origin is `https://framebeat.adambailey.io/`.
 
 **Types**: shared domain types (`Sound`, `Line`, `Strike`, `Strikes`, `Swing`, `Ripple`) live in `src/types/drum.ts` and are imported wherever needed rather than redefined.
 
