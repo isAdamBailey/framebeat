@@ -41,6 +41,8 @@ The drum is also fully keyboard-playable: it's a real `<button>` (not a `div[rol
 
 **Animations**: hand-rolled with the Web Animations API and Vue's `<TransitionGroup>` — no animation library. `src/composables/useAnimate.ts` provides a small shared `replay(keyframes, options)` helper (cancels any in-flight animation on the element, then plays new keyframes) used by both `Mallet.vue` and `Bell.vue`. Ripples in `DrumCanvas.vue` are a reactive array rendered via `<TransitionGroup>` for the enter animation, and each ripple removes itself from the array via a `setTimeout` matching the CSS transition duration (`RIPPLE_DURATION_MS`) — keep those two values in sync if either changes.
 
+**Marketing surface**: the page is also the marketing site for the native apps. `App.vue`'s header is a hero (FrameBeat wordmark, pitch, App Store link) sitting directly above the drum — keep the drum in the first viewport on phones, since playing it *is* the pitch. `src/components/site/` holds the marketing pieces below the control panel (`AboutSections.vue`, the animated `PolyrhythmFigure.vue`) and the shared `AppStoreLink.vue` pill. The App Store and privacy URLs live in `src/lib/links.ts` (one Universal Purchase listing covers Mac + iPad), and `index.html` carries the matching `apple-itunes-app` Smart App Banner meta tag — update both together if the app ID ever changes. App Store CTAs stay neutral (no sound colors, no glow), and marketing copy must stay sourced from real facts in the codebase or `docs/privacy.html` — no price or iPhone claims.
+
 **Types**: shared domain types (`Sound`, `Line`, `Strike`, `Strikes`, `Swing`, `Ripple`) live in `src/types/drum.ts` and are imported wherever needed rather than redefined.
 
 ## Working Notes

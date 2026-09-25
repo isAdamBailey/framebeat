@@ -5,8 +5,11 @@ import Bell from './components/drum/Bell.vue'
 import Sequencer from './components/drum/Sequencer.vue'
 import TransportControls from './components/drum/TransportControls.vue'
 import SoundBanner from './components/drum/SoundBanner.vue'
+import AppStoreLink from './components/site/AppStoreLink.vue'
+import AboutSections from './components/site/AboutSections.vue'
 import { useSequencer } from './composables/useSequencer'
 import { subscribeAudioState, isAudioBlocked } from './lib/drumAudio'
+import { PRIVACY_URL } from './lib/links'
 import type { Line, Strikes } from './types/drum'
 
 const defaultDots = () => Array.from({ length: 16 }, () => true)
@@ -54,16 +57,26 @@ function patchLine(line: 'top' | 'bottom', patch: Partial<Line>) {
 
 <template>
   <div class="min-h-screen bg-slate-950 text-slate-100">
-    <div class="mx-auto max-w-3xl px-4 py-8 sm:py-10">
-      <header class="mb-6 text-center">
-        <h1 class="font-heading text-balance text-2xl font-semibold tracking-tight text-stone-300 sm:text-3xl">
-          Frame Drum <span class="italic text-stone-500">&amp;</span> Step Sequencer
+    <div class="mx-auto max-w-3xl px-4 pb-8 pt-6 sm:pb-10 sm:pt-14">
+      <header class="mb-4 text-center sm:mb-6">
+        <h1 class="font-heading text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-stone-200 sm:text-5xl">
+          FrameBeat
+          <span class="mt-1.5 block text-lg font-medium tracking-normal text-stone-400 sm:mt-2 sm:text-2xl">
+            Frame Drum <span class="italic text-stone-500">&amp;</span> Step Sequencer
+          </span>
         </h1>
-        <p class="mt-2.5 text-xs text-stone-500 sm:text-sm">
+        <p class="mx-auto mt-4 max-w-[44ch] text-pretty text-sm leading-relaxed text-stone-400 sm:mt-5 sm:text-base">
+          Strike it by hand, or program two lines that count the same bar in different numbers. Play it right here
+          in your browser — or take it with you on Mac and iPad.
+        </p>
+        <div class="mt-5 flex justify-center sm:mt-6">
+          <AppStoreLink />
+        </div>
+        <p class="mt-5 text-xs text-stone-500 sm:mt-8 sm:text-sm">
           Click the drum, or focus it and drum along on
-          <kbd class="rounded border border-stone-700 bg-stone-800/60 px-1.5 py-0.5 font-sans text-stone-300">Q W E</kbd>
+          <kbd class="whitespace-nowrap rounded border border-stone-700 bg-stone-800/60 px-1.5 py-0.5 font-sans text-stone-300">Q W E</kbd>
           /
-          <kbd class="rounded border border-stone-700 bg-stone-800/60 px-1.5 py-0.5 font-sans text-stone-300">I O P</kbd>
+          <kbd class="whitespace-nowrap rounded border border-stone-700 bg-stone-800/60 px-1.5 py-0.5 font-sans text-stone-300">I O P</kbd>
         </p>
       </header>
 
@@ -94,7 +107,9 @@ function patchLine(line: 'top' | 'bottom', patch: Partial<Line>) {
         </div>
       </section>
 
-      <footer class="pb-2 text-center text-xs text-slate-600">
+      <AboutSections />
+
+      <footer class="mt-20 flex justify-center gap-5 pb-2 text-xs text-slate-600 sm:mt-28">
         <a
           href="https://adambailey.io"
           target="_blank"
@@ -103,6 +118,7 @@ function patchLine(line: 'top' | 'bottom', patch: Partial<Line>) {
         >
           &copy; Adam Bailey
         </a>
+        <a :href="PRIVACY_URL" target="_blank" rel="noopener" class="transition-colors hover:text-slate-400">Privacy</a>
       </footer>
     </div>
   </div>

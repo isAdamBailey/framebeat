@@ -28,3 +28,5 @@ npm run preview
 - `src/lib/drumAudio.ts` — Web Audio synthesis (bass/tone/click hits, bar chime)
 - `src/lib/geometry.ts` — drum/mallet ellipse geometry for aiming strikes visually
 - `src/components/drum/` — sequencer and drum-canvas UI components
+- `src/components/site/` — marketing sections around the instrument (hero App Store link, polyrhythm explainer, native-app pitch)
+- `src/lib/links.ts` — App Store and privacy-policy URLs
