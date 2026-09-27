@@ -364,7 +364,7 @@
 				CODE_SIGN_ENTITLEMENTS = FrameBeat/FrameBeat.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 883942B6M2;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -374,7 +374,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = io.adambailey.framebeat;
 				PRODUCT_NAME = FrameBeat;
 				SDKROOT = macosx;
@@ -389,7 +389,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 883942B6M2;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "FrameBeat/Info-iOS.plist";
@@ -397,7 +397,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = io.adambailey.framebeat;
 				PRODUCT_NAME = FrameBeat;
 				PROVISIONING_PROFILE_SPECIFIER = "FrameBeat iOS App Store";
@@ -414,7 +414,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 883942B6M2;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "FrameBeat/Info-iOS.plist";
@@ -422,7 +422,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = io.adambailey.framebeat;
 				PRODUCT_NAME = FrameBeat;
 				SDKROOT = iphoneos;
@@ -558,7 +558,7 @@
 				CODE_SIGN_ENTITLEMENTS = FrameBeat/FrameBeat.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 883942B6M2;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -568,7 +568,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = io.adambailey.framebeat;
 				PRODUCT_NAME = FrameBeat;
 				SDKROOT = macosx;
