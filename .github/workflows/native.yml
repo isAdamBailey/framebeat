@@ -1,0 +1,49 @@
+name: Native
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: native-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native:
+    name: Native (swift test + Mac and iPad builds)
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: macos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Engine tests
+        working-directory: macos/FrameBeatCore
+        run: swift test
+
+      - name: Engine self-check
+        working-directory: macos/FrameBeatCore
+        run: swift run frame-beat-selfcheck
+
+      - name: Generate Xcode project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build FrameBeat (macOS)
+        run: |
+          xcodebuild -project FrameBeat.xcodeproj -scheme FrameBeat \
+            -configuration Debug -destination 'generic/platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO build
+
+      - name: Build FrameBeatiPad (iOS Simulator)
+        run: |
+          xcodebuild -project FrameBeat.xcodeproj -scheme FrameBeatiPad \
+            -configuration Debug -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build

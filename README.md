@@ -1,5 +1,8 @@
 # FrameBeat
 
+[![Web](https://github.com/isAdamBailey/framebeat/actions/workflows/web.yml/badge.svg)](https://github.com/isAdamBailey/framebeat/actions/workflows/web.yml)
+[![Native](https://github.com/isAdamBailey/framebeat/actions/workflows/native.yml/badge.svg)](https://github.com/isAdamBailey/framebeat/actions/workflows/native.yml)
+
 A frame drum and polyrhythmic step sequencer. Click or tap the drum to play it directly, or program two step lines (each with its own step count, sound, and mute) and hit play. The bottom line sets the tempo and bar length; the top line divides that same bar into its own number of steps, so the two lines can run independent polyrhythms while always landing together on beat one.
 
 Every hit is synthesized live. There are no samples, no accounts, and nothing is saved — each session starts from the same state.
