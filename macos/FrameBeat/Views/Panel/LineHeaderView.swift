@@ -15,12 +15,14 @@ struct LineHeaderView: View {
                     .tracking(1.4)
                     .foregroundStyle(Theme.Color.label)
                 Spacer()
+                // Static "Mute" text, so the accessible name contains the
+                // visible label; the pressed state carries on/off.
                 TogglePill(pressed: line.muted, action: { line.muted.toggle() }) {
                     Image(systemName: line.muted ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                    Text(line.muted ? "Muted" : "Mute")
+                    Text("Mute")
                 }
-                .help(line.muted ? "Unmute line" : "Mute line")
-                .accessibilityLabel(line.muted ? "Unmute \(label)" : "Mute \(label)")
+                .help("Mute line")
+                .accessibilityLabel("Mute \(label)")
             }
             HStack(spacing: 16) {
                 Text("\(line.count)")

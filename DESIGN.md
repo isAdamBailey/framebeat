@@ -100,7 +100,7 @@ Three accent colors, one per drum sound, sit inside a near-black, mostly-neutral
 - **Label Muted** (`#64748b`, `slate-500`): micro-labels on the stage (the Bass/Tone/Click legend, the "Bell" caption), where they sit on the near-black background as quiet captions.
 - **Label** (`#94a3b8`, `slate-400`): every uppercase micro-label inside the panel (TOP LINE, TEMPO) and the BPM unit. The panel is where people operate, so its labels must pass 4.5:1.
 - **Control Text / Border / Pressed Fill** (`slate-300` / `slate-500` / `slate-700`): the toggle pills and sound switch. Borders stay at least 3:1 against the panel so every control's edge is visible at rest.
-- **Wood Neutral** (`#78716c`–`#d6d3d1`, `stone-500`–`stone-300`): reserved for the header zone only — the heading's italic ampersand and the keyboard-shortcut caption/kbd chips — a warm neutral distinct from the cooler `slate` used everywhere else, tying that one area back to the drum's own wood tones.
+- **Wood Neutral** (`#78716c`–`#d6d3d1`, `stone-500`–`stone-300`): reserved for the heading's italic ampersand and the keyboard-shortcut kbd chips (in the header caption and under the bell) — a warm neutral distinct from the cooler `slate` used everywhere else, tying that one area back to the drum's own wood tones.
 
 ### Named Rules
 **The Three-Sound Rule.** Sky, amber, and orange mean Bass, Tone, and Click, full stop. Never reach for one of them as a generic UI highlight or a fourth unrelated accent — if a new element needs color, it's because it maps to one of the three sounds, or it stays neutral.
@@ -168,7 +168,7 @@ Circles and pills dominate: the Play/Pause button, every step dot, every sound-p
 - The BPM readout follows the same numeral treatment at a smaller size (`text-xl`), with its "BPM" unit in the Label style beside it.
 
 ### Kbd Key (keyboard-shortcut hint)
-- Small rounded rectangle, `wood-neutral-surface` background at 60% opacity, `wood-neutral-border` border, `wood-neutral-strong` text — reads as a physical keycap, used only in the header caption beneath the title.
+- Small rounded rectangle, `wood-neutral-surface` background at 60% opacity, `wood-neutral-border` border, `wood-neutral-strong` text — reads as a physical keycap, used only in the header caption beneath the title and the "Bell" caption (a smaller size there).
 
 ### Drum Canvas (signature component)
 - The system's one fully custom illustration: layered gradient `div`s simulating a wood-and-hide frame drum, two independently animated mallets (Web Animations API), and color-coded ripple strikes.

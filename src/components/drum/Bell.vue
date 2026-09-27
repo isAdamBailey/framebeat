@@ -61,15 +61,27 @@ watch(
   }
 )
 
-// Rings on pointer-down (like the drum) so a tap feels instant, and on
-// Enter from the keyboard. There's no click handler, so Space's native
-// button activation does nothing here; Space and B are page shortcuts
-// handled in HomeView.
+// Rings on pointer-down so a tap feels instant. Every other activation —
+// Enter, a screen reader's or Voice Control's click — arrives as a plain
+// click, which rings unless pointer-down already did for this press.
+// Space is Play/Pause (HomeView), so its keyup activation is cancelled in
+// the template, and a held Enter doesn't re-ring on key repeat.
+let rangOnPointerDown = false
+
+function onPointerdown() {
+  rangOnPointerDown = true
+  emit('ring')
+}
+
+function onClick() {
+  if (rangOnPointerDown) rangOnPointerDown = false
+  else emit('ring')
+}
+
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'Enter') {
-    e.preventDefault()
-    emit('ring')
-  }
+  // A keyboard press means any pointer-down that never became a click is stale.
+  rangOnPointerDown = false
+  if (e.key === 'Enter' && e.repeat) e.preventDefault()
 }
 </script>
 
@@ -82,9 +94,11 @@ function onKeydown(e: KeyboardEvent) {
       type="button"
       aria-label="Bell. Click or tap to ring it; B rings it while the drum or bell is focused. Space plays or pauses."
       class="group relative h-[138px] w-28 cursor-pointer [zoom:0.94] sm:[zoom:1.25] md:[zoom:1.625] touch-none select-none rounded-2xl border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950"
-      @pointerdown="emit('ring')"
       data-instrument
+      @pointerdown="onPointerdown"
+      @click="onClick"
       @keydown="onKeydown"
+      @keyup.space.prevent
     >
       <!-- stand arm -->
       <div class="absolute left-1/2 top-0 h-6 w-2 -translate-x-1/2 rounded bg-stone-700 shadow" />

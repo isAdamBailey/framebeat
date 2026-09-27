@@ -9,6 +9,8 @@ struct SequencerLineView: View {
     @Binding var line: Line
     let current: Int?
 
+    @State private var hovered: Int?
+
     var body: some View {
         GeometryReader { geo in
             ZStack {
@@ -29,24 +31,31 @@ struct SequencerLineView: View {
     private func dotView(_ i: Int, geo: GeometryProxy) -> some View {
         let on = line.dots[i]
         let isCurrent = current == i
+        let isHovered = hovered == i
         let x = geo.size.width * (line.count <= 1 ? 0.5 : CGFloat(i) / CGFloat(line.count))
         let size: CGFloat = on ? 24 : 20
+        // Hit area 8pt past the dot on each side (the web's 36px target), but
+        // never wider than one step's slot, so neighbours can't overlap.
+        let hitWidth = min(size + 16, geo.size.width / CGFloat(max(line.count, 1)))
 
         return Button {
             line.dots[i].toggle()
         } label: {
             Circle()
-                .fill(on ? Theme.Color.forSound(line.sound) : Theme.Color.panelBorder.opacity(0.5))
-                .overlay(Circle().stroke(Theme.Color.controlBorderPressed, lineWidth: on ? 0 : 2))
+                .fill(on ? Theme.Color.forSound(line.sound) : (isHovered ? Theme.Color.controlFillPressed : Theme.Color.panelSolid))
+                .overlay(Circle().stroke(isHovered ? Color.white : Theme.Color.controlBorderPressed, lineWidth: on ? 0 : 2))
                 .overlay(isCurrent ? Circle().stroke(Color.white.opacity(0.8), lineWidth: 2) : nil)
+                .brightness(on && isHovered ? 0.1 : 0)
                 .frame(width: size, height: size)
-                // Hit area larger than the drawn dot, like the web's before:-inset-2.
-                .frame(width: size + 12, height: size + 12)
-                .contentShape(Circle())
+                .scaleEffect(isCurrent ? 1.25 : (isHovered && !on ? 1.1 : 1))
+                .frame(width: hitWidth, height: size + 16)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .scaleEffect(isCurrent ? 1.25 : 1)
+        .onHover { hovered = $0 ? i : (hovered == i ? nil : hovered) }
+        .zIndex(isCurrent ? 1 : 0)
         .animation(.easeOut(duration: 0.08), value: isCurrent)
+        .animation(.easeOut(duration: 0.15), value: isHovered)
         .position(x: x, y: geo.size.height / 2)
         .help("\(i + 1)")
         .accessibilityLabel("Step \(i + 1)")

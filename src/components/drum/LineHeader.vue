@@ -18,15 +18,13 @@ const emit = defineEmits<{
       <span class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
         {{ label }}
       </span>
-      <TogglePill
-        :pressed="muted"
-        :aria-label="muted ? `Unmute ${label}` : `Mute ${label}`"
-        @click="emit('muteToggle')"
-      >
+      <!-- The visible text stays "Mute" so the accessible name contains it;
+           aria-pressed (from TogglePill) carries the on/off state. -->
+      <TogglePill :pressed="muted" :aria-label="`Mute ${label}`" @click="emit('muteToggle')">
         <VolumeX v-if="muted" class="h-4 w-4" />
         <Volume2 v-else class="h-4 w-4" />
         <!-- Icon-only on phones, where the long bottom-line label needs the row -->
-        <span class="max-sm:sr-only">{{ muted ? 'Muted' : 'Mute' }}</span>
+        <span class="max-sm:sr-only">Mute</span>
       </TogglePill>
     </div>
 
@@ -48,11 +46,11 @@ const emit = defineEmits<{
         @input="emit('countChange', Number(($event.target as HTMLInputElement).value))"
       />
 
-      <!-- Sound picker: a labelled segmented switch. The active segment takes
+      <!-- Sound picker: a labelled segmented switch of pressed-state buttons. The active segment takes
            its sound's color (the color *is* that sound), the rest stay
            readable neutral. Full width on its own row on phones. -->
       <div
-        role="radiogroup"
+        role="group"
         :aria-label="`${label} sound`"
         class="flex basis-full rounded-full border border-slate-600 bg-slate-950/60 p-0.5 sm:basis-auto"
       >
@@ -60,8 +58,7 @@ const emit = defineEmits<{
           v-for="(meta, key) in SOUND_META"
           :key="key"
           type="button"
-          role="radio"
-          :aria-checked="sound === key"
+          :aria-pressed="sound === key"
           class="flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full px-3 text-xs font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 sm:flex-none"
           :class="
             sound === key

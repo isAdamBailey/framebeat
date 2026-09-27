@@ -48,18 +48,18 @@ const { playing, togglePlay, progress, currentTop, currentBottom } = useSequence
   },
 })
 
-// Page-wide shortcuts, in one place. Space plays/pauses from anywhere except
-// a control that uses Space itself (buttons, links, sliders); on the drum and
-// bell (marked data-instrument) it still plays, since neither acts on click.
-// B rings the bell while the drum or bell has focus.
+// Instrument shortcuts, in one place, active only while the drum or bell
+// (marked data-instrument) has focus — playback hands the drum focus, so
+// they're live whenever the sequencer runs. Everywhere else Space keeps its
+// native job (scrolling the page, pressing the focused control).
+// Space plays/pauses; B rings the bell. Key repeat is ignored for both.
 function handleShortcut(e: KeyboardEvent) {
-  if (e.metaKey || e.ctrlKey || e.altKey || !(e.target instanceof Element)) return
-  const onInstrument = e.target.closest('[data-instrument]') !== null
+  if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return
+  if (!(e.target instanceof Element) || !e.target.closest('[data-instrument]')) return
   if (e.key === ' ') {
-    if (e.repeat || (!onInstrument && e.target.closest('button, a, input, select, textarea, [contenteditable]'))) return
     e.preventDefault()
     togglePlay()
-  } else if (onInstrument && e.key.toLowerCase() === 'b') {
+  } else if (e.key.toLowerCase() === 'b') {
     e.preventDefault()
     ringBell()
   }

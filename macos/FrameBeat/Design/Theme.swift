@@ -17,6 +17,8 @@ enum Theme {
         static let stage = SwiftUI.Color(hex: 0x020617)
         static let panel = SwiftUI.Color(hex: 0x0f172a).opacity(0.7)
         static let panelBorder = SwiftUI.Color(hex: 0x1e293b)
+        /// The panel's own color, opaque — fills an off step dot (`bg-slate-900`).
+        static let panelSolid = SwiftUI.Color(hex: 0x0f172a)
         static let ink = SwiftUI.Color(hex: 0xf1f5f9)
         static let labelMuted = SwiftUI.Color(hex: 0x64748b)
         /// Panel control tokens (DESIGN.md "Control" colors): labels and

@@ -17,8 +17,15 @@ private struct BellPose {
 struct BellView: View, Equatable {
     let trigger: Int
     /// The art is drawn at its original base size and scaled as a whole,
-    /// matching the web bell's `md:[zoom:1.625]`.
+    /// like the web bell's per-breakpoint zoom: full size (`md:[zoom:1.625]`)
+    /// normally, base size in a compact-width iPad window (Slide Over,
+    /// narrow Split View) so the stage row doesn't clip.
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var artScale: CGFloat { sizeClass == .compact ? 1 : 1.625 }
+    #else
     private let artScale: CGFloat = 1.625
+    #endif
     /// Struck by hand: a tap/click (on press, like the drum), or B/Return
     /// while focused. Space stays Play/Pause.
     var onRing: () -> Void
