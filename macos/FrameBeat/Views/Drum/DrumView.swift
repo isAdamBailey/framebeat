@@ -36,6 +36,8 @@ struct DrumView: View {
     /// the drum is tapped directly or played via keyboard (not via the
     /// sequencer).
     var onStrike: (Sound, DrumGeometry.Side) -> Void
+    /// B rings the bell beside the drum, matching `DrumCanvas.vue`.
+    var onRingBell: () -> Void
     var playing: Bool
     let strikes: Strikes
 
@@ -115,6 +117,10 @@ struct DrumView: View {
         // shortcuts don't hijack arrow/letter keys used elsewhere, matching
         // DrumCanvas.vue's element-bound @keydown.
         .onKeyPress(phases: .down) { press in
+            if press.characters.lowercased() == "b" {
+                onRingBell()
+                return .handled
+            }
             if let chars = press.characters.lowercased().first, let mapped = keyMap[chars] {
                 keyStrike(side: mapped.side, sound: mapped.sound)
                 return .handled

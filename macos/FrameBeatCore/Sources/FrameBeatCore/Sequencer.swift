@@ -21,7 +21,7 @@ public struct ScheduledEvent: Sendable {
 /// is what an offline (non-realtime) render needs and is easier to assert
 /// timing invariants against in a test.
 public enum Sequencer {
-    public static func generateEvents(top: Line, bottom: Line, bpm: Double, bars: Int) -> [ScheduledEvent] {
+    public static func generateEvents(top: Line, bottom: Line, bpm: Double, bars: Int, chimeOnOne: Bool = true) -> [ScheduledEvent] {
         precondition(bars > 0 && top.count > 0 && bottom.count > 0)
         let beatDur = 60.0 / bpm
         let barDur = beatDur * Double(bottom.count)
@@ -49,11 +49,11 @@ public enum Sequencer {
         for k in 0..<totalBottomSteps {
             let time = Double(k) * beatDur
             let idx = k % bottom.count
-            if idx == 0 {
+            if idx == 0 && chimeOnOne {
                 // "The one": bottom step 0 is when both lines restart
                 // together, so the bar-marker chime rings there regardless
-                // of either line's mute state — matches scheduleStep() in
-                // useSequencer.ts.
+                // of either line's mute state (unless the chime is switched
+                // off) — matches scheduleStep() in useSequencer.ts.
                 events.append(ScheduledEvent(time: time, kind: .bell))
             }
             events.append(ScheduledEvent(

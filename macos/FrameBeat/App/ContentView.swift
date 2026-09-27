@@ -32,25 +32,27 @@ struct ContentView: View {
                         Text("FrameBeat")
                             .font(Theme.Typography.display())
                         #if os(macOS)
-                        Text("Click the drum, or focus it and drum along on Q W E / I O P")
+                        Text("Click the drum, or focus it and drum along on Q W E / I O P, and ring the bell on B")
                             .font(Theme.Typography.body)
                             .foregroundStyle(Theme.Color.labelMuted)
                         #else
-                        Text("Tap the drum to play it")
+                        Text("Tap the drum or the bell to play")
                             .font(Theme.Typography.body)
                             .foregroundStyle(Theme.Color.labelMuted)
                         #endif
                     }
 
-                    HStack(alignment: .bottom, spacing: 24) {
+                    HStack(alignment: .center, spacing: 24) {
                         DrumView(
                             onStrike: { sound, _ in audio.play(sound) },
+                            onRingBell: ringBell,
                             playing: playing,
                             strikes: appState.strikes
                         )
                         .frame(width: 340)
 
-                        BellView(trigger: appState.bellTrigger)
+                        BellView(trigger: appState.bellTrigger, onRing: ringBell)
+                            .equatable()
                     }
                 }
             }
@@ -59,6 +61,7 @@ struct ContentView: View {
                 TransportControls(
                     playing: playing,
                     bpm: $appState.bpm,
+                    chimeOnOne: $appState.chimeOnOne,
                     onTogglePlay: togglePlay
                 )
                 SequencerPanel(
@@ -101,6 +104,14 @@ struct ContentView: View {
         .onChange(of: appState.top) { _, _ in reanchorIfPlaying() }
         .onChange(of: appState.bottom) { _, _ in reanchorIfPlaying() }
         .onChange(of: appState.bpm) { _, _ in reanchorIfPlaying() }
+        .onChange(of: appState.chimeOnOne) { _, on in sequencer?.chimeOnOne = on }
+    }
+
+    /// Struck by hand (tap, click, or B): rings immediately, whether or not
+    /// the sequencer's chime on the one is switched on.
+    private func ringBell() {
+        audio.playDing()
+        appState.ringBell()
     }
 
     private func reanchorIfPlaying() {
@@ -123,6 +134,7 @@ struct ContentView: View {
             progress = 0
         } else {
             let seq = LiveSequencer(engine: audio.engine, top: appState.top, bottom: appState.bottom, bpm: appState.bpm)
+            seq.chimeOnOne = appState.chimeOnOne
             seq.onIndexUpdate = { line, index in
                 if line == .top { currentTop = index } else { currentBottom = index }
             }

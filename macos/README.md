@@ -168,11 +168,11 @@ individual voices/filters instead of whole renders.
 
 - `DrumSynth.swift`'s triangle oscillator is a plain (non-band-limited)
   triangle wave; Web Audio's built-in triangle oscillator is band-limited.
-  Should sound very close but isn't bit-identical — affects the edge slap
-  and wood click voices' upper harmonics.
+  Should sound very close but isn't bit-identical — affects the wood
+  click voice's upper harmonics.
 - The two noise tables (Swift's vs. the browser's) are independent random
   draws with the same statistics, not the same values, so filtered-noise
-  voices (open bass's low end, edge slap, wood click) will never null out
+  voices (open bass's low end, open tone, wood click) will never null out
   against each other even if the filters are correct — judge them by ear/
   spectrum shape, not by diffing samples.
 

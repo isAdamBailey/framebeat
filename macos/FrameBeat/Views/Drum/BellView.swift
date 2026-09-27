@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Port of `Bell.vue`: a small hanging chime that swings, with its clapper
+/// Port of `Bell.vue`: a hanging chime you can strike, that swings, with its clapper
 /// swinging independently, plus a soft shine flash — all three replaying
-/// whenever `trigger` changes (the bar's "one" being heard). `Bell.vue` runs
+/// whenever `trigger` changes (the bar's "one" being heard, or a hand strike). `Bell.vue` runs
 /// three independent Web Animations API `replay()` calls with their own
 /// durations/easings; `KeyframeAnimator` is the native SwiftUI equivalent —
 /// one `BellPose` with three independently-timed `KeyframeTrack`s, replayed
@@ -14,11 +14,35 @@ private struct BellPose {
     var shineOffset: Double = 0
 }
 
-struct BellView: View {
+struct BellView: View, Equatable {
     let trigger: Int
+    /// The art is drawn at its original base size and scaled as a whole,
+    /// like the web bell's per-breakpoint zoom: full size (`md:[zoom:1.625]`)
+    /// normally, base size in a compact-width iPad window (Slide Over,
+    /// narrow Split View) so the stage row doesn't clip.
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var artScale: CGFloat { sizeClass == .compact ? 1 : 1.625 }
+    #else
+    private let artScale: CGFloat = 1.625
+    #endif
+    /// Struck by hand: a tap/click (on press, like the drum), or B/Return
+    /// while focused. Space stays Play/Pause.
+    var onRing: () -> Void
+
+    /// Only `trigger` changes what the bell shows. Comparing on it alone (with
+    /// `.equatable()` at the call site) keeps the parent's 120Hz playhead
+    /// updates from redrawing the bell just because `onRing` is a closure.
+    nonisolated static func == (lhs: BellView, rhs: BellView) -> Bool {
+        lhs.trigger == rhs.trigger
+    }
+
+    @State private var pressActive = false
+    @State private var hovering = false
+    @FocusState private var isFocused: Bool
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             KeyframeAnimator(initialValue: BellPose(), trigger: trigger) { pose in
                 ZStack(alignment: .top) {
                     RoundedRectangle(cornerRadius: 2)
@@ -37,10 +61,17 @@ struct BellView: View {
                                 .blur(radius: 3)
                                 .opacity(pose.shineOpacity)
                                 .offset(x: pose.shineOffset - 4, y: 24)
+                                .allowsHitTesting(false)
                         }
+                        // Hover lean hints that the bell can be struck; the
+                        // ring swing plays inside it.
+                        .rotationEffect(.degrees(hovering ? -4 : 0), anchor: .top)
+                        .animation(.easeOut(duration: 0.3), value: hovering)
                     }
                 }
-                .frame(width: 128, height: 156)
+                .frame(width: 112, height: 136)
+                .scaleEffect(artScale)
+                .frame(width: 112 * artScale, height: 136 * artScale)
             } keyframes: { _ in
                 KeyframeTrack(\.bodyRotation) {
                     CubicKeyframe(-16, duration: 0.16)
@@ -64,10 +95,54 @@ struct BellView: View {
                     CubicKeyframe(16, duration: 0.3)
                 }
             }
+            .contentShape(Rectangle())
+            .gesture(
+                // Ring on the initial press, not release, matching
+                // `Bell.vue`'s @pointerdown and the drum's own gesture.
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        guard !pressActive else { return }
+                        pressActive = true
+                        onRing()
+                    }
+                    .onEnded { _ in pressActive = false }
+            )
+            .onHover { hovering = $0 }
+            .focusable()
+            .focusEffectDisabled()
+            .focused($isFocused)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Theme.Color.bassSky, lineWidth: 2)
+                    .padding(-4)
+                    .opacity(isFocused ? 1 : 0)
+            )
+            .onKeyPress(phases: .down) { press in
+                // Space is left to the Playback menu's Play/Pause shortcut.
+                if press.characters.lowercased() == "b" || press.key == .return {
+                    onRing()
+                    return .handled
+                }
+                return .ignored
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Bell")
+            .accessibilityHint("Rings the bell")
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAction { onRing() }
 
-            Text("Bar chime")
-                .font(.system(size: 11))
-                .foregroundStyle(Theme.Color.labelMuted)
+            HStack(spacing: 6) {
+                Text("Bell")
+                    .font(.system(size: 11))
+                    .foregroundStyle(Theme.Color.labelMuted)
+                Text("B")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Theme.Color.woodNeutralStrong.opacity(0.8))
+                    .padding(.horizontal, 4)
+                    .background(Theme.Color.woodNeutralSurface.opacity(0.6), in: RoundedRectangle(cornerRadius: 4))
+                    .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.Color.woodNeutralBorder, lineWidth: 1))
+            }
+            .accessibilityHidden(true)
         }
     }
 

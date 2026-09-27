@@ -39,7 +39,7 @@ final class OfflineRendererTests: XCTestCase {
         let renderer = OfflineRenderer(sampleRate: 48000, durationSeconds: 2)
         renderer.triggerDing(atSample: 0)
         let mono = renderer.finalizeMono()
-        // The ding's longest partial decays over 1.1s — expect non-negligible
+        // The ding's longest partial decays over 1.8s — expect non-negligible
         // energy well past where a ~0.6s drum voice would already be silent.
         let sampleAt900ms = Int(0.9 * 48000)
         XCTAssertGreaterThan(abs(mono[sampleAt900ms]) + abs(mono[sampleAt900ms + 1]) + abs(mono[sampleAt900ms + 2]), 0)

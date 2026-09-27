@@ -6,6 +6,9 @@ interface UseSequencerArgs {
   top: Line
   bottom: Line
   bpm: Ref<number>
+  // Whether the bar-marker chime rings on "the one". Read at booking time,
+  // so flipping it mid-play takes effect from the next unbooked bar.
+  chimeOnOne: Ref<boolean>
   onStep: (sound: Sound, line: 'top' | 'bottom') => void
   onDing: () => void
 }
@@ -23,7 +26,7 @@ type QueueEvent =
 // AudioContext clock. The bottom line runs at the BPM and defines the bar;
 // the top line divides the same bar into its own step count, so both lines
 // always start together on "one". A rAF loop syncs visuals to the same timeline.
-export function useSequencer({ top, bottom, bpm, onStep, onDing }: UseSequencerArgs) {
+export function useSequencer({ top, bottom, bpm, chimeOnOne, onStep, onDing }: UseSequencerArgs) {
   const playing = ref(false)
   const progress = ref(0)
   const currentTop = ref<number | null>(null)
@@ -51,8 +54,8 @@ export function useSequencer({ top, bottom, bpm, onStep, onDing }: UseSequencerA
   function scheduleStep(line: 'top' | 'bottom', idx: number, time: number) {
     const data = line === 'top' ? top : bottom
     // The "one" is when both lines restart together (bottom step 0) — ring the
-    // bar-marker chime there, regardless of line mutes.
-    if (line === 'bottom' && idx === 0) {
+    // bar-marker chime there (unless switched off), regardless of line mutes.
+    if (line === 'bottom' && idx === 0 && chimeOnOne.value) {
       triggerDing(time)
       // Visual event so the bell animation fires when the ding is *heard*.
       queue.push({ time, line: 'bell' })

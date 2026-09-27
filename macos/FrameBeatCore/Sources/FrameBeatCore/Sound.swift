@@ -4,6 +4,15 @@ public enum Sound: String, Sendable, CaseIterable, Equatable {
     case bass
     case edge
     case click
+
+    /// Display name, matching `SOUND_META[sound].label` in src/lib/drumSounds.ts.
+    public var label: String {
+        switch self {
+        case .bass: return "Bass"
+        case .edge: return "Tone"
+        case .click: return "Click"
+        }
+    }
 }
 
 public struct Line: Sendable, Equatable {

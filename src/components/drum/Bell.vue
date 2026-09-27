@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
 import { useAnimate } from '../../composables/useAnimate'
+import Kbd from './Kbd.vue'
 
 const props = defineProps<{ trigger: number | null }>()
+const emit = defineEmits<{ ring: [] }>()
 
 const bodyEl = ref<HTMLElement | null>(null)
 const clapperEl = ref<HTMLElement | null>(null)
@@ -13,7 +15,8 @@ const body = useAnimate(bodyEl)
 const clapper = useAnimate(clapperEl)
 const shine = useAnimate(shineEl)
 
-// A small hanging chime that swings when the bar's "one" ding is heard.
+// A hanging chime that swings whenever it rings: on the bar's "one" (when
+// the sequencer's chime is on), or when struck by hand.
 watch(
   () => props.trigger,
   async (t) => {
@@ -57,15 +60,53 @@ watch(
     })
   }
 )
+
+// Rings on pointer-down so a tap feels instant. Every other activation —
+// Enter, a screen reader's or Voice Control's click — arrives as a plain
+// click, which rings unless pointer-down already did for this press.
+// Space is Play/Pause (HomeView), so its keyup activation is cancelled in
+// the template, and a held Enter doesn't re-ring on key repeat.
+let rangOnPointerDown = false
+
+function onPointerdown() {
+  rangOnPointerDown = true
+  emit('ring')
+}
+
+function onClick() {
+  if (rangOnPointerDown) rangOnPointerDown = false
+  else emit('ring')
+}
+
+function onKeydown(e: KeyboardEvent) {
+  // A keyboard press means any pointer-down that never became a click is stale.
+  rangOnPointerDown = false
+  if (e.key === 'Enter' && e.repeat) e.preventDefault()
+}
 </script>
 
 <template>
-  <div class="flex flex-col items-center gap-2" aria-hidden="true">
-    <div class="relative h-40 w-32">
+  <div class="flex flex-col items-center gap-1.5">
+    <!-- The art is drawn at its original base size; zoom (not transform: scale)
+         sizes it per breakpoint and scales the layout box with it, so phones
+         keep it small enough to sit beside the drum without sideways scroll. -->
+    <button
+      type="button"
+      aria-label="Bell. Click or tap to ring it; B rings it while the drum or bell is focused. Space plays or pauses."
+      class="group relative h-[138px] w-28 cursor-pointer [zoom:0.94] sm:[zoom:1.25] md:[zoom:1.625] touch-none select-none rounded-2xl border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950"
+      data-instrument
+      @pointerdown="onPointerdown"
+      @click="onClick"
+      @keydown="onKeydown"
+      @keyup.space.prevent
+    >
       <!-- stand arm -->
       <div class="absolute left-1/2 top-0 h-6 w-2 -translate-x-1/2 rounded bg-stone-700 shadow" />
 
-      <div class="absolute left-1/2 top-5 -translate-x-1/2">
+      <!-- hover lean hints that the bell can be struck; the ring swing replays on the inner element -->
+      <div
+        class="absolute left-1/2 top-5 -translate-x-1/2 origin-top transition-transform duration-300 ease-out group-hover:rotate-[-4deg] motion-reduce:transition-none"
+      >
         <div ref="bodyEl" style="transform-origin: 50% 0%">
           <!-- cord -->
           <div class="mx-auto h-5 w-0.5 bg-stone-500" />
@@ -97,10 +138,13 @@ watch(
         <div
           v-if="showShine"
           ref="shineEl"
-          class="absolute left-0 top-5 h-10 w-5 rounded-full bg-white/70 blur-[3px]"
+          class="pointer-events-none absolute left-0 top-5 h-10 w-5 rounded-full bg-white/70 blur-[3px]"
         />
       </div>
-    </div>
-    <span class="text-[11px] text-slate-500">Bar chime</span>
+    </button>
+    <span class="flex items-center gap-1.5 text-[11px] text-slate-500" aria-hidden="true">
+      Bell
+      <Kbd small>B</Kbd>
+    </span>
   </div>
 </template>

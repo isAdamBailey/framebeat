@@ -24,6 +24,8 @@
 		623D90E924EB414C42F57188 /* SoundPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E331D6EEB4BF24BE55946C /* SoundPicker.swift */; };
 		64A1EE1F293CC054FDF6AB22 /* BellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B804BAAB2A3527DB047F1784 /* BellView.swift */; };
 		65F606EC7E06788EB439AEC5 /* RealtimeAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E0931B6F83A3494B7C486F0 /* RealtimeAudio.swift */; };
+		729166CD8FAFE66D1706E718 /* TogglePill.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA006B32F3047E8E7B722A30 /* TogglePill.swift */; };
+		730511C103BC9C8FB8574524 /* TogglePill.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA006B32F3047E8E7B722A30 /* TogglePill.swift */; };
 		7B9B4BDB08A814CA83651788 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14AE6343DFC26F2BD0783A16 /* AppState.swift */; };
 		850246833CDD37DA5CB224D8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66C2365E6E6A96A2C4167F6 /* ContentView.swift */; };
 		893B62E9B652B758807CBC83 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 6BD7DD2C38724316F42E2D56 /* Fonts */; };
@@ -62,6 +64,7 @@
 		C6197A7B3DB0C00E14CADB1D /* Info-iOS.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Info-iOS.plist"; sourceTree = "<group>"; };
 		C66C2365E6E6A96A2C4167F6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C7E331D6EEB4BF24BE55946C /* SoundPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundPicker.swift; sourceTree = "<group>"; };
+		DA006B32F3047E8E7B722A30 /* TogglePill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TogglePill.swift; sourceTree = "<group>"; };
 		E59EF6672ED6C3F6234A96D3 /* FrameBeat.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FrameBeat.entitlements; sourceTree = "<group>"; };
 		F3BCECE0665D79F1EBE82790 /* FrameBeatCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = FrameBeatCore; path = FrameBeatCore; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -196,6 +199,7 @@
 				A2A1097A4E8E2933D6AC34EB /* SequencerLineView.swift */,
 				BF267A08BF1FBDD18F766692 /* SequencerPanel.swift */,
 				C7E331D6EEB4BF24BE55946C /* SoundPicker.swift */,
+				DA006B32F3047E8E7B722A30 /* TogglePill.swift */,
 				C50D676B518BE819AC9CB86C /* TransportControls.swift */,
 			);
 			path = Panel;
@@ -324,6 +328,7 @@
 				5A6CAE05EF3B923ED94234F2 /* SequencerPanel.swift in Sources */,
 				F0A9B038D514280238779973 /* SoundPicker.swift in Sources */,
 				F32713F5D1EFB47BE32099A9 /* Theme.swift in Sources */,
+				730511C103BC9C8FB8574524 /* TogglePill.swift in Sources */,
 				9C5A83E594AE6F7F7829FEED /* TransportControls.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -344,6 +349,7 @@
 				5E666290D57B7FDC63A6ACC9 /* SequencerPanel.swift in Sources */,
 				623D90E924EB414C42F57188 /* SoundPicker.swift in Sources */,
 				B40827E549662DBCA1984A5D /* Theme.swift in Sources */,
+				729166CD8FAFE66D1706E718 /* TogglePill.swift in Sources */,
 				2B9A581C71A425D30436B159 /* TransportControls.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

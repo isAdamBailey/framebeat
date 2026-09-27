@@ -5,6 +5,7 @@ import SwiftUI
 struct TransportControls: View {
     var playing: Bool
     @Binding var bpm: Double
+    @Binding var chimeOnOne: Bool
     var onTogglePlay: () -> Void
 
     var body: some View {
@@ -34,19 +35,30 @@ struct TransportControls: View {
                     Text("TEMPO")
                         .font(Theme.Typography.label)
                         .tracking(1.4)
-                        .foregroundStyle(Theme.Color.labelMuted)
+                        .foregroundStyle(Theme.Color.label)
                     Spacer()
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("\(Int(bpm))")
                             .font(Theme.Typography.numeral(size: 20))
                         Text("BPM")
                             .font(Theme.Typography.label)
-                            .foregroundStyle(Theme.Color.labelMuted)
+                            .foregroundStyle(Theme.Color.label)
                     }
                 }
                 Slider(value: $bpm, in: 40...200, step: 1)
                     .tint(Theme.Color.bassSky)
             }
+
+            chimeToggle
         }
+    }
+
+    /// The bar-marker chime on "the one", matching `TransportControls.vue`.
+    private var chimeToggle: some View {
+        TogglePill(pressed: chimeOnOne, action: { chimeOnOne.toggle() }) {
+            Image(systemName: chimeOnOne ? "bell.fill" : "bell.slash")
+            Text("Chime on 1")
+        }
+        .help("Ring the bell on the first beat of every bar")
     }
 }

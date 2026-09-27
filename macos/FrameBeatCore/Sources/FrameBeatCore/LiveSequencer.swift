@@ -24,8 +24,13 @@ public final class LiveSequencer {
     /// matching `useSequencer.ts`'s `frame()` (`onStep` only called when
     /// `data.dots[event.index] && !data.muted`).
     public var onStrike: ((LineId, Int, Sound) -> Void)?
-    /// Fires on every bar boundary regardless of mute state.
+    /// Fires on every bar boundary regardless of mute state, while
+    /// `chimeOnOne` is on.
     public var onBell: (() -> Void)?
+    /// Whether the bar-marker chime rings on "the one". Read at booking
+    /// time, matching `useSequencer.ts`'s `chimeOnOne`: flipping it mid-play
+    /// takes effect from the next bar not yet booked.
+    public var chimeOnOne = true
     /// Fires ~120Hz with the bottom line's fractional position through its
     /// bar (0..<1), matching `useSequencer.ts`'s `progress` — drives the
     /// sweeping playhead bar independent of per-step visual events.
@@ -187,7 +192,7 @@ public final class LiveSequencer {
 
     private func scheduleBottomStep(at sample: Int64) {
         let idx = bottomIndex % bottom.count
-        if idx == 0 {
+        if idx == 0 && chimeOnOne {
             engine.triggerDing(atSample: sample)
             visualQueue.append(.bell(sample: sample))
         }

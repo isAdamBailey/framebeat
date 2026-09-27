@@ -17,6 +17,8 @@ final class AppState {
     var bottom = Line(count: 4, sound: .bass)
     var strikes = Strikes()
     var bellTrigger = 0
+    /// Whether the sequencer rings the bar-marker chime on "the one".
+    var chimeOnOne = true
 
     func recordStrike(_ sound: Sound, on line: LineId) {
         let nextId = (line == .top ? strikes.top?.id : strikes.bottom?.id).map { $0 + 1 } ?? 1

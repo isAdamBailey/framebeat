@@ -69,7 +69,7 @@ public final class OfflineRenderer {
     /// `triangle` uses a closed-form (non-band-limited) triangle wave; Web
     /// Audio's built-in triangle oscillator is band-limited. The harmonic
     /// difference is small (triangle harmonics already roll off as 1/n²) but
-    /// unverified by ear — check the edge-slap/wood-click voices first if a
+    /// unverified by ear — check the wood-click voice (the only triangle voice) first if a
     /// side-by-side comparison sounds "thinner" or "brighter" than expected.
     private func renderOscillator(startSample: Int, waveform: Waveform, freq: Envelope, gain: Envelope) {
         let dur = max(freq.duration, gain.duration)

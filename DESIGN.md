@@ -7,6 +7,10 @@ colors:
   panel-border: "#1e293b"
   ink: "#f1f5f9"
   label-muted: "#64748b"
+  label: "#94a3b8"
+  control-text: "#cbd5e1"
+  control-border: "#64748b"
+  control-fill-pressed: "#334155"
   wood-neutral: "#78716c"
   wood-neutral-strong: "#d6d3d1"
   wood-neutral-border: "#44403c"
@@ -93,8 +97,10 @@ Three accent colors, one per drum sound, sit inside a near-black, mostly-neutral
 - **Panel** (`#0f172a` at 70% opacity, `slate-900/70`): the transport + sequencer card surface, sitting one step lighter than the stage.
 - **Panel Border** (`#1e293b`, `slate-800`): the card's hairline border.
 - **Ink** (`#f1f5f9`, `slate-100`): base body text color.
-- **Label Muted** (`#64748b`, `slate-500`): every uppercase micro-label (TOP LINE, TEMPO, the Bass/Tone/Click legend, "Bar chime") and secondary numeral captions (BPM unit).
-- **Wood Neutral** (`#78716c`–`#d6d3d1`, `stone-500`–`stone-300`): reserved for the header zone only — the heading's italic ampersand and the keyboard-shortcut caption/kbd chips — a warm neutral distinct from the cooler `slate` used everywhere else, tying that one area back to the drum's own wood tones.
+- **Label Muted** (`#64748b`, `slate-500`): micro-labels on the stage (the Bass/Tone/Click legend, the "Bell" caption), where they sit on the near-black background as quiet captions.
+- **Label** (`#94a3b8`, `slate-400`): every uppercase micro-label inside the panel (TOP LINE, TEMPO) and the BPM unit. The panel is where people operate, so its labels must pass 4.5:1.
+- **Control Text / Border / Pressed Fill** (`slate-300` / `slate-500` / `slate-700`): the toggle pills and sound switch. Borders stay at least 3:1 against the panel so every control's edge is visible at rest.
+- **Wood Neutral** (`#78716c`–`#d6d3d1`, `stone-500`–`stone-300`): reserved for the heading's italic ampersand and the keyboard-shortcut kbd chips (in the header caption and under the bell) — a warm neutral distinct from the cooler `slate` used everywhere else, tying that one area back to the drum's own wood tones.
 
 ### Named Rules
 **The Three-Sound Rule.** Sky, amber, and orange mean Bass, Tone, and Click, full stop. Never reach for one of them as a generic UI highlight or a fourth unrelated accent — if a new element needs color, it's because it maps to one of the three sounds, or it stays neutral.
@@ -119,7 +125,7 @@ Three accent colors, one per drum sound, sit inside a near-black, mostly-neutral
 
 ## Layout
 
-Single centered column, `max-w-3xl`, generous vertical rhythm (`py-8`–`py-10` outer, `gap-6`–`gap-10` between the drum and bell). The page has two zones stacked vertically: an untethered "stage" zone (title, caption, drum, bell, sound legend) sitting directly on the dark background with a soft radial glow behind it, and a bordered flat "panel" zone (`rounded-xl border border-slate-800 bg-slate-900/70`) holding the transport controls and the two sequencer lines. Mobile (`<640px`) shrinks the drum's viewport-relative width, scales the bell down (`scale-75`) rather than reflowing its internal layout, and steps typography down one notch; nothing reflows to multiple columns at any width.
+Single centered column, `max-w-3xl`, generous vertical rhythm (`py-8`–`py-10` outer, `gap-6`–`gap-10` between the drum and bell). The page has two zones stacked vertically: an untethered "stage" zone (title, caption, drum, bell, sound legend) sitting directly on the dark background with a soft radial glow behind it, and a bordered flat "panel" zone (`rounded-xl border border-slate-800 bg-slate-900/70`) holding the transport controls and the two sequencer lines. Mobile (`<640px`) shrinks the drum's viewport-relative width, scales the bell down (`zoom: 0.75`, so its layout box shrinks too) rather than reflowing its internal layout, and steps typography down one notch; nothing reflows to multiple columns at any width.
 
 ## Elevation & Depth
 
@@ -144,24 +150,25 @@ Circles and pills dominate: the Play/Pause button, every step dot, every sound-p
 ### Buttons
 - **Shape:** full pill (`rounded-full`).
 - **Primary (Play/Pause):** `h-16`, solid Bass Sky fill, near-black (`slate-950`) text/icon for maximum contrast, primary-action glow shadow, `hover:bg-sky-300`, `active:scale-[0.97]` for tactile press feedback. This is the only button in the system and it is unambiguously the main action.
-- **Icon-only (mute):** no fill, no border; just an icon that shifts from muted slate to bright white/slate-200 when active. No visible focus ring style beyond the browser default — a candidate to revisit if keyboard-only mute toggling becomes a priority.
+- **Toggle pill (Mute, Chime on 1):** `h-9` bordered pill, icon plus a text label (Mute collapses to icon-only below 640px, keeping its border and 36px target). At rest: `slate-500` border, `slate-300` text; pressed: `slate-700` fill, `slate-400` border, white text, `aria-pressed`. Never an accent color — these are settings, not sounds.
+- **Every panel control** has a visible edge at rest, a readable label, a hit target of at least 32px, and a `sky-400` focus-visible ring.
 
 ### Step Dots (Sequencer Line)
 - **On:** filled circle (`h-6 w-6`) in the line's current sound color, with a soft shadow.
-- **Off:** hollow ring (`h-5 w-5`, `border-2 border-slate-700`, `bg-slate-900`).
+- **Off:** hollow ring (`h-5 w-5`, `border-2 border-slate-400`, `bg-slate-900`), brightening to white on hover; the hit area extends 8px past the drawn dot.
 - **Current/playhead step:** scales to 1.25× with a white ring overlay, regardless of on/off state.
-- **Track:** a thin (`h-1`) `slate-800` line connecting all steps.
+- **Track:** a thin (`h-1`) `slate-700` line connecting all steps.
 
 ### Sound Picker (per line)
-- Row of small solid-color dots, one per sound (Bass/Tone/Click), no text labels — just a `title` tooltip and an `aria-label` per button.
-- **Active:** `h-3 w-3`, full opacity. **Inactive:** `h-2 w-2`, 35% opacity.
+- A labelled segmented pill: Bass | Tone | Click, each with its color dot, `h-8` segments inside a `slate-600`-bordered track. Full width on its own row below 640px.
+- **Active:** `slate-800` fill, an inset ring and text in that sound's color (the color is the sound, so this is its one legitimate use here). **Inactive:** `slate-300` text, brightening on hover.
 
 ### Step-Count / Tempo Numeral
 - The line's step count sits directly beside the slider that changes it, in the line's sound color, at `text-4xl`–`text-5xl` — the single largest read-out in the UI, since the polyrhythm (e.g. "3 against 4") is the product's core idea.
 - The BPM readout follows the same numeral treatment at a smaller size (`text-xl`), with its "BPM" unit in the Label style beside it.
 
 ### Kbd Key (keyboard-shortcut hint)
-- Small rounded rectangle, `wood-neutral-surface` background at 60% opacity, `wood-neutral-border` border, `wood-neutral-strong` text — reads as a physical keycap, used only in the header caption beneath the title.
+- Small rounded rectangle, `wood-neutral-surface` background at 60% opacity, `wood-neutral-border` border, `wood-neutral-strong` text — reads as a physical keycap, used only in the header caption beneath the title and the "Bell" caption (a smaller size there).
 
 ### Drum Canvas (signature component)
 - The system's one fully custom illustration: layered gradient `div`s simulating a wood-and-hide frame drum, two independently animated mallets (Web Animations API), and color-coded ripple strikes.

@@ -101,35 +101,52 @@ function playOpenBass(audioCtx: AudioContext, t: number) {
   noise.stop(t + 0.08)
 }
 
-// Edge Slap: high-frequency bandpass noise burst + short tight pitch envelope
-function playEdgeSlap(audioCtx: AudioContext, t: number) {
+// Open Tone: a warm, pitched hand tone pitched about an octave above the
+// bass — a sine dropping 220 -> 150 Hz, the drumhead's first overtone at
+// ~1.59x the fundamental, and a soft band-limited skin thump for the attack.
+function playOpenTone(audioCtx: AudioContext, t: number) {
+  const osc = audioCtx.createOscillator()
+  osc.type = 'sine'
+  osc.frequency.setValueAtTime(220, t)
+  osc.frequency.exponentialRampToValueAtTime(150, t + 0.18)
+  const gain = audioCtx.createGain()
+  gain.gain.setValueAtTime(0.0001, t)
+  gain.gain.exponentialRampToValueAtTime(0.75, t + 0.006)
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.34)
+
+  osc.connect(gain)
+  gain.connect(masterGain!)
+  osc.start(t)
+  osc.stop(t + 0.38)
+
+  const overtone = audioCtx.createOscillator()
+  overtone.type = 'sine'
+  overtone.frequency.setValueAtTime(350, t)
+  overtone.frequency.exponentialRampToValueAtTime(240, t + 0.12)
+  const overtoneGain = audioCtx.createGain()
+  overtoneGain.gain.setValueAtTime(0.0001, t)
+  overtoneGain.gain.exponentialRampToValueAtTime(0.22, t + 0.004)
+  overtoneGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.16)
+
+  overtone.connect(overtoneGain)
+  overtoneGain.connect(masterGain!)
+  overtone.start(t)
+  overtone.stop(t + 0.2)
+
   const noise = noiseSource(audioCtx)
   const bandpass = audioCtx.createBiquadFilter()
   bandpass.type = 'bandpass'
-  bandpass.frequency.value = 2600
-  bandpass.Q.value = 1.4
+  bandpass.frequency.value = 700
+  bandpass.Q.value = 0.9
   const noiseGain = audioCtx.createGain()
-  noiseGain.gain.setValueAtTime(0.7, t)
-  noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.09)
+  noiseGain.gain.setValueAtTime(0.35, t)
+  noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.04)
 
   noise.connect(bandpass)
   bandpass.connect(noiseGain)
   noiseGain.connect(masterGain!)
   noise.start(t)
-  noise.stop(t + 0.12)
-
-  const osc = audioCtx.createOscillator()
-  osc.type = 'triangle'
-  osc.frequency.setValueAtTime(420, t)
-  osc.frequency.exponentialRampToValueAtTime(180, t + 0.06)
-  const oscGain = audioCtx.createGain()
-  oscGain.gain.setValueAtTime(0.4, t)
-  oscGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.12)
-
-  osc.connect(oscGain)
-  oscGain.connect(masterGain!)
-  osc.start(t)
-  osc.stop(t + 0.14)
+  noise.stop(t + 0.06)
 }
 
 // Rim Click: a pronounced wooden knock for hits on the frame's side —
@@ -175,13 +192,18 @@ function playWoodClick(audioCtx: AudioContext, t: number) {
   spark.stop(t + 0.04)
 }
 
-// Soft bell chime marking the start of each bar ("the one").
-// Layered inharmonic sine partials with staggered decays = gentle ding.
+// Bell chime marking the start of each bar ("the one"), also struck by hand.
+// A small bell's partials around an E5 strike note: a low hum an octave
+// below, the minor-third tierce and the quint that give a bell its color,
+// and the octave nominal. Lower partials ring longest, so it blooms and
+// then settles onto the hum.
 function playDing(audioCtx: AudioContext, t: number) {
   const partials = [
-    { freq: 1318.5, gain: 0.15, dur: 1.1 },
-    { freq: 1975.5, gain: 0.06, dur: 0.8 },
-    { freq: 2637.0, gain: 0.035, dur: 0.6 },
+    { freq: 329.6, gain: 0.07, dur: 1.8 },
+    { freq: 659.3, gain: 0.2, dur: 1.4 },
+    { freq: 790.0, gain: 0.06, dur: 0.9 },
+    { freq: 988.0, gain: 0.045, dur: 0.7 },
+    { freq: 1318.5, gain: 0.04, dur: 0.5 },
   ]
   partials.forEach(({ freq, gain, dur }) => {
     const osc = audioCtx.createOscillator()
@@ -207,7 +229,7 @@ export function triggerDing(when: number) {
 export function triggerDrumSound(type: Sound, when: number) {
   const audioCtx = getAudioContext()
   const t = Math.max(when, audioCtx.currentTime)
-  if (type === 'edge') playEdgeSlap(audioCtx, t)
+  if (type === 'edge') playOpenTone(audioCtx, t)
   else if (type === 'click') playWoodClick(audioCtx, t)
   else playOpenBass(audioCtx, t)
 }
