@@ -19,6 +19,14 @@ enum Theme {
         static let panelBorder = SwiftUI.Color(hex: 0x1e293b)
         static let ink = SwiftUI.Color(hex: 0xf1f5f9)
         static let labelMuted = SwiftUI.Color(hex: 0x64748b)
+        /// Panel control tokens (DESIGN.md "Control" colors): labels and
+        /// controls around the sequencer stay readable against the panel.
+        static let label = SwiftUI.Color(hex: 0x94a3b8)
+        static let controlText = SwiftUI.Color(hex: 0xcbd5e1)
+        static let controlBorder = labelMuted
+        static let controlBorderPressed = label
+        static let controlFillPressed = SwiftUI.Color(hex: 0x334155)
+        static let track = controlFillPressed
         static let woodNeutral = SwiftUI.Color(hex: 0x78716c)
         static let woodNeutralStrong = SwiftUI.Color(hex: 0xd6d3d1)
         static let woodNeutralBorder = SwiftUI.Color(hex: 0x44403c)

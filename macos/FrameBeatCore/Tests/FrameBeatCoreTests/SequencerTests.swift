@@ -64,4 +64,15 @@ final class SequencerTests: XCTestCase {
         }
         XCTAssertFalse(bottomAudible, "a muted line's steps must never be marked audible")
     }
+
+    func testChimeOffDropsBellEventsButKeepsSteps() {
+        let top = Line(count: 3, sound: .edge)
+        let bottom = Line(count: 4, sound: .bass)
+        let on = Sequencer.generateEvents(top: top, bottom: bottom, bpm: 100, bars: 2)
+        let off = Sequencer.generateEvents(top: top, bottom: bottom, bpm: 100, bars: 2, chimeOnOne: false)
+
+        let isBell: (ScheduledEvent) -> Bool = { if case .bell = $0.kind { return true } else { return false } }
+        XCTAssertFalse(off.contains(where: isBell), "no bar chime when the chime on the one is off")
+        XCTAssertEqual(off.count, on.filter { !isBell($0) }.count, "turning the chime off must not drop any steps")
+    }
 }

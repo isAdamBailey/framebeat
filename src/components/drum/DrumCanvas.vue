@@ -124,9 +124,10 @@ watch(
       ref="drumEl"
       type="button"
       data-testid="drum-canvas"
-      aria-label="Frame drum. Click a spot to strike it. When focused: Q, W, E play the left mallet's click, tone, and bass zones from outer to inner; I, O, P play the right mallet's bass, tone, and click zones from inner to outer; the left and right arrow keys are a quick tone strike on either side."
+      aria-label="Frame drum. Click a spot to strike it. When focused: Q, W, E play the left mallet's click, tone, and bass zones from outer to inner; I, O, P play the right mallet's bass, tone, and click zones from inner to outer; the left and right arrow keys are a quick tone strike on either side; B rings the bell; Space plays or pauses."
       class="relative aspect-[32/30] w-[min(420px,60vw)] cursor-pointer touch-none select-none rounded-[50%] border-0 bg-transparent p-0 drop-shadow-[0_20px_40px_rgba(0,0,0,0.55)] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-950 sm:w-[min(420px,78vw)]"
       @pointerdown="strike"
+      data-instrument
       @keydown="handleKeydown"
     >
       <!-- ground shadow -->

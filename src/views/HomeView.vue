@@ -6,10 +6,11 @@ import Bell from '../components/drum/Bell.vue'
 import Sequencer from '../components/drum/Sequencer.vue'
 import TransportControls from '../components/drum/TransportControls.vue'
 import SoundBanner from '../components/drum/SoundBanner.vue'
+import Kbd from '../components/drum/Kbd.vue'
 import AppStoreLink from '../components/site/AppStoreLink.vue'
 import AboutSections from '../components/site/AboutSections.vue'
 import { useSequencer } from '../composables/useSequencer'
-import { subscribeAudioState, isAudioBlocked } from '../lib/drumAudio'
+import { subscribeAudioState, isAudioBlocked, triggerDing } from '../lib/drumAudio'
 import type { Line, Strikes } from '../types/drum'
 
 useHead({
@@ -31,12 +32,14 @@ const top = reactive<Line>({ count: 3, sound: 'edge', dots: defaultDots(), muted
 const bottom = reactive<Line>({ count: 4, sound: 'bass', dots: defaultDots(), muted: false })
 const strikes = reactive<Strikes>({ top: null, bottom: null })
 const bellTrigger = ref<number | null>(null)
+const chimeOnOne = ref(true)
 const soundBlocked = ref(false)
 
 const { playing, togglePlay, progress, currentTop, currentBottom } = useSequencer({
   top,
   bottom,
   bpm,
+  chimeOnOne,
   onStep: (sound, line) => {
     strikes[line] = { sound, line, id: (strikes[line]?.id ?? 0) + 1 }
   },
@@ -45,13 +48,41 @@ const { playing, togglePlay, progress, currentTop, currentBottom } = useSequence
   },
 })
 
+// Page-wide shortcuts, in one place. Space plays/pauses from anywhere except
+// a control that uses Space itself (buttons, links, sliders); on the drum and
+// bell (marked data-instrument) it still plays, since neither acts on click.
+// B rings the bell while the drum or bell has focus.
+function handleShortcut(e: KeyboardEvent) {
+  if (e.metaKey || e.ctrlKey || e.altKey || !(e.target instanceof Element)) return
+  const onInstrument = e.target.closest('[data-instrument]') !== null
+  if (e.key === ' ') {
+    if (e.repeat || (!onInstrument && e.target.closest('button, a, input, select, textarea, [contenteditable]'))) return
+    e.preventDefault()
+    togglePlay()
+  } else if (onInstrument && e.key.toLowerCase() === 'b') {
+    e.preventDefault()
+    ringBell()
+  }
+}
+
 let unsubscribeAudioState: (() => void) | undefined
 onMounted(() => {
   unsubscribeAudioState = subscribeAudioState(() => {
     soundBlocked.value = isAudioBlocked()
   })
+  window.addEventListener('keydown', handleShortcut)
 })
-onUnmounted(() => unsubscribeAudioState?.())
+onUnmounted(() => {
+  unsubscribeAudioState?.()
+  window.removeEventListener('keydown', handleShortcut)
+})
+
+// Struck by hand (tap, click, or B): rings immediately, whether or not the
+// sequencer's chime on the one is switched on.
+function ringBell() {
+  triggerDing(0)
+  bellTrigger.value = performance.now()
+}
 
 function lineState(line: 'top' | 'bottom') {
   return line === 'top' ? top : bottom
@@ -86,26 +117,35 @@ function patchLine(line: 'top' | 'bottom', patch: Partial<Line>) {
         </div>
         <p class="mt-5 text-xs text-stone-500 sm:mt-8 sm:text-sm">
           Click the drum, or focus it and drum along on
-          <kbd class="whitespace-nowrap rounded border border-stone-700 bg-stone-800/60 px-1.5 py-0.5 font-sans text-stone-300">Q W E</kbd>
+          <Kbd>Q W E</Kbd>
           /
-          <kbd class="whitespace-nowrap rounded border border-stone-700 bg-stone-800/60 px-1.5 py-0.5 font-sans text-stone-300">I O P</kbd>
+          <Kbd>I O P</Kbd>,
+          <span class="whitespace-nowrap">
+            and ring the bell on
+            <Kbd>B</Kbd>
+          </span>
         </p>
       </header>
 
       <SoundBanner v-if="soundBlocked" />
 
-      <div class="relative mb-8 flex items-end justify-center gap-2 py-4 sm:gap-10">
+      <div class="relative mb-8 flex items-center justify-center gap-2 py-4 sm:gap-10">
         <div
           class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(30,41,59,0.55),transparent_65%)]"
         />
         <DrumCanvas :strikes="strikes" :playing="playing" />
-        <div class="origin-bottom scale-75 sm:scale-100">
-          <Bell :trigger="bellTrigger" />
-        </div>
+        <Bell :trigger="bellTrigger" @ring="ringBell" />
       </div>
 
       <section class="mb-6 rounded-xl border border-slate-800 bg-slate-900/70 p-4 sm:p-6">
-        <TransportControls :playing="playing" :bpm="bpm" @toggle-play="togglePlay" @bpm-change="(v) => (bpm = v)" />
+        <TransportControls
+          :playing="playing"
+          :bpm="bpm"
+          :chime-on-one="chimeOnOne"
+          @toggle-play="togglePlay"
+          @bpm-change="(v) => (bpm = v)"
+          @chime-toggle="chimeOnOne = !chimeOnOne"
+        />
         <div class="mt-8">
           <Sequencer
             :top="top"

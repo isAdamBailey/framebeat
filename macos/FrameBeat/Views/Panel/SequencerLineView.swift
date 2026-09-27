@@ -12,9 +12,9 @@ struct SequencerLineView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                Rectangle()
-                    .fill(Theme.Color.panelBorder)
-                    .frame(height: 2)
+                Capsule()
+                    .fill(Theme.Color.track)
+                    .frame(height: 4)
                     .position(x: geo.size.width / 2, y: geo.size.height / 2)
                 ForEach(0..<line.count, id: \.self) { i in
                     dotView(i, geo: geo)
@@ -36,15 +36,20 @@ struct SequencerLineView: View {
             line.dots[i].toggle()
         } label: {
             Circle()
-                .fill(on ? Theme.Color.forSound(line.sound) : Theme.Color.stage)
-                .overlay(Circle().stroke(Theme.Color.panelBorder, lineWidth: on ? 0 : 2))
+                .fill(on ? Theme.Color.forSound(line.sound) : Theme.Color.panelBorder.opacity(0.5))
+                .overlay(Circle().stroke(Theme.Color.controlBorderPressed, lineWidth: on ? 0 : 2))
                 .overlay(isCurrent ? Circle().stroke(Color.white.opacity(0.8), lineWidth: 2) : nil)
+                .frame(width: size, height: size)
+                // Hit area larger than the drawn dot, like the web's before:-inset-2.
+                .frame(width: size + 12, height: size + 12)
+                .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .frame(width: size, height: size)
         .scaleEffect(isCurrent ? 1.25 : 1)
         .animation(.easeOut(duration: 0.08), value: isCurrent)
         .position(x: x, y: geo.size.height / 2)
         .help("\(i + 1)")
+        .accessibilityLabel("Step \(i + 1)")
+        .accessibilityAddTraits(on ? .isSelected : [])
     }
 }

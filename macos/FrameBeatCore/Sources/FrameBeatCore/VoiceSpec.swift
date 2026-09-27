@@ -40,15 +40,20 @@ public enum VoiceSpec {
                 ]
             )
         case .edge:
+            // Open Tone: warm pitched hand tone about an octave above the
+            // bass, plus the drumhead's ~1.59x overtone and a soft skin thump.
             return (
                 oscillators: [
-                    OscillatorSpec(waveform: .triangle,
-                        freq: Envelope([(0, 420), (0.06, 180)]),
-                        gain: Envelope([(0, 0.4), (0.12, 0.0001)])),
+                    OscillatorSpec(waveform: .sine,
+                        freq: Envelope([(0, 220), (0.18, 150)]),
+                        gain: Envelope([(0, 0.0001), (0.006, 0.75), (0.34, 0.0001)])),
+                    OscillatorSpec(waveform: .sine,
+                        freq: Envelope([(0, 350), (0.12, 240)]),
+                        gain: Envelope([(0, 0.0001), (0.004, 0.22), (0.16, 0.0001)])),
                 ],
                 noises: [
-                    FilteredNoiseSpec(kind: .bandpass, frequency: 2600, q: 1.4,
-                        gain: Envelope([(0, 0.7), (0.09, 0.0001)])),
+                    FilteredNoiseSpec(kind: .bandpass, frequency: 700, q: 0.9,
+                        gain: Envelope([(0, 0.35), (0.04, 0.0001)])),
                 ]
             )
         case .click:
@@ -69,12 +74,15 @@ public enum VoiceSpec {
         }
     }
 
-    /// The bar-marker chime's three inharmonic sine partials.
+    /// The bell's partials around an E5 strike note: hum, strike, tierce,
+    /// quint, and nominal — matching `playDing()` in `drumAudio.ts`.
     public static func dingComponents() -> [OscillatorSpec] {
         let partials: [(freq: Double, gain: Double, dur: Double)] = [
-            (1318.5, 0.15, 1.1),
-            (1975.5, 0.06, 0.8),
-            (2637.0, 0.035, 0.6),
+            (329.6, 0.07, 1.8),
+            (659.3, 0.2, 1.4),
+            (790.0, 0.06, 0.9),
+            (988.0, 0.045, 0.7),
+            (1318.5, 0.04, 0.5),
         ]
         return partials.map {
             OscillatorSpec(waveform: .sine,

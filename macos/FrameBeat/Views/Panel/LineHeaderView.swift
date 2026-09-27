@@ -1,30 +1,26 @@
 import SwiftUI
 import FrameBeatCore
 
-/// Port of `LineHeader.vue`: the mute toggle + step-count numeral/slider +
-/// sound picker sitting above a sequencer line's dots.
+/// Port of `LineHeader.vue`: the mute pill + step-count numeral/slider +
+/// labelled sound switch sitting above a sequencer line's dots.
 struct LineHeaderView: View {
     let label: String
     @Binding var line: Line
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(label.uppercased())
                     .font(Theme.Typography.label)
                     .tracking(1.4)
-                    .foregroundStyle(Theme.Color.labelMuted)
+                    .foregroundStyle(Theme.Color.label)
                 Spacer()
-                Button {
-                    line.muted.toggle()
-                } label: {
+                TogglePill(pressed: line.muted, action: { line.muted.toggle() }) {
                     Image(systemName: line.muted ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                        .foregroundStyle(line.muted ? Theme.Color.ink : Theme.Color.labelMuted)
-                        .padding(6)
-                        .contentShape(Rectangle())
+                    Text(line.muted ? "Muted" : "Mute")
                 }
-                .buttonStyle(.plain)
                 .help(line.muted ? "Unmute line" : "Mute line")
+                .accessibilityLabel(line.muted ? "Unmute \(label)" : "Mute \(label)")
             }
             HStack(spacing: 16) {
                 Text("\(line.count)")
