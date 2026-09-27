@@ -374,7 +374,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = io.adambailey.framebeat;
 				PRODUCT_NAME = FrameBeat;
 				SDKROOT = macosx;
@@ -397,7 +397,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = io.adambailey.framebeat;
 				PRODUCT_NAME = FrameBeat;
 				PROVISIONING_PROFILE_SPECIFIER = "FrameBeat iOS App Store";
@@ -422,7 +422,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = io.adambailey.framebeat;
 				PRODUCT_NAME = FrameBeat;
 				SDKROOT = iphoneos;
@@ -568,7 +568,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = io.adambailey.framebeat;
 				PRODUCT_NAME = FrameBeat;
 				SDKROOT = macosx;
