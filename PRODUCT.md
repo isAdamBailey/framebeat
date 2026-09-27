@@ -28,8 +28,8 @@ Single-page, session-only experience in a desktop or mobile browser. No accounts
 - Fully keyboard-playable drum: `Q`/`W`/`E` and `I`/`O`/`P` strike the left/right mallet's Click/Tone/Bass zones (outer-to-inner mirroring the qwerty row), arrows are a quick per-side Tone strike; playable simultaneously with the sequencer, since starting playback hands the drum keyboard focus automatically.
 - Two independently configurable step lines (step count, sound, mute per line); bottom line drives tempo/bar length, top line divides the same bar.
 - Play/pause transport; tempo and step counts can change mid-playback and the two lines re-anchor together on the next bar.
-- No persistence, accounts, backend, or database — intentionally client-only and in-memory for the session (see CLAUDE.md).
-- No test suite; correctness for scheduling/audio is verified by manually playing the app in a browser, not by type-checking alone.
+- No persistence, accounts, backend, or database — intentionally client-only and in-memory for the session (see AGENTS.md).
+- The web app has no test suite; scheduling and audio there are verified by playing the app in a browser. The native engine is covered by `swift test` in `macos/FrameBeatCore`.
 
 ## Brand Commitments
 
@@ -37,7 +37,7 @@ A visual identity is now established — see `DESIGN.md` for the full system. In
 
 ## Evidence on Hand
 
-No assets, testimonials, or supplied content beyond the codebase itself (README.md, CLAUDE.md) and the current DOM/CSS-based frame drum implementation in `src/components/drum/DrumCanvas.vue`.
+No assets, testimonials, or supplied content beyond the codebase itself (README.md, AGENTS.md) and the current DOM/CSS-based frame drum implementation in `src/components/drum/DrumCanvas.vue`.
 
 ## Product Principles
 

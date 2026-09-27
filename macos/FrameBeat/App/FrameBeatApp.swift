@@ -57,7 +57,7 @@ struct FrameBeatApp: App {
             }
             #if os(macOS)
             CommandGroup(replacing: .help) {
-                Link("FrameBeat Help & Privacy", destination: URL(string: "https://isadambailey.github.io/framebeat/privacy.html")!)
+                Link("FrameBeat Help & Privacy", destination: URL(string: "https://framebeat.adambailey.io/privacy")!)
             }
             #endif
         }

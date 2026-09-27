@@ -23,7 +23,7 @@ cross-platform and works on iPad too when a hardware keyboard is attached.
 All audio is synthesized live (no samples) via a custom `AVAudioEngine`
 render graph. There's no backend, database, or persistence — all state is
 in-memory for the current session, matching the web app this is ported
-from (see the repo root's `CLAUDE.md`/`DESIGN.md`).
+from (see the repo root's `README.md`, `AGENTS.md`, and `DESIGN.md`).
 
 ## What's here
 

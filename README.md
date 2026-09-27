@@ -1,10 +1,16 @@
 # FrameBeat
 
-A frame drum & polyrhythmic step sequencer, built with Vue 3, TypeScript, and Vite.
+A frame drum and polyrhythmic step sequencer. Click or tap the drum to play it directly, or program two step lines (each with its own step count, sound, and mute) and hit play. The bottom line sets the tempo and bar length; the top line divides that same bar into its own number of steps, so the two lines can run independent polyrhythms while always landing together on beat one.
 
-Click the drum to play it directly, or program the two step lines (each with its own step count, sound, and mute) and hit play. The bottom line sets the tempo/bar length; the top line divides the same bar into its own number of steps, so the two lines can run independent polyrhythms while always landing together on beat one.
+Every hit is synthesized live. There are no samples, no accounts, and nothing is saved — each session starts from the same state.
 
-All audio is synthesized live with the Web Audio API — no samples, no backend, no persistence. Everything lives in memory for the current session.
+Play it in the browser at [framebeat.adambailey.io](https://framebeat.adambailey.io/), or get the [Mac and iPad app](https://apps.apple.com/app/id6811452156) on the App Store. Mac and iPad are one Universal Purchase.
+
+## The apps
+
+The web app in `src/` is Vue 3, TypeScript, and Vite. It is also the marketing site, and it is the reference for how the instrument behaves.
+
+The Mac and iPad apps live in `macos/`. They are one SwiftUI codebase — the same screens and the same `FrameBeatCore` synth and scheduler — built as two targets. Build and signing notes are in [`macos/README.md`](macos/README.md).
 
 ## Development
 
@@ -13,8 +19,6 @@ npm install
 npm run dev
 ```
 
-## Build
-
 ```bash
 npm run build
 npm run preview
@@ -22,11 +26,5 @@ npm run preview
 
 ## Project structure
 
-- `src/App.vue` — top-level state (tempo, step lines, strikes) and layout
-- `src/composables/useSequencer.ts` — look-ahead audio scheduler + animation-frame sync
-- `src/composables/useAnimate.ts` — small Web Animations API helper used by the mallet/bell animations
-- `src/lib/drumAudio.ts` — Web Audio synthesis (bass/tone/click hits, bar chime)
-- `src/lib/geometry.ts` — drum/mallet ellipse geometry for aiming strikes visually
-- `src/components/drum/` — sequencer and drum-canvas UI components
-- `src/components/site/` — marketing sections around the instrument (hero App Store link, polyrhythm explainer, native-app pitch)
-- `src/lib/links.ts` — App Store and privacy-policy URLs
+- `src/` — the web app: drum, sequencer, synth, and marketing page
+- `macos/` — the Mac and iPad app, plus the shared Swift engine

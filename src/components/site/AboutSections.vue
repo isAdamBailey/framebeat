@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import AppStoreLink from './AppStoreLink.vue'
 import PolyrhythmFigure from './PolyrhythmFigure.vue'
-import { PRIVACY_URL } from '../../lib/links'
 
 const facts: { title: string; body: string }[] = [
   {
@@ -57,7 +56,7 @@ const facts: { title: string; body: string }[] = [
       <p class="mt-8 text-xs text-slate-500">
         Details in the
         <a
-          :href="PRIVACY_URL"
+          href="/privacy"
           target="_blank"
           rel="noopener"
           class="underline decoration-slate-700 underline-offset-4 transition-colors hover:text-slate-300 hover:decoration-slate-400"
