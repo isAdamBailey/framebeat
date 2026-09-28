@@ -6,7 +6,7 @@ struct FrameBeatApp: App {
         WindowGroup("FrameBeat") {
             ContentView()
                 #if os(macOS)
-                .frame(minWidth: 720, idealWidth: 780, minHeight: 820, idealHeight: 860)
+                .frame(minWidth: 720, idealWidth: 780, minHeight: 750, idealHeight: 860)
                 #endif
         }
         #if os(macOS)

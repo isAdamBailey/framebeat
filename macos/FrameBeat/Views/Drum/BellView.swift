@@ -16,25 +16,28 @@ private struct BellPose {
 
 struct BellView: View, Equatable {
     let trigger: Int
+    /// Extra shrink from the parent when the window is too short for the
+    /// full-size stage (see `ContentView.stageScale`).
+    var scale: CGFloat = 1
     /// The art is drawn at its original base size and scaled as a whole,
     /// like the web bell's per-breakpoint zoom: full size (`md:[zoom:1.625]`)
     /// normally, base size in a compact-width iPad window (Slide Over,
     /// narrow Split View) so the stage row doesn't clip.
     #if os(iOS)
     @Environment(\.horizontalSizeClass) private var sizeClass
-    private var artScale: CGFloat { sizeClass == .compact ? 1 : 1.625 }
+    private var artScale: CGFloat { (sizeClass == .compact ? 1 : 1.625) * scale }
     #else
-    private let artScale: CGFloat = 1.625
+    private var artScale: CGFloat { 1.625 * scale }
     #endif
     /// Struck by hand: a tap/click (on press, like the drum), or B/Return
     /// while focused. Space stays Play/Pause.
     var onRing: () -> Void
 
-    /// Only `trigger` changes what the bell shows. Comparing on it alone (with
+    /// Only `trigger` and `scale` change what the bell shows. Comparing on them alone (with
     /// `.equatable()` at the call site) keeps the parent's 120Hz playhead
     /// updates from redrawing the bell just because `onRing` is a closure.
     nonisolated static func == (lhs: BellView, rhs: BellView) -> Bool {
-        lhs.trigger == rhs.trigger
+        lhs.trigger == rhs.trigger && lhs.scale == rhs.scale
     }
 
     @State private var pressActive = false

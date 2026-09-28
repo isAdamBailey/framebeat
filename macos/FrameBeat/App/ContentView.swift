@@ -17,17 +17,42 @@ struct ContentView: View {
     private let audio = RealtimeAudio()
     @State private var sequencer: LiveSequencer?
 
+    /// Measured so the stage (title, drum, bell) can shrink to fit a short
+    /// window — a 900pt-tall Mac screen, or a landscape 11" iPad or iPad mini —
+    /// while the sequencer panel keeps its full size.
+    @State private var containerHeight: CGFloat = 0
+    @State private var titleHeight: CGFloat = 0
+    @State private var panelHeight: CGFloat = 0
+
+    private static let drumWidth: CGFloat = 340
+    private static let drumHeight: CGFloat = drumWidth * 30 / 32
+    private static let sectionSpacing: CGFloat = 24
+    private static let stageSpacing: CGFloat = 16
+
+    private var outerPadding: CGFloat { containerHeight > 0 && containerHeight < 940 ? 20 : 32 }
+
+    /// 1 when the full-size stage fits; otherwise the drum and bell scale
+    /// down together, never below `minStageScale`.
+    private var stageScale: CGFloat {
+        guard containerHeight > 0, panelHeight > 0 else { return 1 }
+        let stage = containerHeight - outerPadding * 2 - Self.sectionSpacing - panelHeight
+        let drum = stage - titleHeight - Self.stageSpacing
+        return min(1, max(Self.minStageScale, drum / Self.drumHeight))
+    }
+
+    private static let minStageScale: CGFloat = 0.45
+
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: Self.sectionSpacing) {
             ZStack {
                 RadialGradient(
                     colors: [Theme.Color.panelBorder.opacity(0.55), .clear],
-                    center: .center, startRadius: 0, endRadius: 260
+                    center: .center, startRadius: 0, endRadius: 260 * stageScale
                 )
-                .frame(height: 420)
+                .frame(height: 420 * stageScale)
                 .allowsHitTesting(false)
 
-                VStack(spacing: 16) {
+                VStack(spacing: Self.stageSpacing) {
                     VStack(spacing: 4) {
                         Text("FrameBeat")
                             .font(Theme.Typography.display())
@@ -41,6 +66,7 @@ struct ContentView: View {
                             .foregroundStyle(Theme.Color.labelMuted)
                         #endif
                     }
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { titleHeight = $0 }
 
                     HStack(alignment: .center, spacing: 24) {
                         DrumView(
@@ -49,9 +75,9 @@ struct ContentView: View {
                             playing: playing,
                             strikes: appState.strikes
                         )
-                        .frame(width: 340)
+                        .frame(width: Self.drumWidth * stageScale)
 
-                        BellView(trigger: appState.bellTrigger, onRing: ringBell)
+                        BellView(trigger: appState.bellTrigger, scale: stageScale, onRing: ringBell)
                             .equatable()
                     }
                 }
@@ -76,12 +102,15 @@ struct ContentView: View {
             .background(Theme.Color.panel)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.Color.panelBorder, lineWidth: 1))
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { panelHeight = $0 }
         }
-        .padding(32)
+        .padding(outerPadding)
         #if os(macOS)
-        .frame(minWidth: 720, minHeight: 820)
+        .frame(minWidth: 720, minHeight: 750)
         #endif
-        .background(Theme.Color.stage)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { containerHeight = $0 }
+        .background(Theme.Color.stage.ignoresSafeArea())
         .foregroundStyle(Theme.Color.ink)
         .preferredColorScheme(.dark)
         .onReceive(NotificationCenter.default.publisher(for: .fbTogglePlay)) { _ in togglePlay() }
