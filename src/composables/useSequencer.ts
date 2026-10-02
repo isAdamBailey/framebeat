@@ -13,14 +13,18 @@ interface UseSequencerArgs {
   onDing: () => void
 }
 
-interface Stream {
-  next: number
-  idx: number
+// The bar's timing. Held fixed from one anchor to the next, so a BPM or
+// step-count change can't reshape a bar that is already partly booked.
+interface Shape {
+  beat: number
+  bottomCount: number
+  topCount: number
 }
 
 type QueueEvent =
   | { time: number; line: 'bell' }
-  | { time: number; line: 'top' | 'bottom'; index: number }
+  | { time: number; line: 'top'; index: number }
+  | { time: number; line: 'bottom'; index: number; shape: Shape }
 
 // Drift-free polyrhythm scheduler: two independent step streams booked on the
 // AudioContext clock. The bottom line runs at the BPM and defines the bar;
@@ -34,21 +38,28 @@ export function useSequencer({ top, bottom, bpm, chimeOnOne, onStep, onDing }: U
 
   let timer: ReturnType<typeof setInterval> | null = null
   let raf: number | null = null
-  let bStream: Stream = { next: 0, idx: 0 }
-  let tStream: Stream = { next: 0, idx: 0 }
+  let shape: Shape = { beat: 1, bottomCount: 1, topCount: 1 }
+  // Steps are timed as anchor + index * duration rather than by adding onto
+  // a running total, so bar boundaries land exactly where re-anchor expects.
+  let anchorTime = 0
+  let bIdx = 0
+  let tIdx = 0
   let queue: QueueEvent[] = []
   let reanchor = false
-  let lastBottom = { time: 0, idx: 0 }
+  let lastBottom = { time: 0, idx: 0, shape }
 
-  const beatDur = () => 60 / bpm.value
-  const barDur = () => beatDur() * bottom.count
-  const topStepDur = () => barDur() / top.count
+  const readShape = (): Shape => ({ beat: 60 / bpm.value, bottomCount: bottom.count, topCount: top.count })
+  const barDur = () => shape.beat * shape.bottomCount
+  const bottomTime = (i: number) => anchorTime + i * shape.beat
+  const topTime = (i: number) => anchorTime + (i * barDur()) / shape.topCount
 
-  // Restart both step streams together on a fresh bar boundary at `startTime`.
+  // Restart both step streams together on a fresh bar boundary at `startTime`,
+  // picking up the current BPM and step counts.
   function anchor(startTime: number) {
-    bStream = { next: startTime, idx: 0 }
-    tStream = { next: startTime, idx: 0 }
-    lastBottom = { time: startTime, idx: 0 }
+    shape = readShape()
+    anchorTime = startTime
+    bIdx = 0
+    tIdx = 0
   }
 
   function scheduleStep(line: 'top' | 'bottom', idx: number, time: number) {
@@ -61,29 +72,40 @@ export function useSequencer({ top, bottom, bpm, chimeOnOne, onStep, onDing }: U
       queue.push({ time, line: 'bell' })
     }
     if (data.dots[idx] && !data.muted) triggerDrumSound(data.sound, time)
-    queue.push({ time, line, index: idx })
+    if (line === 'bottom') queue.push({ time, line, index: idx, shape })
+    else queue.push({ time, line, index: idx })
+  }
+
+  // Book every step before `horizon`, stopping each line at its index limit.
+  function book(horizon: number, bLimit = Infinity, tLimit = Infinity) {
+    for (;;) {
+      const bt = bIdx < bLimit ? bottomTime(bIdx) : Infinity
+      const tt = tIdx < tLimit ? topTime(tIdx) : Infinity
+      if (bt >= horizon && tt >= horizon) return
+      if (bt <= tt) {
+        scheduleStep('bottom', bIdx % shape.bottomCount, bt)
+        bIdx++
+      } else {
+        scheduleStep('top', tIdx % shape.topCount, tt)
+        tIdx++
+      }
+    }
   }
 
   function scheduler() {
     const audioCtx = getAudioContext()
-    if (reanchor) {
-      reanchor = false
-      anchor(audioCtx.currentTime + 0.05)
-    }
     const horizon = audioCtx.currentTime + 0.12
-    const bd = beatDur()
-    const tsd = topStepDur()
-    while (bStream.next < horizon || tStream.next < horizon) {
-      if (bStream.next <= tStream.next) {
-        scheduleStep('bottom', bStream.idx, bStream.next)
-        bStream.idx = (bStream.idx + 1) % bottom.count
-        bStream.next += bd
-      } else {
-        scheduleStep('top', tStream.idx, tStream.next)
-        tStream.idx = (tStream.idx + 1) % top.count
-        tStream.next += tsd
-      }
+    if (reanchor) {
+      // Everything before the previous horizon is already booked. Finish the
+      // old pattern up to its next bar boundary at or after this horizon, then
+      // restart both lines there under the new BPM and counts, so nothing
+      // booked is dropped, doubled, or overlapped.
+      reanchor = false
+      const bars = Math.max(0, Math.ceil((horizon - anchorTime) / barDur()))
+      book(Infinity, bars * shape.bottomCount, bars * shape.topCount)
+      anchor(anchorTime + bars * barDur())
     }
+    book(horizon)
   }
 
   function frame() {
@@ -102,7 +124,7 @@ export function useSequencer({ top, bottom, bpm, chimeOnOne, onStep, onDing }: U
       }
       const data = event.line === 'top' ? top : bottom
       if (event.line === 'bottom') {
-        lastBottom = { time: event.time, idx: event.index }
+        lastBottom = { time: event.time, idx: event.index, shape: event.shape }
         currentBottom.value = event.index
       } else {
         currentTop.value = event.index
@@ -111,8 +133,10 @@ export function useSequencer({ top, bottom, bpm, chimeOnOne, onStep, onDing }: U
         onStep(data.sound, event.line)
       }
     }
-    const frac = Math.max(0, Math.min((now - lastBottom.time) / beatDur(), 1))
-    progress.value = ((lastBottom.idx + frac) % bottom.count) / bottom.count
+    // Use the shape of the step being heard, which can lag the one being booked.
+    const { beat, bottomCount } = lastBottom.shape
+    const frac = Math.max(0, Math.min((now - lastBottom.time) / beat, 1))
+    progress.value = ((lastBottom.idx + frac) % bottomCount) / bottomCount
     raf = requestAnimationFrame(frame)
   }
 
@@ -131,6 +155,7 @@ export function useSequencer({ top, bottom, bpm, chimeOnOne, onStep, onDing }: U
   function start() {
     const audioCtx = getAudioContext()
     anchor(audioCtx.currentTime + 0.1)
+    lastBottom = { time: anchorTime, idx: 0, shape }
     reanchor = false
     queue = []
     scheduler()
@@ -144,7 +169,7 @@ export function useSequencer({ top, bottom, bpm, chimeOnOne, onStep, onDing }: U
     else start()
   }
 
-  // Re-anchor both streams to a fresh bar when timing params change mid-play,
+  // Re-anchor both streams on the next bar when timing params change mid-play,
   // so the two lines always restart together on "one".
   watch([bpm, () => top.count, () => bottom.count], () => {
     if (playing.value) reanchor = true
