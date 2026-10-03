@@ -38,6 +38,10 @@ final class SharedSpecSequencerTests: XCTestCase {
         }
     }
 
+    private func tick(_ event: ScheduledEvent) -> Int64 {
+        Int64((event.time * 1_000_000).rounded())
+    }
+
     func testEventLists() throws {
         let spec = try spec()
         XCTAssertFalse(spec.sequences.isEmpty)
@@ -45,7 +49,10 @@ final class SharedSpecSequencerTests: XCTestCase {
             let events = Sequencer.generateEvents(
                 top: try c.top.line(), bottom: try c.bottom.line(), bpm: c.bpm, bars: c.bars, chimeOnOne: c.chimeOnOne
             ).sorted {
-                abs($0.time - $1.time) <= spec.tolerance ? rank($0) < rank($1) : $0.time < $1.time
+                // Times rounded to the microsecond, then bell/bottom/top: a
+                // proper sort key, so float noise between the two
+                // implementations can't reorder events that land together.
+                (tick($0), rank($0)) < (tick($1), rank($1))
             }
             XCTAssertEqual(events.count, c.events.count, c.name)
             for (i, (actual, expected)) in zip(events, c.events).enumerated() {

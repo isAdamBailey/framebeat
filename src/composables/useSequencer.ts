@@ -59,10 +59,6 @@ export function useSequencer({ top, bottom, bpm, chimeOnOne, onStep, onDing }: U
     }
   }
 
-  function book(horizon: number, bLimit = Infinity, tLimit = Infinity) {
-    bookSteps(streams, horizon, scheduleStep, bLimit, tLimit)
-  }
-
   function scheduler() {
     const audioCtx = getAudioContext()
     const horizon = audioCtx.currentTime + 0.12
@@ -74,10 +70,10 @@ export function useSequencer({ top, bottom, bpm, chimeOnOne, onStep, onDing }: U
       reanchor = false
       const { anchorTime, shape } = streams
       const bars = barsUntil(anchorTime, barDuration(shape), horizon)
-      book(Infinity, bars * shape.bottomCount, bars * shape.topCount)
+      bookSteps(streams, Infinity, scheduleStep, bars * shape.bottomCount, bars * shape.topCount)
       anchor(nextBarBoundary(anchorTime, barDuration(shape), horizon))
     }
-    book(horizon)
+    bookSteps(streams, horizon, scheduleStep)
   }
 
   function frame() {
