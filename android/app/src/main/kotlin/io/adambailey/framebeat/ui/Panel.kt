@@ -40,11 +40,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.draw.dropShadow
@@ -86,7 +81,7 @@ private val DOT_BLEED = 18.dp
 private val LabelStyle = TextStyle(color = Palette.Label, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.14.em)
 
 /** The sky focus ring, 2dp out (`ring-offset-2`). Touch never focuses a control, so it shows for keyboards only. */
-private fun Modifier.focusRing(focused: Boolean): Modifier = outerRing(Pill, Palette.BassSky, gap = 2.dp) { focused }
+private fun Modifier.focusRing(focused: Boolean): Modifier = if (focused) outerRing(Pill, Palette.BassSky, gap = 2.dp) { true } else this
 
 /**
  * Widens this element's layer by [bleed] on each side without moving its
@@ -441,7 +436,7 @@ private fun StepDot(on: Boolean, current: () -> Boolean, color: Color, descripti
                         Modifier.background(Palette.PanelSolid, CircleShape).border(2.dp, Palette.Label, CircleShape)
                     },
                 )
-                .outerRing(Pill, Color.White.copy(alpha = 0.8f * lift)) { lift > 0f }
+                .then(if (lift > 0f) Modifier.outerRing(Pill, Color.White.copy(alpha = 0.8f * lift)) { true } else Modifier)
                 .focusRing(focused),
         )
     }

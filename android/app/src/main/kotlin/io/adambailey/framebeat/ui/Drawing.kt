@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -100,12 +100,15 @@ internal fun Modifier.outerRing(
     width: Dp = 2.dp,
     gap: Dp = 0.dp,
     show: () -> Boolean,
-): Modifier = drawWithContent {
-    drawContent()
-    if (!show()) return@drawWithContent
+): Modifier = drawWithCache {
+    // Built once per size, not on every frame the ring is drawn.
     val inset = (gap + width / 2).toPx()
     val outline = shape.createOutline(Size(size.width + 2 * inset, size.height + 2 * inset), layoutDirection, this)
-    translate(-inset, -inset) { drawOutline(outline, color, style = Stroke(width.toPx())) }
+    val stroke = Stroke(width.toPx())
+    onDrawWithContent {
+        drawContent()
+        if (show()) translate(-inset, -inset) { drawOutline(outline, color, style = stroke) }
+    }
 }
 
 /** A drawn oval filling its box, for rings around the drum. */

@@ -1,10 +1,15 @@
 package io.adambailey.framebeat.ui
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -17,6 +22,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.unit.dp
 import io.adambailey.framebeat.engine.InstrumentShortcut
 import io.adambailey.framebeat.engine.instrumentShortcut
 
@@ -75,3 +81,21 @@ internal fun rememberFocusVisible(interaction: InteractionSource): () -> Boolean
     val modes = LocalInputModeManager.current
     return remember(focused, modes) { { focused.value && modes.inputMode == InputMode.Keyboard } }
 }
+
+/**
+ * What makes the drum and the bell instruments for the keyboard: focusable,
+ * by Tab or through [focus], with the sky focus ring ([ring], 4dp out, the
+ * web's `ring-offset-4`) shown while [focusVisible], and their own key downs
+ * handed to [onKey]. Call [focus]'s `requestFocus` on a press too, so a click
+ * focuses it as it does a web `<button>`.
+ */
+internal fun Modifier.instrument(
+    focus: FocusRequester,
+    interaction: MutableInteractionSource,
+    focusVisible: () -> Boolean,
+    ring: Shape,
+    onKey: (KeyEvent, String) -> Boolean,
+): Modifier = outerRing(ring, Palette.BassSky, gap = 4.dp, show = focusVisible)
+    .focusRequester(focus)
+    .onKeyDown(onKey)
+    .focusable(interactionSource = interaction)
