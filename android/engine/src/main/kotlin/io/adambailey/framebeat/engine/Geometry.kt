@@ -41,6 +41,9 @@ object DrumGeometry {
     private val leftPivot = DrumPoint(6.56, 89.7)
     private val rightPivot = DrumPoint(93.44, 89.7)
 
+    /** Where [side]'s mallet pivots, in canvas units: the point [swing] aims from. */
+    fun pivot(side: Side): DrumPoint = if (side == Side.Left) leftPivot else rightPivot
+
     /** The mallet's rest tilt in degrees. [swing]'s rotation is relative to it. */
     fun baseRotation(side: Side): Double = if (side == Side.Left) 24.0 else -24.0
 
@@ -74,7 +77,7 @@ object DrumGeometry {
 
     /** Rotation and shift that land the felt tip on the drum-ellipse point ([gx], [gy]). */
     fun swing(side: Side, gx: Double, gy: Double): MalletSwing {
-        val pivot = if (side == Side.Left) leftPivot else rightPivot
+        val pivot = pivot(side)
         val rx = (CENTER_X + HALF_W * gx) * CANVAS_W - pivot.x
         val ry = (CENTER_Y + HALF_H * gy) * CANVAS_H - pivot.y
         val d = hypot(rx, ry).takeIf { it != 0.0 } ?: 1.0
