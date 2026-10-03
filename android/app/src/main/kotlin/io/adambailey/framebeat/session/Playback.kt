@@ -4,7 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import io.adambailey.framebeat.engine.LineId
 import io.adambailey.framebeat.engine.LiveScheduler
+import io.adambailey.framebeat.engine.Playhead
 import io.adambailey.framebeat.engine.ScheduledEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -34,6 +36,8 @@ class Playback(
 ) {
     private val scheduler = LiveScheduler(clock, book)
     private var ticker: Job? = null
+    private val onStep = session::recordStrike
+    private val onDing = session::recordBell
 
     var playing by mutableStateOf(false)
         private set
@@ -49,6 +53,9 @@ class Playback(
         private set
 
     fun toggle() = if (playing) stop() else start()
+
+    /** The step [id]'s line is on as heard, or null while stopped. */
+    fun current(id: LineId): Int? = if (id == LineId.Top) currentTop else currentBottom
 
     fun start() {
         if (playing) return
@@ -68,19 +75,15 @@ class Playback(
         ticker = null
         scheduler.stop()
         playing = false
-        currentTop = null
-        currentBottom = null
-        progress = 0.0
+        show(Playhead.Stopped)
     }
 
     fun frame() {
         if (!playing) return
-        val playhead = scheduler.frame(
-            session.pattern,
-            latency(),
-            onStep = session::recordStrike,
-            onDing = session::ringBell,
-        )
+        show(scheduler.frame(session.pattern, latency(), onStep, onDing))
+    }
+
+    private fun show(playhead: Playhead) {
         currentTop = playhead.top
         currentBottom = playhead.bottom
         progress = playhead.progress

@@ -4,7 +4,6 @@ import io.adambailey.framebeat.engine.LineId
 import io.adambailey.framebeat.engine.LiveScheduler
 import io.adambailey.framebeat.engine.ScheduledEvent
 import io.adambailey.framebeat.engine.Sound
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -21,10 +20,13 @@ class PlaybackTest {
     private val session = Session()
     private val booked = mutableListOf<ScheduledEvent>()
 
-    /** A playback whose clock is the test's virtual time, ticking in [scope]. */
-    private fun TestScope.playback(scope: CoroutineScope = backgroundScope) = Playback(
+    /** The first bar's start, in virtual milliseconds after Play. */
+    private val startMs = (LiveScheduler.START_DELAY * 1000).toLong()
+
+    /** A playback whose clock is the test's virtual time, ticking in the background. */
+    private fun TestScope.playback() = Playback(
         session,
-        scope,
+        backgroundScope,
         clock = { testScheduler.currentTime / 1000.0 },
         book = { booked += it },
         latency = { 0.0 },
@@ -36,9 +38,8 @@ class PlaybackTest {
         assertFalse(playback.playing)
         playback.toggle()
         assertTrue(playback.playing)
-        advanceTimeBy(150)
+        advanceTimeBy(startMs)
         playback.frame()
-        assertEquals(0, playback.currentBottom)
         playback.toggle()
         assertFalse(playback.playing)
         assertNull(playback.currentTop)
@@ -50,8 +51,7 @@ class PlaybackTest {
     fun theOneIsHeardOnBothLinesWithTheChime() = runTest {
         val playback = playback()
         playback.start()
-        // The first bar starts LiveScheduler.START_DELAY after Play.
-        advanceTimeBy(99)
+        advanceTimeBy(startMs - 1)
         playback.frame()
         assertNull(playback.currentBottom)
         assertNull(session.strikes.bottom)
@@ -80,7 +80,7 @@ class PlaybackTest {
         session.changeMuted(LineId.Bottom, true)
         val playback = playback()
         playback.start()
-        advanceTimeBy(100)
+        advanceTimeBy(startMs)
         playback.frame()
         assertEquals(0, playback.currentBottom)
         assertNull(session.strikes.bottom)
@@ -91,11 +91,12 @@ class PlaybackTest {
     fun ticksBookAheadUntilStopped() = runTest {
         val playback = playback()
         playback.start()
-        // 90 BPM: bottom steps every 2/3 s from 0.1 s, booked LOOK_AHEAD ahead.
+        // 90 BPM: bottom steps every 2/3 s from the first bar, booked LOOK_AHEAD ahead.
         advanceTimeBy(2000)
         runCurrent()
         val bottomSteps = booked.filterIsInstance<ScheduledEvent.Step>().filter { it.line == LineId.Bottom }
-        assertEquals(listOf(0.1, 0.1 + 2.0 / 3, 0.1 + 4.0 / 3, 0.1 + 2.0), bottomSteps.map { it.time })
+        val first = LiveScheduler.START_DELAY
+        assertEquals(listOf(first, first + 2.0 / 3, first + 4.0 / 3, first + 2.0), bottomSteps.map { it.time })
         assertTrue(bottomSteps.last().time < 2.0 + LiveScheduler.LOOK_AHEAD)
         playback.stop()
         val count = booked.size

@@ -34,10 +34,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         // Leaving the app pauses the sequencer too, rather than booking into a stopped clock.
-        if (!isChangingConfigurations) {
-            model.playback.stop()
-            model.output.stop()
-        }
+        if (!isChangingConfigurations) model.pause()
         super.onStop()
     }
 }

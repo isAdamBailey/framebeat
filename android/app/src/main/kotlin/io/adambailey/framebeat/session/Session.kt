@@ -63,7 +63,8 @@ class Session {
         strikes = strikes.with(Strike(sound, id, (strikes[id]?.id ?: 0) + 1))
     }
 
-    fun ringBell() {
+    /** The bell rang, by hand or on the one: the bell animates. Sound is the caller's. */
+    fun recordBell() {
         bellTrigger++
     }
 

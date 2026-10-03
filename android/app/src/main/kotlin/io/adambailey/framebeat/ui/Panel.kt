@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -297,7 +298,8 @@ private fun PlayheadBar(progress: () -> Double, modifier: Modifier) {
     ) { measurables, constraints ->
         val bar = measurables.single().measure(constraints.copy(minWidth = 0))
         layout(constraints.maxWidth, constraints.maxHeight) {
-            bar.placeRelative((progress() * constraints.maxWidth).roundToInt() - bar.width / 2, 0)
+            // Its own layer: moving it each frame does not redraw the glow.
+            bar.placeRelativeWithLayer((progress() * constraints.maxWidth).roundToInt() - bar.width / 2, 0)
         }
     }
 }
@@ -394,7 +396,6 @@ private fun SoundPicker(sound: Sound, onChange: (Sound) -> Unit, label: String, 
 @Composable
 private fun StepLine(id: LineId, session: Session, playback: Playback) {
     val line = session.line(id)
-    val current = if (id == LineId.Top) playback.currentTop else playback.currentBottom
     BoxWithConstraints(
         Modifier
             .fillMaxWidth()
@@ -412,7 +413,7 @@ private fun StepLine(id: LineId, session: Session, playback: Playback) {
         for (i in 0 until line.count) {
             StepDot(
                 on = line.dots[i],
-                current = current == i,
+                current = { playback.current(id) == i },
                 color = Palette.dotFor(line.sound),
                 description = "${id.name} line step ${i + 1}",
                 onToggle = { session.toggleDot(id, i) },
@@ -423,7 +424,9 @@ private fun StepLine(id: LineId, session: Session, playback: Playback) {
 }
 
 @Composable
-private fun StepDot(on: Boolean, current: Boolean, color: Color, description: String, onToggle: () -> Unit, modifier: Modifier) {
+private fun StepDot(on: Boolean, current: () -> Boolean, color: Color, description: String, onToggle: () -> Unit, modifier: Modifier) {
+    // Only the dot that lights and the one that dims recompose on a step.
+    val isCurrent by remember { derivedStateOf(current) }
     val interaction = remember { MutableInteractionSource() }
     val focused by interaction.collectIsFocusedAsState()
     Box(
@@ -436,7 +439,7 @@ private fun StepDot(on: Boolean, current: Boolean, color: Color, description: St
         val dot = if (on) 24.dp else 20.dp
         Box(
             Modifier
-                .scale(if (current) 1.25f else 1f)
+                .scale(if (isCurrent) 1.25f else 1f)
                 .size(dot)
                 .then(
                     if (on) {
@@ -447,7 +450,7 @@ private fun StepDot(on: Boolean, current: Boolean, color: Color, description: St
                         Modifier.background(Palette.PanelSolid, CircleShape).border(2.dp, Palette.Label, CircleShape)
                     },
                 )
-                .outerRing(current, Color.White.copy(alpha = 0.8f))
+                .outerRing(isCurrent, Color.White.copy(alpha = 0.8f))
                 .focusRing(focused),
         )
     }

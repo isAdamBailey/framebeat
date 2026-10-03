@@ -33,11 +33,16 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
      */
     fun ringBell() {
         output.playDing()
-        session.ringBell()
+        session.recordBell()
+    }
+
+    /** Stops the sequencer and the audio: the app has left the screen, or is gone. */
+    fun pause() {
+        playback.stop()
+        output.stop()
     }
 
     override fun onCleared() {
-        playback.stop()
-        output.stop()
+        pause()
     }
 }

@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import io.adambailey.framebeat.session.Playback
 import io.adambailey.framebeat.session.SessionViewModel
 
 /** The stage row's own top and bottom padding: the web's `py-4`. */
@@ -56,11 +57,7 @@ private enum class Slot { Header, Stage, Panel }
 fun StageScreen(model: SessionViewModel) {
     // Compact or expanded comes from the whole window, as Android's window size classes do.
     val windowWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp().value }
-    // The web's requestAnimationFrame loop: light the steps as they are heard.
-    val playing = model.playback.playing
-    LaunchedEffect(playing) {
-        while (playing) withFrameNanos { model.playback.frame() }
-    }
+    PlaybackFrames(model.playback)
     BoxWithConstraints(
         Modifier
             .fillMaxSize()
@@ -90,6 +87,15 @@ fun StageScreen(model: SessionViewModel) {
                 panel = { Panel(model.session, model.playback, expanded) },
             )
         }
+    }
+}
+
+/** The web's requestAnimationFrame loop: lights the steps as they are heard, while playing. */
+@Composable
+private fun PlaybackFrames(playback: Playback) {
+    val playing = playback.playing
+    LaunchedEffect(playing) {
+        while (playing) withFrameNanos { playback.frame() }
     }
 }
 
@@ -195,7 +201,7 @@ private fun Stage(layout: StageLayout, model: SessionViewModel) {
     ) {
         DrumView(
             onStrike = model::strike,
-            strikes = model.session.strikes,
+            strikes = { model.session.strikes },
             modifier = Modifier.size(layout.drumWidth.dp, layout.drumHeight.dp),
             scale = layout.stageScale,
         )

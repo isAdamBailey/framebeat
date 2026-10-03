@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -102,17 +103,22 @@ private fun rippleColor(sound: Sound): Color =
  * fixed-size parts along with a scaled-down stage.
  */
 @Composable
-fun DrumView(onStrike: (Sound) -> Unit, strikes: Strikes, modifier: Modifier = Modifier, scale: Float = 1f) {
+fun DrumView(onStrike: (Sound) -> Unit, strikes: () -> Strikes, modifier: Modifier = Modifier, scale: Float = 1f) {
     val animations = remember { DrumAnimations() }
-    // A strike seen before this composition, such as before a rotation, does not replay.
-    val initial = remember { strikes }
-    for (line in LineId.entries) {
-        val strike = strikes[line]
-        LaunchedEffect(strike) {
-            if (strike == null || strike == initial[line]) return@LaunchedEffect
-            val side = if (line == LineId.Top) Side.Left else Side.Right
-            val zone = DrumGeometry.zonePoint(strike.sound, side)
-            animations.strike(strike.sound, side, zone.x + jitter(), zone.y + jitter())
+    // Watched outside composition, so a sequencer hit animates without
+    // recomposing the drum. The strikes on hand at the start, such as from
+    // before a rotation, are already seen and do not replay.
+    LaunchedEffect(Unit) {
+        var seen = strikes()
+        snapshotFlow(strikes).collect { now ->
+            for (line in LineId.entries) {
+                val strike = now[line]
+                if (strike == null || strike == seen[line]) continue
+                val side = if (line == LineId.Top) Side.Left else Side.Right
+                val zone = DrumGeometry.zonePoint(strike.sound, side)
+                animations.strike(strike.sound, side, zone.x + jitter(), zone.y + jitter())
+            }
+            seen = now
         }
     }
     // Every way of striking the drum plays the sound and animates the same way.

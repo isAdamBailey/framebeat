@@ -64,8 +64,8 @@ class SessionTest {
         val session = Session()
         session.chimeOnOne = false
         assertFalse(session.pattern.chimeOnOne)
-        session.ringBell()
-        session.ringBell()
+        session.recordBell()
+        session.recordBell()
         assertEquals(2, session.bellTrigger)
     }
 }
