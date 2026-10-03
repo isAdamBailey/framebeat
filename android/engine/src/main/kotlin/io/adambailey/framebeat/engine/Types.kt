@@ -34,7 +34,12 @@ data class Line(
     val sound: Sound,
     val dots: List<Boolean> = List(MAX_STEPS) { true },
     val muted: Boolean = false,
-)
+) {
+    init {
+        require(count in Ranges.count) { "count $count is outside ${Ranges.count}" }
+        require(dots.size == MAX_STEPS) { "dots must hold $MAX_STEPS steps, not ${dots.size}" }
+    }
+}
 
 /** A strike from the sequencer for one line. [id] bumps on every strike, so a repeated sound is still a new event. */
 data class Strike(val sound: Sound, val line: LineId, val id: Int)

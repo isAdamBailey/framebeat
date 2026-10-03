@@ -28,5 +28,8 @@ val specDir = rootProject.layout.projectDirectory.dir("../spec")
 
 tasks.test {
     inputs.dir(specDir).withPropertyName("spec").withPathSensitivity(PathSensitivity.RELATIVE)
-    systemProperty("framebeat.specDir", specDir.asFile.absolutePath)
+    // Through an argument provider, so the machine's absolute path is not part
+    // of the task's cache key; the directory input above already is.
+    val specPath = specDir.asFile.absolutePath
+    jvmArgumentProviders += CommandLineArgumentProvider { listOf("-Dframebeat.specDir=$specPath") }
 }

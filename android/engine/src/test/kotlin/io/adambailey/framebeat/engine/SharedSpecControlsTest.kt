@@ -2,6 +2,7 @@ package io.adambailey.framebeat.engine
 
 import kotlinx.serialization.json.jsonObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Test
 
 /** `spec/controls.json` against `Controls.kt`. */
@@ -56,5 +57,12 @@ class SharedSpecControlsTest {
             }
             assertEquals(c.toString(), expected, actual)
         }
+    }
+
+    @Test
+    fun linesOutsideTheRangesAreRejected() {
+        assertThrows(IllegalArgumentException::class.java) { Line(count = 0, sound = Sound.Bass) }
+        assertThrows(IllegalArgumentException::class.java) { Line(count = MAX_STEPS + 1, sound = Sound.Bass) }
+        assertThrows(IllegalArgumentException::class.java) { Line(count = 4, sound = Sound.Bass, dots = List(4) { true }) }
     }
 }
