@@ -125,7 +125,34 @@ Three accent colors, one per drum sound, sit inside a near-black, mostly-neutral
 
 ## Layout
 
-Single centered column, `max-w-3xl`, generous vertical rhythm (`py-8`–`py-10` outer, `gap-6`–`gap-10` between the drum and bell). The page has two zones stacked vertically: an untethered "stage" zone (title, caption, drum, bell, sound legend) sitting directly on the dark background with a soft radial glow behind it, and a bordered flat "panel" zone (`rounded-xl border border-slate-800 bg-slate-900/70`) holding the transport controls and the two sequencer lines. Mobile (`<640px`) shrinks the drum's viewport-relative width, scales the bell down (`zoom: 0.75`, so its layout box shrinks too) rather than reflowing its internal layout, and steps typography down one notch; nothing reflows to multiple columns at any width.
+Single centered column, `max-w-3xl`, generous vertical rhythm (`pt-6 pb-8` outer, `sm:pt-14 sm:pb-10`; `gap-2` between the drum and bell, `sm:gap-10`). The page has two zones stacked vertically: an untethered "stage" zone (title, caption, drum, bell, sound legend) sitting directly on the dark background with a soft radial glow behind it, and a bordered flat "panel" zone (`rounded-xl border border-slate-800 bg-slate-900/70`) holding the transport controls and the two sequencer lines. Mobile (`<640px`) shrinks the drum's viewport-relative width, scales the bell down (`zoom: 0.94`, so its layout box shrinks too) rather than reflowing its internal layout, and steps typography down one notch; nothing reflows to multiple columns at any width.
+
+### Phone and Tablet (native)
+
+This is the contract for the Android app, phone and tablet, and for a later iPhone port. It is one composition at two sizes, not two layouts. The shipped iPad app predates it: its compact-width path (Slide Over) keeps a fixed 340pt drum, and changing that is out of scope here.
+
+The breakpoint is 600dp, Android's compact/medium window-size boundary, not the web's 640px. The web's below-640px rules (the sound picker on its own row, Mute as an icon only) apply below 600dp here. Sizes are in dp (Android) and pt (iOS), which match CSS px. The web values below were measured in Chrome at the listed viewport widths.
+
+**Compact width (under 600dp): one scrolling column.**
+- Top to bottom: the title "FrameBeat", the caption "Tap the drum or the bell to play", the drum and bell in one row, then the panel. The column scrolls vertically. Nothing in it scrolls sideways.
+- Side gutter 16dp, matching the web's `px-4`.
+- **The drum gets the width first; the bell shrinks.** The drum is the instrument with three zones to hit; the bell is one target, and it stays easy to tap at a smaller size. This differs from the web phone layout, which gives the drum 60% of the viewport and keeps the bell at 0.94.
+- **Bell:** scale between 0.5 and 0.94 of its 112 × 136dp base art (native `BellView`; the web's box is 112 × 138), so between about 56 × 68dp and 105 × 128dp. Its floor stays above a 48dp touch target. These sizes are the art alone; the 11sp "Bell" label sits below it, as on iPad, with no key chip, and the row centers the drum on the art and label together.
+- **Drum:** the row width minus the 8dp gap and the bell at its 0.5 floor, capped at 340dp, the same size as on expanded widths, so the drum never shrinks when the window widens past 600dp. Height is width × 30/32. That gives 264dp at a 360dp window, 294dp at 390, and 316dp at 412. Once the drum reaches 340dp, at a 436dp window, the bell takes the extra width, up to 0.94. The drum and bell are 8dp apart, and the pair is centered. The row never scrolls sideways.
+- **Zones:** at 264dp the Bass zone is about 69 × 44dp, and the Tone band is about 51dp wide at the sides and 33dp tall above and below. From a 390dp window up, the drum is at least 290dp and the Bass zone is at least 48dp tall. On the web phone layout today, the 216dp drum gives a Bass zone of about 56 × 36dp.
+- **Under 360dp:** the same rule applies: the bell stays at its 0.5 floor and the drum takes the rest, 224dp at a 320dp window.
+- Title at 36sp (`text-4xl`, as the web header draws it at this width), the caption at 12sp in `stone-500`, as on the web header (stone belongs to the header zone).
+- **Panel:** full column width, 16dp padding (`p-4`). The sound picker is a full-width row of its own, as specified for below 640px under **Sound Picker**.
+
+**Expanded width (600dp and up):** the same regions in the same order.
+- Column centered, up to 768dp wide (`max-w-3xl`), with a 24dp side gutter. Title at 48sp (`sm:text-5xl`), caption at 14sp (`sm:text-sm`).
+- **Drum:** 340dp, the iPad stage.
+- **Bell:** full scale, 1.625 × the base art, about 182 × 221dp. The drum and bell sit 24dp apart, matching the iPad. At 600dp the row is 546dp plus 48dp of gutters, so it fits.
+- **Panel:** 24dp padding (`sm:p-6`).
+- **Short windows:** when the window is too short for the full stage above a full-size panel, scale the drum, bell, and stage glow down together, to a floor of 0.45. The panel keeps its full size. This is the `stageScale` rule in iPad's `ContentView.swift`. Unlike iPad, which has no scroll view, the column scrolls when even the floor does not fit.
+- Do not invent a second composition for tablets. There are no side-by-side columns and no panel beside the drum.
+
+**Rules that still apply:** the Named Rules above, unchanged: The Three-Sound Rule, The One Display Face Rule (title and the step-count and BPM numerals), Play as the only colored glow, and the flat panel (a 1px border, no shadow).
 
 ## Elevation & Depth
 
