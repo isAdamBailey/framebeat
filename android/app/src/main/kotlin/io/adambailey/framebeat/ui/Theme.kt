@@ -10,7 +10,7 @@ import io.adambailey.framebeat.R
 
 /** Colors from DESIGN.md and the web header. */
 object Palette {
-    /** `colors.stage` (slate-950): the page background. */
+    /** `colors.stage` (slate-950): the page background. Also `@color/stage`, for the window and launcher icon. */
     val Stage = Color(0xFF020617)
 
     /** The title's ink: stone-200, from `HomeView.vue`'s header (not a DESIGN.md token). */

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- DESIGN.md colors.stage -->
+    <!-- DESIGN.md colors.stage; keep in step with Palette.Stage in ui/Theme.kt. -->
     <color name="stage">#FF020617</color>
 </resources>
