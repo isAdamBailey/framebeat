@@ -33,3 +33,18 @@ macos/**/xcuserdata/
 macos/**/DerivedData/
 macos/**/*.moved-aside
 .vite-ssg-temp
+
+# Android (Gradle/Kotlin)
+android/**/.gradle/
+android/**/.kotlin/
+android/**/build/
+android/local.properties
+android/**/*.iml
+android/**/captures/
+android/**/.externalNativeBuild/
+android/**/.cxx/
+
+# Android signing: never commit an upload key or its passwords
+*.jks
+*.keystore
+keystore.properties

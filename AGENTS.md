@@ -6,36 +6,43 @@ FrameBeat is a frame drum and polyrhythmic step sequencer: click or tap the drum
 
 There is no backend, database, or persistence. All state is in-memory for the current session, and all audio is synthesized live.
 
-Three apps, two implementations:
+Four apps, three implementations:
 
 - **Web** (`src/`) — Vue 3, TypeScript, and Vite, plus the marketing site. This is the reference for product behavior. Sound goes through the Web Audio API.
 - **Mac and iPad** (`macos/`) — one SwiftUI source tree (`macos/FrameBeat/`) and one `FrameBeatCore` package, built as the **FrameBeat** (macOS) and **FrameBeatiPad** (iPadOS 17+, iPad only) targets. The Xcode project is generated from `macos/project.yml` with XcodeGen; edit the YAML, then `xcodegen generate`. iPhone is out of scope until the portrait panel is redesigned. Both ship as one Universal Purchase (`io.adambailey.framebeat`).
+- **Android** (`android/`) — Kotlin and Jetpack Compose, phone and tablet, built with Gradle (Kotlin DSL). `:engine` is a pure JVM module (types, geometry, voices, scheduling) and `:app` is the Compose UI, session state, and `AudioTrack` output. Application id `io.adambailey.framebeat`, `minSdk` 26. Not a WebView. The port plan is GitHub issue #16.
+
+iPhone stays out of scope, including in the Android work.
 
 `README.md` is the public introduction. Native build, signing, fonts, and known audio differences are in `macos/README.md`.
 
+`spec/` at the repo root holds shared JSON test cases (geometry, envelopes, sequencer timing, defaults, ranges, key map). The web, Swift, and Android test suites each run them; that is how the three copies of every constant stay in agreement. Only tests read `spec/` — shipping code keeps its own constants.
+
 ## Keeping web and native in sync
 
-A behavior change lands on the web and in Swift in the same change. Mac and iPad compile that Swift, so one native edit covers both. Build the target you are changing; if you touched shared UI or the engine, build **FrameBeatiPad** as well.
+The web stays the reference. Swift and Android are both ports of it; neither is a source of new behavior. A behavior change lands on the web, in Swift, and in Android in the same change. Mac and iPad compile that Swift, so one native edit covers both. Build the target you are changing; if you touched shared UI or the engine, build **FrameBeatiPad** as well.
 
 Port these together. The web file is the reference:
 
-| Web | Native |
-| --- | --- |
-| `src/types/drum.ts` | `Sound.swift` |
-| `src/lib/drumAudio.ts` | `VoiceSpec.swift`, `DrumSynth.swift`, `LiveAudioEngine.swift` |
-| `src/composables/useSequencer.ts` | `Sequencer.swift`, `LiveSequencer.swift`, `LiveScheduleMath.swift` |
-| `src/lib/geometry.ts` | `Geometry.swift` |
-| `src/components/drum/` | `macos/FrameBeat/Views/` |
-| `DESIGN.md` | `macos/FrameBeat/Design/Theme.swift` |
+| Web | Native | Android |
+| --- | --- | --- |
+| `src/types/drum.ts` | `Sound.swift` | |
+| `src/lib/drumAudio.ts` | `VoiceSpec.swift`, `DrumSynth.swift`, `LiveAudioEngine.swift` | |
+| `src/composables/useSequencer.ts` | `Sequencer.swift`, `LiveSequencer.swift`, `LiveScheduleMath.swift` | |
+| `src/lib/geometry.ts` | `Geometry.swift` | |
+| `src/components/drum/` | `macos/FrameBeat/Views/` | |
+| `DESIGN.md` | `macos/FrameBeat/Design/Theme.swift` | `ui/Theme.kt` |
 
-Swift files in that table live under `macos/FrameBeatCore/Sources/FrameBeatCore/` unless the path says otherwise.
+Swift files in that table live under `macos/FrameBeatCore/Sources/FrameBeatCore/` unless the path says otherwise. Android files live under `android/app/src/main/kotlin/io/adambailey/framebeat/` (UI, theme, audio output) or `android/engine/src/main/kotlin/io/adambailey/framebeat/engine/` (everything else). An empty Android cell is not ported yet; add the file to the table in the PR that creates it.
 
 Leave these on one side:
 
 - Web only: `src/components/site/`, SEO in `index.html`, `public/robots.txt`, `public/sitemap.xml`, the Smart App Banner. App Store and privacy URLs live in `src/lib/links.ts`; update `index.html`'s `apple-itunes-app` meta tag with them when the app ID changes. Marketing copy stays sourced from the codebase or `src/views/PrivacyView.vue` — no price or iPhone claims. App Store CTAs stay neutral (no sound colors, no glow).
 - Native only: Mac menu bar and window chrome, the iOS `AVAudioSession` in `RealtimeAudio.swift`, signing and `project.yml`.
+- Android only: Gradle build files, the manifest, `AudioTrack` output, and Play signing. Android ships with no permissions, no network, no analytics, and no third-party SDKs.
+- While issue #16 builds the Android app, its port PRs stay apart from Apple code: an Android port PR touches neither `src/` nor `macos/`, so it never needs the shipped Mac and iPad apps re-tested. Once Android has caught up, a behavior change lands on all three in one change, as above.
 
-`VoiceSpec.swift` is the native source of truth for voice parameters, shared by the offline renderer and live playback. Those numbers are copied from `src/lib/drumAudio.ts`. The native triangle oscillator and noise table are close to Web Audio and are not sample-identical; judge voices against the parameter spec and by ear. Details are in `macos/README.md`.
+`VoiceSpec.swift` is the native source of truth for voice parameters, shared by the offline renderer and live playback. Those numbers are copied from `src/lib/drumAudio.ts`. Android copies the same numbers from `drumAudio.ts`, not from Swift. Neither native triangle oscillator nor noise table is sample-identical to Web Audio; judge voices against the parameter spec and by ear. Details are in `macos/README.md`.
 
 ## Commands
 
@@ -68,6 +75,14 @@ xcodebuild -project FrameBeat.xcodeproj -scheme FrameBeatiPad \
   -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M5)' build
 ```
 
+Android, from `android` (JDK 17 and the Android SDK; CI runs all three on Ubuntu):
+
+```bash
+./gradlew test           # :engine JVM unit tests, no emulator
+./gradlew lint           # Android Lint on :app, warnings are errors
+./gradlew assembleDebug
+```
+
 ## Architecture
 
 **Web state**: `src/views/HomeView.vue` owns `bpm`, the top and bottom step lines, `strikes`, `bellTrigger`, and `soundBlocked`, passes them down as props, and takes changes back through `toggle`, `patch`, `toggle-play`, and `bpm-change`. `src/App.vue` is the router shell. There is no Pinia store. Native state is `macos/FrameBeat/Model/AppState.swift`.
@@ -92,6 +107,6 @@ The web drum is a real `<button>`, with its `@keydown` handler on the element it
 
 - Do not reintroduce a backend, database, auth, or persistence layer unless explicitly asked.
 - Keep new web animations on the Web Animations API and `<TransitionGroup>`.
-- Read `DESIGN.md` before restyling. Three accent colors map one-to-one to Bass, Tone, and Click. Fraunces (`@fontsource-variable/fraunces`, imported in `main.ts`; a TTF under `macos/FrameBeat/Resources/Fonts/` on native) is for the title and headline numerals only.
+- Read `DESIGN.md` before restyling. Three accent colors map one-to-one to Bass, Tone, and Click. Fraunces (`@fontsource-variable/fraunces`, imported in `main.ts`; a TTF under `macos/FrameBeat/Resources/Fonts/` on Mac and iPad, copied to `android/app/src/main/res/font/fraunces.ttf` on Android) is for the title and headline numerals only.
 - Before finishing a web change, run `npm run lint` and `npx vue-tsc --noEmit`. For playback or animation, verify in a browser: play/pause, tempo changes mid-play, mute, and step-count changes.
-- Before finishing a behavior change, port the matching Swift files and run `swift test` in `macos/FrameBeatCore`. Play the native app when the change is audible or visible. A green web type-check does not mean the native port happened.
+- Before finishing a behavior change, port the matching Swift and Android files, then run `swift test` in `macos/FrameBeatCore` and `./gradlew test lint` in `android`. Play the native apps when the change is audible or visible. A green web type-check does not mean the native ports happened.
