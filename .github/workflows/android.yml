@@ -26,18 +26,26 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Pull requests run Gradle only when they change android/, spec/, or
-      # this workflow. Pushes to main and manual runs always do.
+      # Run Gradle only when android/, spec/, or this workflow changed: for a
+      # pull request against its base, for a push since the previous head.
+      # Manual runs always build.
       - name: Check for Android changes
         id: changes
         working-directory: .
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
         run: |
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
+          case "$EVENT" in
+            pull_request) range="origin/$BASE_REF...HEAD" ;;
+            push) range="$BEFORE..HEAD" ;;
+            *) echo "run=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+          if ! changed=$(git diff --name-only "$range" 2>/dev/null); then
+            echo "Could not diff $range; building."
             echo "run=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          changed=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD")
-          if echo "$changed" | grep -qE '^(android/|spec/|\.github/workflows/android\.yml$)'; then
+          elif echo "$changed" | grep -qE '^(android/|spec/|\.github/workflows/android\.yml$)'; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "No changes under android/ or spec/; skipping Gradle."
