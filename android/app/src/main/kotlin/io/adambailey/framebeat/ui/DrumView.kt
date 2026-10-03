@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
@@ -55,10 +56,11 @@ private const val RIPPLE_MS = 700
 /** Mallet.vue's strike: rest, wind-up, hit, rest, over one ease-out. */
 private const val SWING_MS = 260
 
-private class Ripple(val id: Int, val x: Double, val y: Double, val color: Color)
+// Neither is a data class: each strike is a new instance, so a repeated
+// target is still a new ripple and a new swing.
+private class Ripple(val x: Double, val y: Double, val color: Color)
 
-/** One strike for a mallet to play out. [id] makes a repeated target a new swing. */
-private class Swing(val id: Int, val target: MalletSwing)
+private class Swing(val target: MalletSwing)
 
 /**
  * The drum's ripples and mallet swings: a strike adds a ripple at a point in
@@ -68,11 +70,10 @@ private class DrumAnimations {
     val ripples = mutableStateListOf<Ripple>()
     var left by mutableStateOf<Swing?>(null)
     var right by mutableStateOf<Swing?>(null)
-    private var nextId = 0
 
     fun strike(sound: Sound, side: Side, dx: Double, dy: Double) {
-        ripples += Ripple(++nextId, dx, dy, rippleColor(sound))
-        val swing = Swing(++nextId, DrumGeometry.swing(side, dx, dy))
+        ripples += Ripple(dx, dy, rippleColor(sound))
+        val swing = Swing(DrumGeometry.swing(side, dx, dy))
         if (side == Side.Left) left = swing else right = swing
     }
 }
@@ -93,6 +94,11 @@ private fun rippleColor(sound: Sound): Color =
 @Composable
 fun DrumView(onStrike: (Sound) -> Unit, modifier: Modifier = Modifier, scale: Float = 1f) {
     val animations = remember { DrumAnimations() }
+    // Every way of striking the drum plays the sound and animates the same way.
+    fun hit(sound: Sound, side: Side, dx: Double, dy: Double) {
+        onStrike(sound)
+        animations.strike(sound, side, dx, dy)
+    }
     Box(
         modifier
             .semantics {
@@ -100,8 +106,7 @@ fun DrumView(onStrike: (Sound) -> Unit, modifier: Modifier = Modifier, scale: Fl
                 role = Role.Button
                 // A screen reader's activation strikes the center.
                 onClick(label = "Strike") {
-                    onStrike(Sound.Bass)
-                    animations.strike(Sound.Bass, Side.Right, 0.0, 0.0)
+                    hit(Sound.Bass, Side.Right, 0.0, 0.0)
                     true
                 }
             }
@@ -115,16 +120,16 @@ fun DrumView(onStrike: (Sound) -> Unit, modifier: Modifier = Modifier, scale: Fl
                                 change.position.y.toDouble() / size.height,
                             ) ?: continue
                             change.consume()
-                            onStrike(hit.sound)
-                            animations.strike(hit.sound, hit.side, hit.dx, hit.dy)
+                            hit(hit.sound, hit.side, hit.dx, hit.dy)
                         }
                     }
                 }
             },
     ) {
-        Canvas(Modifier.fillMaxSize()) { drawDrum() }
+        // Its own layer, so ripple and mallet frames do not redraw the static art.
+        Canvas(Modifier.fillMaxSize().graphicsLayer()) { drawDrum() }
         for (ripple in animations.ripples) {
-            key(ripple.id) { RippleView(ripple, onDone = { animations.ripples.remove(ripple) }) }
+            key(ripple) { RippleView(ripple, onDone = { animations.ripples.remove(ripple) }) }
         }
         MalletView(Side.Left, animations.left, scale)
         MalletView(Side.Right, animations.right, scale)
@@ -174,18 +179,18 @@ private fun MalletView(side: Side, swing: Swing?, scale: Float) {
         val left = side == Side.Left
         val boxW = size.width * DrumGeometry.MALLET_BOX_W.toFloat()
         val boxH = size.height * DrumGeometry.MALLET_BOX_H.toFloat()
-        val boxX = if (left) size.width * 0.02f else size.width * 0.98f - boxW
-        val boxY = size.height * 0.98f - boxH
-        val pivot = Offset(boxX + boxW * (if (left) 0.12f else 0.88f), boxY + boxH * 0.96f)
+        val pivot = DrumGeometry.pivot(side).let {
+            Offset(size.width * (it.x / DrumGeometry.CANVAS_W).toFloat(), size.height * (it.y / DrumGeometry.CANVAS_H).toFloat())
+        }
 
         val pose = malletPose(progress.value, swing?.target, wind = if (left) -7f else 7f)
         translate(pose.x * boxW, pose.y * boxH) {
             rotate(pose.rotation, pivot) {
                 val stickW = 10.dp.toPx() * scale
-                val stickH = boxH * 0.7f
-                // The stick sits 8% in from the box's outer edge, its foot on the pivot's row.
-                val footX = if (left) boxX + boxW * 0.08f + stickW / 2 else boxX + boxW * 0.92f - stickW / 2
-                val foot = Offset(footX, pivot.y)
+                val stickH = size.height * (DrumGeometry.REACH / DrumGeometry.CANVAS_H).toFloat()
+                // The stick sits 8% in from the box's outer edge (the pivot is 12% in), its foot on the pivot's row.
+                val inset = boxW * 0.04f - stickW / 2
+                val foot = Offset(if (left) pivot.x - inset else pivot.x + inset, pivot.y)
                 rotate(DrumGeometry.baseRotation(side).toFloat(), foot) {
                     drawStick(foot, stickW, stickH, scale)
                 }
@@ -200,9 +205,9 @@ private class Pose(val rotation: Float, val x: Float, val y: Float)
 private fun malletPose(p: Float, target: MalletSwing?, wind: Float): Pose {
     if (target == null) return Pose(0f, 0f, 0f)
     return Pose(
-        rotation = keyframes(p, 0f to 0f, 0.28f to wind, 0.5f to target.rotation.toFloat(), 1f to 0f),
-        x = keyframes(p, 0f to 0f, 0.28f to 0f, 0.5f to target.x.toFloat(), 1f to 0f),
-        y = keyframes(p, 0f to 0f, 0.28f to -0.03f, 0.5f to target.y.toFloat(), 1f to 0f),
+        rotation = keyframeAt(p, 0f to 0f, 0.28f to wind, 0.5f to target.rotation.toFloat(), 1f to 0f),
+        x = keyframeAt(p, 0f to 0f, 0.28f to 0f, 0.5f to target.x.toFloat(), 1f to 0f),
+        y = keyframeAt(p, 0f to 0f, 0.28f to -0.03f, 0.5f to target.y.toFloat(), 1f to 0f),
     )
 }
 
@@ -291,16 +296,6 @@ private val woodGrain: Array<Pair<Float, Color>> = run {
         val within = ((t + 90) % 360) % 27 / 9f
         val i = within.toInt()
         t / 360f to lerp(colors[i], colors[i + 1], within - i)
-    }
-}
-
-/** An ellipse filling [r] with a CSS `radial-gradient(ellipse at focus, ...)`, sized to the farthest corner. */
-private fun DrawScope.ellipticalRadial(r: Rect, focus: Offset, vararg stops: Pair<Float, Color>) {
-    // Draw a circle-shaped gradient in a square, then squash the square to the box.
-    scale(1f, r.height / r.width, pivot = r.topLeft) {
-        val center = r.topLeft + Offset(r.width * focus.x, r.width * focus.y)
-        val reach = r.width * hypot(maxOf(focus.x, 1 - focus.x), maxOf(focus.y, 1 - focus.y))
-        drawOval(Brush.radialGradient(*stops, center = center, radius = reach), r.topLeft, Size(r.width, r.width))
     }
 }
 

@@ -22,13 +22,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         // The volume keys set the media volume the drum plays at, even between hits.
         volumeControlStream = AudioManager.STREAM_MUSIC
-        setContent {
-            StageScreen(
-                bellTrigger = model.session.bellTrigger,
-                onStrike = model::strike,
-                onRingBell = model::ringBell,
-            )
-        }
+        setContent { StageScreen(model) }
     }
 
     // Audio runs only while the app is on screen, as on iPad: no background

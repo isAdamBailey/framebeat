@@ -1,8 +1,5 @@
 package io.adambailey.framebeat.ui
 
-import kotlin.math.max
-import kotlin.math.min
-
 /**
  * How big the drum and bell are, from DESIGN.md's "Phone and Tablet (native)"
  * section: one composition at two sizes. Every length is in dp.
@@ -17,17 +14,19 @@ import kotlin.math.min
  */
 data class StageLayout(
     val expanded: Boolean,
-    /** Side gutter of the column. */
-    val gutter: Float,
     val drumWidth: Float,
     /** The bell art's scale over its [BELL_WIDTH] × [BELL_HEIGHT] base. */
     val bellScale: Float,
-    /** Space between the drum and the bell. */
-    val gap: Float,
     /** 1, or less when a short expanded window shrinks the stage. Also scales the stage glow. */
     val stageScale: Float,
 ) {
     val drumHeight: Float get() = drumWidth * DRUM_ASPECT
+
+    /** Side gutter of the column. */
+    val gutter: Float get() = if (expanded) EXPANDED_GUTTER else COMPACT_GUTTER
+
+    /** Space between the drum and the bell. */
+    val gap: Float get() = if (expanded) EXPANDED_GAP else COMPACT_GAP
 
     companion object {
         /** Android's compact/medium window boundary. */
@@ -62,12 +61,12 @@ data class StageLayout(
         fun of(windowWidth: Float, stageRoom: Float = Float.POSITIVE_INFINITY): StageLayout {
             if (windowWidth < BREAKPOINT) {
                 val row = windowWidth - 2 * COMPACT_GUTTER
-                val drum = max(0f, min(DRUM_MAX, row - COMPACT_GAP - BELL_WIDTH * BELL_MIN_SCALE))
+                val drum = (row - COMPACT_GAP - BELL_WIDTH * BELL_MIN_SCALE).coerceIn(0f, DRUM_MAX)
                 val bell = ((row - COMPACT_GAP - drum) / BELL_WIDTH).coerceIn(BELL_MIN_SCALE, BELL_COMPACT_MAX_SCALE)
-                return StageLayout(false, COMPACT_GUTTER, drum, bell, COMPACT_GAP, stageScale = 1f)
+                return StageLayout(false, drum, bell, stageScale = 1f)
             }
             val scale = (stageRoom / (DRUM_MAX * DRUM_ASPECT)).coerceIn(MIN_STAGE_SCALE, 1f)
-            return StageLayout(true, EXPANDED_GUTTER, DRUM_MAX * scale, BELL_EXPANDED_SCALE * scale, EXPANDED_GAP, scale)
+            return StageLayout(true, DRUM_MAX * scale, BELL_EXPANDED_SCALE * scale, scale)
         }
     }
 }

@@ -96,10 +96,10 @@ fun BellView(trigger: Int, onRing: () -> Unit, scale: Float, modifier: Modifier 
         ) {
             scale(scale * density, pivot = Offset.Zero) {
                 drawBell(
-                    bodyRotation = keyframes(body.value, 0f to 0f, 0.2f to -16f, 0.4f to 12f, 0.6f to -8f, 0.8f to 4f, 1f to 0f),
-                    clapperRotation = keyframes(clapper.value, 0f to 0f, 0.25f to 14f, 0.5f to -10f, 0.75f to 5f, 1f to 0f),
-                    shineAlpha = keyframes(shine.value, 0f to 0f, 0.5f to 0.6f, 1f to 0f),
-                    shineShift = keyframes(shine.value, 0f to 0f, 0.5f to 8f, 1f to 16f),
+                    bodyRotation = keyframeAt(body.value, 0f to 0f, 0.2f to -16f, 0.4f to 12f, 0.6f to -8f, 0.8f to 4f, 1f to 0f),
+                    clapperRotation = keyframeAt(clapper.value, 0f to 0f, 0.25f to 14f, 0.5f to -10f, 0.75f to 5f, 1f to 0f),
+                    shineAlpha = keyframeAt(shine.value, 0f to 0f, 0.5f to 0.6f, 1f to 0f),
+                    shineShift = keyframeAt(shine.value, 0f to 0f, 0.5f to 8f, 1f to 16f),
                 )
             }
         }
@@ -129,12 +129,12 @@ private fun DrawScope.drawBell(bodyRotation: Float, clapperRotation: Float, shin
 
             // Hanging loop, round on top, its border drawn inside the box.
             val loop = centered(20f, 14f, 12f).deflate(1f)
-            drawPath(topRounded(loop, loop.width / 2), Color(0xFFB45309), style = Stroke(2f))
+            drawPath(rounded(loop, top = CornerRadius(loop.width / 2)), Color(0xFFB45309), style = Stroke(2f))
 
             // Dome.
             val dome = centered(28f, 44f, 24f)
             drawPath(
-                topRounded(dome, 22f),
+                rounded(dome, top = CornerRadius(22f)),
                 cssLinearGradient(160f, dome, 0f to Color(0xFFF8DD85), 0.55f to Brass, 1f to Color(0xFFA06D1C)),
             )
 
@@ -142,15 +142,7 @@ private fun DrawScope.drawBell(bodyRotation: Float, clapperRotation: Float, shin
             val mouth = centered(52f, 56f, 24f)
             softShadow(mouth.translate(0f, 4f), 0.45f)
             drawPath(
-                Path().apply {
-                    addRoundRect(
-                        RoundRect(
-                            mouth,
-                            bottomLeft = CornerRadius(mouth.width * 0.3f, mouth.height * 0.3f),
-                            bottomRight = CornerRadius(mouth.width * 0.3f, mouth.height * 0.3f),
-                        ),
-                    )
-                },
+                rounded(mouth, bottom = CornerRadius(mouth.width * 0.3f, mouth.height * 0.3f)),
                 cssLinearGradient(155f, mouth, 0.08f to Color(0xFFF5D879), 0.5f to Brass, 1f to BrassDark),
             )
 
@@ -175,9 +167,9 @@ private fun DrawScope.drawBell(bodyRotation: Float, clapperRotation: Float, shin
     }
 }
 
-/** A box whose top corners are rounded by [radius] and whose bottom corners are square. */
-private fun topRounded(r: Rect, radius: Float) = Path().apply {
-    addRoundRect(RoundRect(r, topLeft = CornerRadius(radius), topRight = CornerRadius(radius)))
+/** A box with its top corners rounded by [top] and its bottom corners by [bottom]. */
+private fun rounded(r: Rect, top: CornerRadius = CornerRadius.Zero, bottom: CornerRadius = CornerRadius.Zero) = Path().apply {
+    addRoundRect(RoundRect(r, topLeft = top, topRight = top, bottomLeft = bottom, bottomRight = bottom))
 }
 
 /** A drop shadow under a brass part: a soft dark oval at [r]. */
