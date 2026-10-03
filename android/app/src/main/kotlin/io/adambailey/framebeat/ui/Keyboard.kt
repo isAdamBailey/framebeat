@@ -1,6 +1,11 @@
 package io.adambailey.framebeat.ui
 
+import androidx.compose.foundation.interaction.InteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -11,6 +16,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
+import androidx.compose.ui.platform.LocalInputModeManager
 import io.adambailey.framebeat.engine.InstrumentShortcut
 import io.adambailey.framebeat.engine.instrumentShortcut
 
@@ -29,33 +35,43 @@ internal fun KeyEvent.webKey(): String? = when (key) {
     else -> utf16CodePoint.takeIf { it > 0 }?.let { String(Character.toChars(it)).lowercase() }
 }
 
-/**
- * Space and B on a focused instrument, the drum or the bell: Space plays or
- * pauses through [onShortcut], B rings the bell. Key repeat and Ctrl, Alt, or
- * Meta chords are ignored, as [instrumentShortcut] says; a held Space or B is
- * swallowed rather than passed on to whatever holds the instrument. Any other
- * key down goes to [onKey], which returns whether it used it.
- */
-internal fun Modifier.instrumentKeys(
-    onShortcut: (InstrumentShortcut) -> Unit,
-    onKey: (KeyEvent, String) -> Boolean = { _, _ -> false },
-): Modifier = onKeyEvent { event ->
+/** Whether this key down is an auto-repeat of a held key. */
+internal val KeyEvent.isRepeat: Boolean get() = nativeKeyEvent.repeatCount > 0
+
+/** Key downs only, by their web name; [onKey] returns whether it used the key. */
+internal fun Modifier.onKeyDown(onKey: (KeyEvent, String) -> Boolean): Modifier = onKeyEvent { event ->
     if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
     val name = event.webKey() ?: return@onKeyEvent false
+    onKey(event, name)
+}
+
+/**
+ * Space and B for everything inside: put it on the one element holding the
+ * drum and the bell, HomeView.vue's `data-instrument` check, so the shortcuts
+ * work only while one of them has focus. Space plays or pauses through
+ * [onShortcut]; B rings the bell. Ctrl, Alt, and Meta chords pass through;
+ * a held Space or B is swallowed without repeating, as [instrumentShortcut] says.
+ */
+internal fun Modifier.instrumentShortcuts(onShortcut: (InstrumentShortcut) -> Unit): Modifier = onKeyDown { event, name ->
     val shortcut = instrumentShortcut(
         name,
-        repeat = event.nativeKeyEvent.repeatCount > 0,
+        repeat = false,
         meta = event.isMetaPressed,
         ctrl = event.isCtrlPressed,
         alt = event.isAltPressed,
-    )
-    when {
-        shortcut != null -> {
-            onShortcut(shortcut)
-            true
-        }
-        // A repeat of Space or B, chord-free: still ours, so it does nothing.
-        (name == " " || name == "b") && !event.isCtrlPressed && !event.isAltPressed && !event.isMetaPressed -> true
-        else -> onKey(event, name)
-    }
+    ) ?: return@onKeyDown false
+    if (!event.isRepeat) onShortcut(shortcut)
+    true
+}
+
+/**
+ * Whether the element focused through [interaction] should show its focus
+ * ring: only while the keyboard is in use, as `:focus-visible` does on the
+ * web. Read it while drawing, so a change only redraws.
+ */
+@Composable
+internal fun rememberFocusVisible(interaction: InteractionSource): () -> Boolean {
+    val focused = interaction.collectIsFocusedAsState()
+    val modes = LocalInputModeManager.current
+    return remember(focused, modes) { { focused.value && modes.inputMode == InputMode.Keyboard } }
 }

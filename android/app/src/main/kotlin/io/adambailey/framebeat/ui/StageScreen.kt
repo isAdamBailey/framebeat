@@ -195,14 +195,15 @@ private fun Stage(layout: StageLayout, model: SessionViewModel) {
                     glow.size,
                 )
             }
-            .padding(vertical = ROW_PADDING.dp),
+            .padding(vertical = ROW_PADDING.dp)
+            // Holds only the drum and the bell, so Space and B work while either has focus.
+            .instrumentShortcuts(model::shortcut),
         horizontalArrangement = Arrangement.spacedBy(layout.gap.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         DrumView(
             onStrike = model::strike,
             strikes = { model.session.strikes },
-            onShortcut = model::shortcut,
             playing = { model.playback.playing },
             modifier = Modifier.size(layout.drumWidth.dp, layout.drumHeight.dp),
             scale = layout.stageScale,
@@ -210,7 +211,6 @@ private fun Stage(layout: StageLayout, model: SessionViewModel) {
         BellView(
             trigger = model.session.bellTrigger,
             onRing = model::ringBell,
-            onShortcut = model::shortcut,
             scale = layout.bellScale,
         )
     }
