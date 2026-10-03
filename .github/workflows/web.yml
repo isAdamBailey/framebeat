@@ -12,7 +12,8 @@ concurrency:
 
 jobs:
   web:
-    name: Web (lint + spec tests + type-check + build)
+    # The main ruleset requires this check by name; rename both together.
+    name: Web (lint + type-check + build)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

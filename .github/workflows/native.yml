@@ -12,7 +12,8 @@ concurrency:
 
 jobs:
   native:
-    name: Native (swift test + iPad tests + Mac and iPad builds)
+    # The main ruleset requires this check by name; rename both together.
+    name: Native (swift test + Mac and iPad builds)
     runs-on: macos-latest
     defaults:
       run:
