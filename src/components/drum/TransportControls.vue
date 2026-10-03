@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Bell, BellOff, Pause, Play } from '@lucide/vue'
+import { RANGES } from '../../lib/controls'
 import TogglePill from './TogglePill.vue'
 
 defineProps<{ playing: boolean; bpm: number; chimeOnOne: boolean }>()
@@ -26,8 +27,8 @@ const emit = defineEmits<{ togglePlay: []; bpmChange: [number]; chimeToggle: [] 
         </span>
         <input
           type="range"
-          min="40"
-          max="200"
+          :min="RANGES.bpm.min"
+          :max="RANGES.bpm.max"
           :value="bpm"
           class="mt-1.5 h-2 w-full cursor-pointer accent-sky-400"
           @input="emit('bpmChange', Number(($event.target as HTMLInputElement).value))"

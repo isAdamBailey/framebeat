@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
   web:
+    # The main ruleset requires this check by name; rename both together.
     name: Web (lint + type-check + build)
     runs-on: ubuntu-latest
     steps:
@@ -22,4 +23,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - run: npm test
       - run: npm run build

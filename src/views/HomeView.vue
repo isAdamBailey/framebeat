@@ -10,6 +10,7 @@ import Kbd from '../components/drum/Kbd.vue'
 import AppStoreLink from '../components/site/AppStoreLink.vue'
 import AboutSections from '../components/site/AboutSections.vue'
 import { useSequencer } from '../composables/useSequencer'
+import { DEFAULTS, defaultLine, instrumentShortcut } from '../lib/controls'
 import { subscribeAudioState, isAudioBlocked, triggerDing } from '../lib/drumAudio'
 import type { Line, Strikes } from '../types/drum'
 
@@ -25,14 +26,12 @@ useHead({
   ],
 })
 
-const defaultDots = () => Array.from({ length: 16 }, () => true)
-
-const bpm = ref(90)
-const top = reactive<Line>({ count: 3, sound: 'edge', dots: defaultDots(), muted: false })
-const bottom = reactive<Line>({ count: 4, sound: 'bass', dots: defaultDots(), muted: false })
+const bpm = ref<number>(DEFAULTS.bpm)
+const top = reactive<Line>(defaultLine('top'))
+const bottom = reactive<Line>(defaultLine('bottom'))
 const strikes = reactive<Strikes>({ top: null, bottom: null })
 const bellTrigger = ref<number | null>(null)
-const chimeOnOne = ref(true)
+const chimeOnOne = ref<boolean>(DEFAULTS.chimeOnOne)
 const soundBlocked = ref(false)
 
 const { playing, togglePlay, progress, currentTop, currentBottom } = useSequencer({
@@ -54,15 +53,12 @@ const { playing, togglePlay, progress, currentTop, currentBottom } = useSequence
 // native job (scrolling the page, pressing the focused control).
 // Space plays/pauses; B rings the bell. Key repeat is ignored for both.
 function handleShortcut(e: KeyboardEvent) {
-  if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return
+  const shortcut = instrumentShortcut(e)
+  if (!shortcut) return
   if (!(e.target instanceof Element) || !e.target.closest('[data-instrument]')) return
-  if (e.key === ' ') {
-    e.preventDefault()
-    togglePlay()
-  } else if (e.key.toLowerCase() === 'b') {
-    e.preventDefault()
-    ringBell()
-  }
+  e.preventDefault()
+  if (shortcut === 'playPause') togglePlay()
+  else ringBell()
 }
 
 let unsubscribeAudioState: (() => void) | undefined

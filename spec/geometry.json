@@ -1,0 +1,358 @@
+{
+  "about": "Drum geometry from src/lib/geometry.ts. classify takes a tap as a fraction of the drum illustration box. dx/dy, zone points, and swing aims are in drum-ellipse units. Swing x/y are fractions of the mallet box; the web rounds them to 0.01%, so compare with a tolerance of 1e-4.",
+  "tolerance": 1e-9,
+  "swingTolerance": 0.0001,
+  "classify": [
+    {
+      "note": "center: bass",
+      "x": 0.5,
+      "y": 0.4,
+      "expected": {
+        "sound": "bass",
+        "side": "right",
+        "dx": 0,
+        "dy": 0
+      }
+    },
+    {
+      "note": "just left of center: bass, left",
+      "x": 0.45,
+      "y": 0.42,
+      "expected": {
+        "sound": "bass",
+        "side": "left",
+        "dx": -0.1,
+        "dy": 0.058823529412
+      }
+    },
+    {
+      "note": "just right of center: bass, right",
+      "x": 0.56,
+      "y": 0.38,
+      "expected": {
+        "sound": "bass",
+        "side": "right",
+        "dx": 0.12,
+        "dy": -0.058823529412
+      }
+    },
+    {
+      "note": "right of center, 0.3 out: tone, right",
+      "x": 0.65,
+      "y": 0.4,
+      "expected": {
+        "sound": "edge",
+        "side": "right",
+        "dx": 0.3,
+        "dy": 0
+      }
+    },
+    {
+      "note": "left of center: tone, left",
+      "x": 0.3,
+      "y": 0.4,
+      "expected": {
+        "sound": "edge",
+        "side": "left",
+        "dx": -0.4,
+        "dy": 0
+      }
+    },
+    {
+      "note": "below center: tone",
+      "x": 0.5,
+      "y": 0.55,
+      "expected": {
+        "sound": "edge",
+        "side": "right",
+        "dx": 0,
+        "dy": 0.441176470588
+      }
+    },
+    {
+      "note": "above center, 0.59 out: tone",
+      "x": 0.5,
+      "y": 0.2,
+      "expected": {
+        "sound": "edge",
+        "side": "right",
+        "dx": 0,
+        "dy": -0.588235294118
+      }
+    },
+    {
+      "note": "left rim: click",
+      "x": 0.15,
+      "y": 0.4,
+      "expected": {
+        "sound": "click",
+        "side": "left",
+        "dx": -0.7,
+        "dy": 0
+      }
+    },
+    {
+      "note": "right rim: click",
+      "x": 0.9,
+      "y": 0.5,
+      "expected": {
+        "sound": "click",
+        "side": "right",
+        "dx": 0.8,
+        "dy": 0.294117647059
+      }
+    },
+    {
+      "note": "bottom rim: click",
+      "x": 0.5,
+      "y": 0.75,
+      "expected": {
+        "sound": "click",
+        "side": "right",
+        "dx": 0,
+        "dy": 1.029411764706
+      }
+    },
+    {
+      "note": "outside the rim, inside 1.15: click, unclamped",
+      "x": 0.02,
+      "y": 0.4,
+      "expected": {
+        "sound": "click",
+        "side": "left",
+        "dx": -0.96,
+        "dy": 0
+      }
+    },
+    {
+      "note": "past 1.15: click, clamped to 1.15",
+      "x": 0.5,
+      "y": 0.82,
+      "expected": {
+        "sound": "click",
+        "side": "right",
+        "dx": 0,
+        "dy": 1.15
+      }
+    },
+    {
+      "note": "past 1.15 on the left: clamped",
+      "x": -0.15,
+      "y": 0.4,
+      "expected": {
+        "sound": "click",
+        "side": "left",
+        "dx": -1.15,
+        "dy": 0
+      }
+    },
+    {
+      "note": "top-left corner: outside 1.35, no hit",
+      "x": 0,
+      "y": 0,
+      "expected": null
+    },
+    {
+      "note": "bottom-right corner: no hit",
+      "x": 1,
+      "y": 0.95,
+      "expected": null
+    },
+    {
+      "note": "0.25 out: bass",
+      "x": 0.625,
+      "y": 0.4,
+      "expected": {
+        "sound": "bass",
+        "side": "right",
+        "dx": 0.25,
+        "dy": 0
+      }
+    },
+    {
+      "note": "0.27 out: tone",
+      "x": 0.635,
+      "y": 0.4,
+      "expected": {
+        "sound": "edge",
+        "side": "right",
+        "dx": 0.27,
+        "dy": 0
+      }
+    },
+    {
+      "note": "0.64 out: tone, left",
+      "x": 0.18,
+      "y": 0.4,
+      "expected": {
+        "sound": "edge",
+        "side": "left",
+        "dx": -0.64,
+        "dy": 0
+      }
+    },
+    {
+      "note": "0.66 out: click, right",
+      "x": 0.83,
+      "y": 0.4,
+      "expected": {
+        "sound": "click",
+        "side": "right",
+        "dx": 0.66,
+        "dy": 0
+      }
+    }
+  ],
+  "zonePoint": [
+    {
+      "sound": "bass",
+      "side": "left",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "sound": "bass",
+      "side": "right",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "sound": "edge",
+      "side": "left",
+      "x": -0.373333333333,
+      "y": 0.366666666667
+    },
+    {
+      "sound": "edge",
+      "side": "right",
+      "x": 0.373333333333,
+      "y": 0.366666666667
+    },
+    {
+      "sound": "click",
+      "side": "left",
+      "x": -0.56,
+      "y": 0.55
+    },
+    {
+      "sound": "click",
+      "side": "right",
+      "x": 0.56,
+      "y": 0.55
+    }
+  ],
+  "swing": [
+    {
+      "side": "left",
+      "gx": 0,
+      "gy": 0,
+      "rotation": 15.766682560106,
+      "x": 0.5024000000000001,
+      "y": -0.4219
+    },
+    {
+      "side": "left",
+      "gx": -0.56,
+      "gy": 0.55,
+      "rotation": 0.006176032756,
+      "x": -0.0012,
+      "y": 0.0019
+    },
+    {
+      "side": "left",
+      "gx": 0.56,
+      "gy": 0.55,
+      "rotation": 40.113403309633,
+      "x": 0.9789,
+      "y": -0.332
+    },
+    {
+      "side": "left",
+      "gx": -0.3733333333333333,
+      "gy": 0.36666666666666664,
+      "rotation": 7.445723691719,
+      "x": 0.1294,
+      "y": -0.1479
+    },
+    {
+      "side": "left",
+      "gx": 0.3733333333333333,
+      "gy": 0.36666666666666664,
+      "rotation": 32.883381902313,
+      "x": 0.7954000000000001,
+      "y": -0.3626
+    },
+    {
+      "side": "left",
+      "gx": 0.4,
+      "gy": -0.6,
+      "rotation": 17.651484066375,
+      "x": 1.0038,
+      "y": -0.7887000000000001
+    },
+    {
+      "side": "left",
+      "gx": -1,
+      "gy": 0,
+      "rotation": -31.16283890627,
+      "x": -0.04769999999999999,
+      "y": -0.2655
+    },
+    {
+      "side": "right",
+      "gx": 0,
+      "gy": 0,
+      "rotation": -15.766682560106,
+      "x": -0.5024000000000001,
+      "y": -0.4219
+    },
+    {
+      "side": "right",
+      "gx": -0.56,
+      "gy": 0.55,
+      "rotation": -40.113403309633,
+      "x": -0.9789,
+      "y": -0.332
+    },
+    {
+      "side": "right",
+      "gx": 0.56,
+      "gy": 0.55,
+      "rotation": -0.006176032756,
+      "x": 0.0012,
+      "y": 0.0019
+    },
+    {
+      "side": "right",
+      "gx": -0.3733333333333333,
+      "gy": 0.36666666666666664,
+      "rotation": -32.883381902313,
+      "x": -0.7954000000000001,
+      "y": -0.3626
+    },
+    {
+      "side": "right",
+      "gx": 0.3733333333333333,
+      "gy": 0.36666666666666664,
+      "rotation": -7.445723691719,
+      "x": -0.1294,
+      "y": -0.1479
+    },
+    {
+      "side": "right",
+      "gx": 0.4,
+      "gy": -0.6,
+      "rotation": 5.807588145989,
+      "x": -0.3041,
+      "y": -0.6467
+    },
+    {
+      "side": "right",
+      "gx": -1,
+      "gy": 0,
+      "rotation": -36.810210639841,
+      "x": -1.5844999999999998,
+      "y": -0.6186
+    }
+  ]
+}

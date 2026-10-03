@@ -1,0 +1,1430 @@
+{
+  "about": "Event lists from src/lib/schedule.ts generateEvents: whole bars from time 0, in seconds. The bottom line's count and BPM set the bar; the top line divides it. Events are in time order; events within tolerance of each other are ordered bell, bottom, top. nextBarBoundary is the first anchor + k * bar (k >= 0) at or after notBefore; the cases use whole numbers so they hold for seconds and for sample counts.",
+  "tolerance": 1e-9,
+  "sequences": [
+    {
+      "name": "default pattern, 3 against 4 at 90 BPM",
+      "top": {
+        "count": 3,
+        "sound": "edge",
+        "dots": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "muted": false
+      },
+      "bottom": {
+        "count": 4,
+        "sound": "bass",
+        "dots": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "muted": false
+      },
+      "bpm": 90,
+      "bars": 2,
+      "chimeOnOne": true,
+      "events": [
+        {
+          "time": 0,
+          "kind": "bell"
+        },
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 0.666666666667,
+          "kind": "step",
+          "line": "bottom",
+          "index": 1,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 0.888888888889,
+          "kind": "step",
+          "line": "top",
+          "index": 1,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 1.333333333333,
+          "kind": "step",
+          "line": "bottom",
+          "index": 2,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 1.777777777778,
+          "kind": "step",
+          "line": "top",
+          "index": 2,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 2,
+          "kind": "step",
+          "line": "bottom",
+          "index": 3,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 2.666666666667,
+          "kind": "bell"
+        },
+        {
+          "time": 2.666666666667,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 2.666666666667,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 3.333333333333,
+          "kind": "step",
+          "line": "bottom",
+          "index": 1,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 3.555555555556,
+          "kind": "step",
+          "line": "top",
+          "index": 1,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 4,
+          "kind": "step",
+          "line": "bottom",
+          "index": 2,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 4.444444444444,
+          "kind": "step",
+          "line": "top",
+          "index": 2,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 4.666666666667,
+          "kind": "step",
+          "line": "bottom",
+          "index": 3,
+          "sound": "bass",
+          "audible": true
+        }
+      ]
+    },
+    {
+      "name": "uneven, 7 against 5 at 120 BPM",
+      "top": {
+        "count": 7,
+        "sound": "click",
+        "dots": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "muted": false
+      },
+      "bottom": {
+        "count": 5,
+        "sound": "bass",
+        "dots": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "muted": false
+      },
+      "bpm": 120,
+      "bars": 2,
+      "chimeOnOne": true,
+      "events": [
+        {
+          "time": 0,
+          "kind": "bell"
+        },
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 0.357142857143,
+          "kind": "step",
+          "line": "top",
+          "index": 1,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 0.5,
+          "kind": "step",
+          "line": "bottom",
+          "index": 1,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 0.714285714286,
+          "kind": "step",
+          "line": "top",
+          "index": 2,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 1,
+          "kind": "step",
+          "line": "bottom",
+          "index": 2,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 1.071428571429,
+          "kind": "step",
+          "line": "top",
+          "index": 3,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 1.428571428571,
+          "kind": "step",
+          "line": "top",
+          "index": 4,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 1.5,
+          "kind": "step",
+          "line": "bottom",
+          "index": 3,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 1.785714285714,
+          "kind": "step",
+          "line": "top",
+          "index": 5,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 2,
+          "kind": "step",
+          "line": "bottom",
+          "index": 4,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 2.142857142857,
+          "kind": "step",
+          "line": "top",
+          "index": 6,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 2.5,
+          "kind": "bell"
+        },
+        {
+          "time": 2.5,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 2.5,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 2.857142857143,
+          "kind": "step",
+          "line": "top",
+          "index": 1,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 3,
+          "kind": "step",
+          "line": "bottom",
+          "index": 1,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 3.214285714286,
+          "kind": "step",
+          "line": "top",
+          "index": 2,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 3.5,
+          "kind": "step",
+          "line": "bottom",
+          "index": 2,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 3.571428571429,
+          "kind": "step",
+          "line": "top",
+          "index": 3,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 3.928571428571,
+          "kind": "step",
+          "line": "top",
+          "index": 4,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 4,
+          "kind": "step",
+          "line": "bottom",
+          "index": 3,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 4.285714285714,
+          "kind": "step",
+          "line": "top",
+          "index": 5,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 4.5,
+          "kind": "step",
+          "line": "bottom",
+          "index": 4,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 4.642857142857,
+          "kind": "step",
+          "line": "top",
+          "index": 6,
+          "sound": "click",
+          "audible": true
+        }
+      ]
+    },
+    {
+      "name": "muted bottom line keeps the chime",
+      "top": {
+        "count": 3,
+        "sound": "edge",
+        "dots": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "muted": false
+      },
+      "bottom": {
+        "count": 4,
+        "sound": "bass",
+        "dots": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "muted": true
+      },
+      "bpm": 90,
+      "bars": 2,
+      "chimeOnOne": true,
+      "events": [
+        {
+          "time": 0,
+          "kind": "bell"
+        },
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "bass",
+          "audible": false
+        },
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 0.666666666667,
+          "kind": "step",
+          "line": "bottom",
+          "index": 1,
+          "sound": "bass",
+          "audible": false
+        },
+        {
+          "time": 0.888888888889,
+          "kind": "step",
+          "line": "top",
+          "index": 1,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 1.333333333333,
+          "kind": "step",
+          "line": "bottom",
+          "index": 2,
+          "sound": "bass",
+          "audible": false
+        },
+        {
+          "time": 1.777777777778,
+          "kind": "step",
+          "line": "top",
+          "index": 2,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 2,
+          "kind": "step",
+          "line": "bottom",
+          "index": 3,
+          "sound": "bass",
+          "audible": false
+        },
+        {
+          "time": 2.666666666667,
+          "kind": "bell"
+        },
+        {
+          "time": 2.666666666667,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "bass",
+          "audible": false
+        },
+        {
+          "time": 2.666666666667,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 3.333333333333,
+          "kind": "step",
+          "line": "bottom",
+          "index": 1,
+          "sound": "bass",
+          "audible": false
+        },
+        {
+          "time": 3.555555555556,
+          "kind": "step",
+          "line": "top",
+          "index": 1,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 4,
+          "kind": "step",
+          "line": "bottom",
+          "index": 2,
+          "sound": "bass",
+          "audible": false
+        },
+        {
+          "time": 4.444444444444,
+          "kind": "step",
+          "line": "top",
+          "index": 2,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 4.666666666667,
+          "kind": "step",
+          "line": "bottom",
+          "index": 3,
+          "sound": "bass",
+          "audible": false
+        }
+      ]
+    },
+    {
+      "name": "chime off",
+      "top": {
+        "count": 3,
+        "sound": "edge",
+        "dots": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "muted": false
+      },
+      "bottom": {
+        "count": 4,
+        "sound": "bass",
+        "dots": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "muted": false
+      },
+      "bpm": 90,
+      "bars": 2,
+      "chimeOnOne": false,
+      "events": [
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 0.666666666667,
+          "kind": "step",
+          "line": "bottom",
+          "index": 1,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 0.888888888889,
+          "kind": "step",
+          "line": "top",
+          "index": 1,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 1.333333333333,
+          "kind": "step",
+          "line": "bottom",
+          "index": 2,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 1.777777777778,
+          "kind": "step",
+          "line": "top",
+          "index": 2,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 2,
+          "kind": "step",
+          "line": "bottom",
+          "index": 3,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 2.666666666667,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 2.666666666667,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 3.333333333333,
+          "kind": "step",
+          "line": "bottom",
+          "index": 1,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 3.555555555556,
+          "kind": "step",
+          "line": "top",
+          "index": 1,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 4,
+          "kind": "step",
+          "line": "bottom",
+          "index": 2,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 4.444444444444,
+          "kind": "step",
+          "line": "top",
+          "index": 2,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 4.666666666667,
+          "kind": "step",
+          "line": "bottom",
+          "index": 3,
+          "sound": "bass",
+          "audible": true
+        }
+      ]
+    },
+    {
+      "name": "some steps empty",
+      "top": {
+        "count": 5,
+        "sound": "click",
+        "dots": [
+          true,
+          false,
+          true,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "muted": false
+      },
+      "bottom": {
+        "count": 3,
+        "sound": "edge",
+        "dots": [
+          false,
+          true,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "muted": false
+      },
+      "bpm": 137,
+      "bars": 2,
+      "chimeOnOne": true,
+      "events": [
+        {
+          "time": 0,
+          "kind": "bell"
+        },
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "edge",
+          "audible": false
+        },
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 0.262773722628,
+          "kind": "step",
+          "line": "top",
+          "index": 1,
+          "sound": "click",
+          "audible": false
+        },
+        {
+          "time": 0.43795620438,
+          "kind": "step",
+          "line": "bottom",
+          "index": 1,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 0.525547445255,
+          "kind": "step",
+          "line": "top",
+          "index": 2,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 0.788321167883,
+          "kind": "step",
+          "line": "top",
+          "index": 3,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 0.875912408759,
+          "kind": "step",
+          "line": "bottom",
+          "index": 2,
+          "sound": "edge",
+          "audible": false
+        },
+        {
+          "time": 1.051094890511,
+          "kind": "step",
+          "line": "top",
+          "index": 4,
+          "sound": "click",
+          "audible": false
+        },
+        {
+          "time": 1.313868613139,
+          "kind": "bell"
+        },
+        {
+          "time": 1.313868613139,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "edge",
+          "audible": false
+        },
+        {
+          "time": 1.313868613139,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 1.576642335766,
+          "kind": "step",
+          "line": "top",
+          "index": 1,
+          "sound": "click",
+          "audible": false
+        },
+        {
+          "time": 1.751824817518,
+          "kind": "step",
+          "line": "bottom",
+          "index": 1,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 1.839416058394,
+          "kind": "step",
+          "line": "top",
+          "index": 2,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 2.102189781022,
+          "kind": "step",
+          "line": "top",
+          "index": 3,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 2.189781021898,
+          "kind": "step",
+          "line": "bottom",
+          "index": 2,
+          "sound": "edge",
+          "audible": false
+        },
+        {
+          "time": 2.36496350365,
+          "kind": "step",
+          "line": "top",
+          "index": 4,
+          "sound": "click",
+          "audible": false
+        }
+      ]
+    },
+    {
+      "name": "one step each at the slowest tempo",
+      "top": {
+        "count": 1,
+        "sound": "edge",
+        "dots": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "muted": false
+      },
+      "bottom": {
+        "count": 1,
+        "sound": "bass",
+        "dots": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "muted": false
+      },
+      "bpm": 40,
+      "bars": 3,
+      "chimeOnOne": true,
+      "events": [
+        {
+          "time": 0,
+          "kind": "bell"
+        },
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 1.5,
+          "kind": "bell"
+        },
+        {
+          "time": 1.5,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 1.5,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 3,
+          "kind": "bell"
+        },
+        {
+          "time": 3,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "bass",
+          "audible": true
+        },
+        {
+          "time": 3,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "edge",
+          "audible": true
+        }
+      ]
+    },
+    {
+      "name": "16 against 13 at the fastest tempo",
+      "top": {
+        "count": 16,
+        "sound": "click",
+        "dots": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "muted": false
+      },
+      "bottom": {
+        "count": 13,
+        "sound": "edge",
+        "dots": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "muted": false
+      },
+      "bpm": 200,
+      "bars": 1,
+      "chimeOnOne": true,
+      "events": [
+        {
+          "time": 0,
+          "kind": "bell"
+        },
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "bottom",
+          "index": 0,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 0,
+          "kind": "step",
+          "line": "top",
+          "index": 0,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 0.24375,
+          "kind": "step",
+          "line": "top",
+          "index": 1,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 0.3,
+          "kind": "step",
+          "line": "bottom",
+          "index": 1,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 0.4875,
+          "kind": "step",
+          "line": "top",
+          "index": 2,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 0.6,
+          "kind": "step",
+          "line": "bottom",
+          "index": 2,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 0.73125,
+          "kind": "step",
+          "line": "top",
+          "index": 3,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 0.9,
+          "kind": "step",
+          "line": "bottom",
+          "index": 3,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 0.975,
+          "kind": "step",
+          "line": "top",
+          "index": 4,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 1.2,
+          "kind": "step",
+          "line": "bottom",
+          "index": 4,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 1.21875,
+          "kind": "step",
+          "line": "top",
+          "index": 5,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 1.4625,
+          "kind": "step",
+          "line": "top",
+          "index": 6,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 1.5,
+          "kind": "step",
+          "line": "bottom",
+          "index": 5,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 1.70625,
+          "kind": "step",
+          "line": "top",
+          "index": 7,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 1.8,
+          "kind": "step",
+          "line": "bottom",
+          "index": 6,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 1.95,
+          "kind": "step",
+          "line": "top",
+          "index": 8,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 2.1,
+          "kind": "step",
+          "line": "bottom",
+          "index": 7,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 2.19375,
+          "kind": "step",
+          "line": "top",
+          "index": 9,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 2.4,
+          "kind": "step",
+          "line": "bottom",
+          "index": 8,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 2.4375,
+          "kind": "step",
+          "line": "top",
+          "index": 10,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 2.68125,
+          "kind": "step",
+          "line": "top",
+          "index": 11,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 2.7,
+          "kind": "step",
+          "line": "bottom",
+          "index": 9,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 2.925,
+          "kind": "step",
+          "line": "top",
+          "index": 12,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 3,
+          "kind": "step",
+          "line": "bottom",
+          "index": 10,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 3.16875,
+          "kind": "step",
+          "line": "top",
+          "index": 13,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 3.3,
+          "kind": "step",
+          "line": "bottom",
+          "index": 11,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 3.4125,
+          "kind": "step",
+          "line": "top",
+          "index": 14,
+          "sound": "click",
+          "audible": true
+        },
+        {
+          "time": 3.6,
+          "kind": "step",
+          "line": "bottom",
+          "index": 12,
+          "sound": "edge",
+          "audible": true
+        },
+        {
+          "time": 3.65625,
+          "kind": "step",
+          "line": "top",
+          "index": 15,
+          "sound": "click",
+          "audible": true
+        }
+      ]
+    }
+  ],
+  "nextBarBoundary": [
+    {
+      "anchor": 0,
+      "bar": 100,
+      "notBefore": 0,
+      "expected": 0
+    },
+    {
+      "anchor": 0,
+      "bar": 100,
+      "notBefore": -50,
+      "expected": 0
+    },
+    {
+      "anchor": 1000,
+      "bar": 100,
+      "notBefore": 1000,
+      "expected": 1000
+    },
+    {
+      "anchor": 1000,
+      "bar": 100,
+      "notBefore": 1001,
+      "expected": 1100
+    },
+    {
+      "anchor": 1000,
+      "bar": 100,
+      "notBefore": 1099,
+      "expected": 1100
+    },
+    {
+      "anchor": 1000,
+      "bar": 100,
+      "notBefore": 1100,
+      "expected": 1100
+    },
+    {
+      "anchor": 1000,
+      "bar": 100,
+      "notBefore": 1101,
+      "expected": 1200
+    },
+    {
+      "anchor": 48000,
+      "bar": 96000,
+      "notBefore": 336001,
+      "expected": 432000
+    },
+    {
+      "anchor": 4800,
+      "bar": 88200,
+      "notBefore": 181200,
+      "expected": 181200
+    },
+    {
+      "anchor": 0,
+      "bar": 128000,
+      "notBefore": 5000,
+      "expected": 128000
+    }
+  ]
+}

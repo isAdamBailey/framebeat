@@ -27,8 +27,9 @@ Port these together. The web file is the reference:
 | Web | Native | Android |
 | --- | --- | --- |
 | `src/types/drum.ts` | `Sound.swift` | |
-| `src/lib/drumAudio.ts` | `VoiceSpec.swift`, `DrumSynth.swift`, `LiveAudioEngine.swift` | |
-| `src/composables/useSequencer.ts` | `Sequencer.swift`, `LiveSequencer.swift`, `LiveScheduleMath.swift` | |
+| `src/lib/voiceSpec.ts`, `src/lib/drumAudio.ts` | `VoiceSpec.swift`, `DrumSynth.swift`, `LiveAudioEngine.swift` | |
+| `src/lib/schedule.ts`, `src/composables/useSequencer.ts` | `Sequencer.swift`, `LiveSequencer.swift`, `LiveScheduleMath.swift` | |
+| `src/lib/controls.ts` | `macos/FrameBeat/Model/AppState.swift`, `macos/FrameBeat/Views/Drum/DrumView.swift`, the panel sliders | |
 | `src/lib/geometry.ts` | `Geometry.swift` | |
 | `src/components/drum/` | `macos/FrameBeat/Views/` | |
 | `DESIGN.md` | `macos/FrameBeat/Design/Theme.swift` | `ui/Theme.kt` |
@@ -42,7 +43,7 @@ Leave these on one side:
 - Android only: Gradle build files, the manifest, `AudioTrack` output, and Play signing. Android ships with no permissions, no network, no analytics, and no third-party SDKs.
 - While issue #16 builds the Android app, its port PRs stay apart from Apple code: an Android port PR touches neither `src/` nor `macos/`, so it never needs the shipped Mac and iPad apps re-tested. Once Android has caught up, a behavior change lands on all three in one change, as above.
 
-`VoiceSpec.swift` is the native source of truth for voice parameters, shared by the offline renderer and live playback. Those numbers are copied from `src/lib/drumAudio.ts`. Android copies the same numbers from `drumAudio.ts`, not from Swift. Neither native triangle oscillator nor noise table is sample-identical to Web Audio; judge voices against the parameter spec and by ear. Details are in `macos/README.md`.
+`VoiceSpec.swift` is the native source of truth for voice parameters, shared by the offline renderer and live playback. Those numbers are copied from `src/lib/voiceSpec.ts`, which `src/lib/drumAudio.ts` builds its Web Audio nodes from. Android copies the same numbers from `voiceSpec.ts`, not from Swift. Neither native triangle oscillator nor noise table is sample-identical to Web Audio; judge voices against the parameter spec and by ear. Details are in `macos/README.md`.
 
 ## Commands
 
@@ -55,9 +56,10 @@ npm run build        # vue-tsc -b && vite-ssg build (type-check, then prerender 
 npm run preview
 npm run lint         # eslint ., type-aware strict + strictTypeChecked
 npx vue-tsc --noEmit
+npm test             # vitest: the shared spec/ cases
 ```
 
-The web app has no test script. ESLint will catch `any`, unused vars, and unsafe conditionals. Fix the root cause rather than adding `eslint-disable` or widening a type to `any`.
+`npm test` runs the `spec/` cases against `src/lib/`, and the `SharedSpec*Tests` classes in `macos/FrameBeatCore/Tests/` run them in Swift. When a reference value changes, update the case in `spec/` in the same change. ESLint will catch `any`, unused vars, and unsafe conditionals. Fix the root cause rather than adding `eslint-disable` or widening a type to `any`.
 
 Native engine, from `macos/FrameBeatCore`:
 
@@ -93,7 +95,7 @@ Android, from `android` (JDK 17 and the Android SDK; CI runs all three on Ubuntu
 
 **Drum**: `src/components/drum/DrumCanvas.vue` is a DOM/CSS drum of layered gradient divs, built on `src/lib/geometry.ts` (`zonePoint`, `swingFor`, mallet pivots). A click is classified as bass, tone, or click by distance from center and plays the sound plus a ripple and mallet swing. Sequencer strikes arrive on the `strikes` prop and use that same path. The native view is `macos/FrameBeat/Views/Drum/DrumView.swift`, using `Geometry.swift`.
 
-The web drum is a real `<button>`, with its `@keydown` handler on the element itself. One `KEY_MAP` covers every shortcut: `Q`/`W`/`E` and `I`/`O`/`P` are the left and right mallet's Click/Tone/Bass zones (outer keys hit the rim, inner keys hit the center), and `ArrowLeft` / `ArrowRight` are a per-side Tone strike. `DrumCanvas` watches `playing` and focuses itself when playback starts. Keep that keyboard behavior in `DrumView` as well when it changes.
+The web drum is a real `<button>`, with its `@keydown` handler on the element itself. `DRUM_KEYS` in `src/lib/controls.ts` covers the drum's shortcuts: `Q`/`W`/`E` and `I`/`O`/`P` are the left and right mallet's Click/Tone/Bass zones (outer keys hit the rim, inner keys hit the center), and `ArrowLeft` / `ArrowRight` are a per-side Tone strike. `DrumCanvas` watches `playing` and focuses itself when playback starts. Keep that keyboard behavior in `DrumView` as well when it changes.
 
 **Web animations**: Web Animations API and Vue `<TransitionGroup>`, no animation library. `src/composables/useAnimate.ts` exposes `replay(keyframes, options)`, used by `Mallet.vue` and `Bell.vue`. Ripples in `DrumCanvas.vue` remove themselves with a `setTimeout` of `RIPPLE_DURATION_MS`; keep that value matched to the CSS transition.
 
@@ -108,5 +110,5 @@ The web drum is a real `<button>`, with its `@keydown` handler on the element it
 - Do not reintroduce a backend, database, auth, or persistence layer unless explicitly asked.
 - Keep new web animations on the Web Animations API and `<TransitionGroup>`.
 - Read `DESIGN.md` before restyling. Three accent colors map one-to-one to Bass, Tone, and Click. Fraunces (`@fontsource-variable/fraunces`, imported in `main.ts`; a TTF under `macos/FrameBeat/Resources/Fonts/` on Mac and iPad, copied to `android/app/src/main/res/font/fraunces.ttf` on Android) is for the title and headline numerals only.
-- Before finishing a web change, run `npm run lint` and `npx vue-tsc --noEmit`. For playback or animation, verify in a browser: play/pause, tempo changes mid-play, mute, and step-count changes.
+- Before finishing a web change, run `npm run lint`, `npx vue-tsc --noEmit`, and `npm test`. For playback or animation, verify in a browser: play/pause, tempo changes mid-play, mute, and step-count changes.
 - Before finishing a behavior change, port the matching Swift and Android files, then run `swift test` in `macos/FrameBeatCore` and `./gradlew test lint` in `android`. Play the native apps when the change is audible or visible. A green web type-check does not mean the native ports happened.
