@@ -28,8 +28,8 @@ useHead({
         <p>This website uses Google Analytics to count visits.</p>
         <p>
           The Mac, iPad, and Android apps do not collect, store, transmit, or share personal data or usage data.
-          They have no accounts, no network access, no analytics, and no third-party SDKs. Audio is synthesized on the device, and
-          the pattern you program stays in memory for the current session.
+          They have no accounts, no network access, no analytics, and no third-party SDKs. Audio is synthesized on
+          the device, and the pattern you program stays in memory for the current session.
         </p>
         <p>
           Questions:
