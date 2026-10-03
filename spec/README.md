@@ -6,7 +6,7 @@ JSON cases that every FrameBeat implementation's tests run, so the copies of eac
 | --- | --- | --- | --- | --- |
 | `geometry.json` | tap to zone and side, zone points, mallet swing | `src/lib/geometry.ts` | `Geometry.swift` | `Geometry.kt` |
 | `voices.json` | voice parameters, envelope values at sample times | `src/lib/voiceSpec.ts` | `VoiceSpec.swift`, `Envelope.swift` | `VoiceSpec.kt`, `Envelope.kt` |
-| `sequencer.json` | event times and audible flags, next bar boundary | `src/lib/schedule.ts` | `Sequencer.swift`, `LiveScheduleMath.swift` | not yet |
+| `sequencer.json` | event times and audible flags, next bar boundary | `src/lib/schedule.ts` | `Sequencer.swift`, `LiveScheduleMath.swift` | `Schedule.kt` |
 | `controls.json` | defaults, ranges, key map, instrument shortcuts | `src/lib/controls.ts` | app source, read as text | `Controls.kt` |
 
 Each file starts with an `about` string that gives its units and tolerances. Only tests read these files; shipping code keeps its own constants.
