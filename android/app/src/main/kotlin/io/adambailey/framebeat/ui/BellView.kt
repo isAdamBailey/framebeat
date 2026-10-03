@@ -4,9 +4,14 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,12 +52,21 @@ private val BrassDark = Color(0xFF8F6319)
 
 /**
  * The bell, [scale] × its base art, with the "Bell" caption below. A touch
- * rings it through [onRing]. Each change of [trigger] after the first
+ * focuses it and rings it through [onRing], and so does Enter while it has keyboard focus.
+ * Each change of [trigger] after the first
  * composition plays the ring animation, whether the bell was struck by hand
  * or rang on the one.
  */
 @Composable
-fun BellView(trigger: Int, onRing: () -> Unit, scale: Float, modifier: Modifier = Modifier) {
+fun BellView(
+    trigger: Int,
+    onRing: () -> Unit,
+    scale: Float,
+    modifier: Modifier = Modifier,
+) {
+    val interaction = remember { MutableInteractionSource() }
+    val focusVisible = rememberFocusVisible(interaction)
+    val focus = remember { FocusRequester() }
     val body = remember { Animatable(1f) }
     val clapper = remember { Animatable(1f) }
     val shine = remember { Animatable(1f) }
@@ -74,8 +88,16 @@ fun BellView(trigger: Int, onRing: () -> Unit, scale: Float, modifier: Modifier 
         Canvas(
             Modifier
                 .size((StageLayout.BELL_WIDTH * scale).dp, (StageLayout.BELL_HEIGHT * scale).dp)
+                // The ring's corners grow with its offset, as a CSS ring's do.
+                .instrument(focus, interaction, focusVisible, RoundedCornerShape((16 * scale + 5).dp)) { event, _ ->
+                    // Enter (or a D-pad's center) is the bell button's click on the web; a held key rings once.
+                    val press = event.key == Key.Enter || event.key == Key.NumPadEnter || event.key == Key.DirectionCenter
+                    if (press && !event.isRepeat) onRing()
+                    press
+                }
                 .semantics {
-                    contentDescription = "Bell"
+                    // Bell.vue's aria-label.
+                    contentDescription = "Bell. Tap to ring it; B rings it while the drum or bell is focused. Space plays or pauses."
                     role = Role.Button
                     onClick(label = "Ring") {
                         onRing()
@@ -87,7 +109,10 @@ fun BellView(trigger: Int, onRing: () -> Unit, scale: Float, modifier: Modifier 
                         while (true) {
                             // Consume the whole gesture, as the drum does, so it never scrolls the page.
                             val changes = awaitPointerEvent().changes
-                            if (changes.any { it.changedToDown() }) onRing()
+                            if (changes.any { it.changedToDown() }) {
+                                focus.requestFocus()
+                                onRing()
+                            }
                             changes.forEach { it.consume() }
                         }
                     }

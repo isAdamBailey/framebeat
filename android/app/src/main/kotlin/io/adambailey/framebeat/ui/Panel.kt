@@ -40,11 +40,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.draw.dropShadow
@@ -85,29 +80,8 @@ private val DOT_BLEED = 18.dp
 /** DESIGN.md's Label style: 11sp, semibold, tracked, uppercase. */
 private val LabelStyle = TextStyle(color = Palette.Label, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.14.em)
 
-/**
- * A ring around a round control, outside its edge as Tailwind's `ring` draws
- * one: a [width] stroke, [gap] past the edge. Put it before any clip.
- */
-private fun Modifier.outerRing(show: Boolean, color: Color, width: Dp = 2.dp, gap: Dp = 0.dp): Modifier =
-    if (!show) {
-        this
-    } else {
-        drawWithContent {
-            drawContent()
-            val inset = (gap + width / 2).toPx()
-            drawRoundRect(
-                color,
-                Offset(-inset, -inset),
-                Size(size.width + 2 * inset, size.height + 2 * inset),
-                CornerRadius(size.height / 2 + inset),
-                style = Stroke(width.toPx()),
-            )
-        }
-    }
-
 /** The sky focus ring, 2dp out (`ring-offset-2`). Touch never focuses a control, so it shows for keyboards only. */
-private fun Modifier.focusRing(focused: Boolean): Modifier = outerRing(focused, Palette.BassSky, gap = 2.dp)
+private fun Modifier.focusRing(focused: Boolean): Modifier = if (focused) outerRing(Pill, Palette.BassSky, gap = 2.dp) { true } else this
 
 /**
  * Widens this element's layer by [bleed] on each side without moving its
@@ -462,7 +436,7 @@ private fun StepDot(on: Boolean, current: () -> Boolean, color: Color, descripti
                         Modifier.background(Palette.PanelSolid, CircleShape).border(2.dp, Palette.Label, CircleShape)
                     },
                 )
-                .outerRing(lift > 0f, Color.White.copy(alpha = 0.8f * lift))
+                .then(if (lift > 0f) Modifier.outerRing(Pill, Color.White.copy(alpha = 0.8f * lift)) { true } else Modifier)
                 .focusRing(focused),
         )
     }

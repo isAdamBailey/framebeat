@@ -4,6 +4,10 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import android.content.res.Configuration
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.focus.FocusRequester
+import io.adambailey.framebeat.engine.DRUM_KEYS
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -16,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.drop
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -34,6 +39,9 @@ import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
@@ -83,6 +91,11 @@ private class DrumAnimations {
     }
 }
 
+private const val DRUM_DESCRIPTION = "Frame drum. Tap a spot to strike it. When focused: Q, W, E play the left " +
+    "mallet's click, tone, and bass zones from outer to inner; I, O, P play the right mallet's bass, tone, and " +
+    "click zones from inner to outer; the left and right arrow keys are a quick tone strike on either side; " +
+    "B rings the bell; Space plays or pauses."
+
 /** DrumCanvas.vue's ±0.06 spread, so repeated sequencer hits don't stack on one spot. */
 private fun jitter() = (Random.nextDouble() - 0.5) * 0.12
 
@@ -100,12 +113,39 @@ private fun rippleColor(sound: Sound): Color =
  * same way without sounding: the top line on the left mallet, the bottom on
  * the right, aimed at its sound's zone with a little jitter.
  *
+ * With keyboard focus, `DRUM_KEYS` strike too (Q W E and I O P by zone, the
+ * arrows a Tone per side). It takes
+ * focus each time [playing] turns true, so the keys are ready alongside the
+ * sequencer, as DrumCanvas.vue does. The focus ring shows only
+ * while the keyboard is in use, as `:focus-visible` does on the web.
+ *
  * The caller sizes it at the web's 32:30 aspect. [scale] shrinks the mallets'
  * fixed-size parts along with a scaled-down stage.
  */
 @Composable
-fun DrumView(onStrike: (Sound) -> Unit, strikes: () -> Strikes, modifier: Modifier = Modifier, scale: Float = 1f) {
+fun DrumView(
+    onStrike: (Sound) -> Unit,
+    strikes: () -> Strikes,
+    playing: () -> Boolean,
+    modifier: Modifier = Modifier,
+    scale: Float = 1f,
+) {
     val animations = remember { DrumAnimations() }
+    val interaction = remember { MutableInteractionSource() }
+    val focusVisible = rememberFocusVisible(interaction)
+    val focus = remember { FocusRequester() }
+    val modes = LocalInputModeManager.current
+    val config = LocalConfiguration.current
+    LaunchedEffect(Unit) {
+        // Skips the value on hand, so a rotation while playing doesn't take focus.
+        // Only with a keyboard to use it: on a bare phone, focusing would just
+        // scroll the page from the panel back up to the drum.
+        snapshotFlow(playing).drop(1).collect {
+            val keyboard = config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO ||
+                modes.inputMode == InputMode.Keyboard
+            if (it && keyboard) focus.requestFocus()
+        }
+    }
     // Watched outside composition, so a sequencer hit animates without
     // recomposing the drum. The strikes on hand at the start, such as from
     // before a rotation, are already seen and do not replay.
@@ -130,8 +170,15 @@ fun DrumView(onStrike: (Sound) -> Unit, strikes: () -> Strikes, modifier: Modifi
     }
     Box(
         modifier
+            .instrument(focus, interaction, focusVisible, OvalShape) { _, name ->
+                val key = DRUM_KEYS[name] ?: return@instrument false
+                val zone = DrumGeometry.zonePoint(key.sound, key.side)
+                hit(key.sound, key.side, zone.x, zone.y)
+                true
+            }
             .semantics {
-                contentDescription = "Frame drum"
+                // DrumCanvas.vue's aria-label.
+                contentDescription = DRUM_DESCRIPTION
                 role = Role.Button
                 // A screen reader's activation strikes the center.
                 onClick(label = "Strike") {
@@ -148,6 +195,7 @@ fun DrumView(onStrike: (Sound) -> Unit, strikes: () -> Strikes, modifier: Modifi
                             val down = change.changedToDown()
                             change.consume()
                             if (!down) continue
+                            focus.requestFocus()
                             val tapped = DrumGeometry.classify(
                                 change.position.x.toDouble() / size.width,
                                 change.position.y.toDouble() / size.height,

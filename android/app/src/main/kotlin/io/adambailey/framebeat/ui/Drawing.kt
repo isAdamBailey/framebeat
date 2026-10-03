@@ -4,7 +4,16 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.RadialGradientShader
@@ -79,3 +88,28 @@ internal fun cssRadialGradient(r: Rect, focus: Offset, vararg stops: Pair<Float,
 }
 
 private val SQRT2 = sqrt(2f)
+
+/**
+ * A ring outside [shape], as Tailwind's `ring` draws one: a [width] stroke of
+ * [color], [gap] past the edge (`ring-offset`). [show] is read while drawing,
+ * so turning the ring on or off redraws without recomposing. Put it before any clip.
+ */
+internal fun Modifier.outerRing(
+    shape: Shape,
+    color: Color,
+    width: Dp = 2.dp,
+    gap: Dp = 0.dp,
+    show: () -> Boolean,
+): Modifier = drawWithCache {
+    // Built once per size, not on every frame the ring is drawn.
+    val inset = (gap + width / 2).toPx()
+    val outline = shape.createOutline(Size(size.width + 2 * inset, size.height + 2 * inset), layoutDirection, this)
+    val stroke = Stroke(width.toPx())
+    onDrawWithContent {
+        drawContent()
+        if (show()) translate(-inset, -inset) { drawOutline(outline, color, style = stroke) }
+    }
+}
+
+/** A drawn oval filling its box, for rings around the drum. */
+internal val OvalShape = GenericShape { size, _ -> addOval(Rect(Offset.Zero, size)) }
