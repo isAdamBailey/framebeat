@@ -32,7 +32,7 @@ Port these together. The web file is the reference:
 | `src/lib/controls.ts` | `macos/FrameBeat/Model/AppState.swift`, `macos/FrameBeat/Views/Drum/DrumView.swift`, the panel sliders | `Controls.kt` |
 | `src/lib/geometry.ts` | `Geometry.swift` | `Geometry.kt` |
 | `src/views/HomeView.vue` (state) | `macos/FrameBeat/Model/AppState.swift` | `session/Session.kt`, `session/SessionViewModel.kt` |
-| `src/components/drum/` | `macos/FrameBeat/Views/` | |
+| `src/components/drum/` | `macos/FrameBeat/Views/` | `ui/StageScreen.kt`, `ui/StageLayout.kt`, `ui/DrumView.kt`, `ui/BellView.kt`, `ui/Drawing.kt` |
 | `DESIGN.md` | `macos/FrameBeat/Design/Theme.swift` | `ui/Theme.kt` |
 
 Swift files in that table live under `macos/FrameBeatCore/Sources/FrameBeatCore/` unless the path says otherwise. Android files live under `android/app/src/main/kotlin/io/adambailey/framebeat/` (UI, theme, audio output) or `android/engine/src/main/kotlin/io/adambailey/framebeat/engine/` (everything else). An empty Android cell is not ported yet; add the file to the table in the PR that creates it.
