@@ -46,23 +46,18 @@ class LiveScheduler(
         class Bottom(override val time: Double, val index: Int, val shape: Shape) : Heard
     }
 
-    private class LastBottom(val time: Double, val index: Int, val shape: Shape)
-
     var playing = false
         private set
 
-    private val streams = Streams(shapeFor(60.0, 1, 1), anchorTime = 0.0)
+    private var streams = Streams(shapeFor(60.0, 1, 1), anchorTime = 0.0)
     private val queue = ArrayDeque<Heard>()
-    private var lastBottom = LastBottom(0.0, 0, streams.shape)
+    private var lastBottom = Heard.Bottom(0.0, 0, streams.shape)
     private var currentTop: Int? = null
     private var currentBottom: Int? = null
 
     /** Restarts both step streams together on a fresh bar boundary at [startTime], under [pattern]'s BPM and counts. */
     private fun anchor(startTime: Double, pattern: Pattern) {
-        streams.shape = pattern.shape
-        streams.anchorTime = startTime
-        streams.bIdx = 0
-        streams.tIdx = 0
+        streams = Streams(pattern.shape, startTime)
     }
 
     private fun scheduleStep(line: LineId, index: Int, time: Double, pattern: Pattern) {
@@ -79,7 +74,7 @@ class LiveScheduler(
 
     fun start(pattern: Pattern) {
         anchor(clock() + START_DELAY, pattern)
-        lastBottom = LastBottom(streams.anchorTime, 0, streams.shape)
+        lastBottom = Heard.Bottom(streams.anchorTime, 0, streams.shape)
         queue.clear()
         playing = true
         tick(pattern)
@@ -128,24 +123,23 @@ class LiveScheduler(
     ): Playhead {
         if (!playing) return Playhead.Stopped
         val now = clock() + latency
+        fun heard(line: LineId, index: Int) {
+            val data = pattern.line(line)
+            if (data.dots[index] && !data.muted) onStep(data.sound, line)
+        }
         while (queue.isNotEmpty() && queue.first().time <= now) {
-            val line = when (val event = queue.removeFirst()) {
-                is Heard.Bell -> {
-                    onDing()
-                    continue
-                }
+            when (val event = queue.removeFirst()) {
+                is Heard.Bell -> onDing()
                 is Heard.Bottom -> {
-                    lastBottom = LastBottom(event.time, event.index, event.shape)
+                    lastBottom = event
                     currentBottom = event.index
-                    LineId.Bottom to event.index
+                    heard(LineId.Bottom, event.index)
                 }
                 is Heard.Top -> {
                     currentTop = event.index
-                    LineId.Top to event.index
+                    heard(LineId.Top, event.index)
                 }
             }
-            val data = pattern.line(line.first)
-            if (data.dots[line.second] && !data.muted) onStep(data.sound, line.first)
         }
         // Use the shape of the step being heard, which can lag the one being booked.
         val shape = lastBottom.shape
@@ -169,11 +163,23 @@ class LiveScheduler(
 /** The mixer's clock in seconds, for [LiveScheduler]. */
 val Mixer.seconds: Double get() = frame.toDouble() / sampleRate
 
-/** Plays a booked event: the bell, or an audible step, at the nearest frame. */
+/** Plays a booked event: the bell, or an audible step, at the nearest frame. Used live and by [renderEvents]. */
 fun Mixer.book(event: ScheduledEvent) {
     val atFrame = (event.time * sampleRate).roundToLong()
     when (event) {
         is ScheduledEvent.Bell -> triggerDing(atFrame)
         is ScheduledEvent.Step -> if (event.audible) trigger(event.sound, atFrame)
     }
+}
+
+/** Renders [frames] frames of [events] offline, through the same [Mixer.book] the live path uses. */
+fun renderEvents(
+    sampleRate: Int,
+    frames: Int,
+    events: List<ScheduledEvent>,
+    noise: DoubleArray = NoiseTable.make(sampleRate),
+): FloatArray {
+    val mixer = Mixer(sampleRate, noise)
+    events.forEach(mixer::book)
+    return FloatArray(frames).also { mixer.render(it) }
 }

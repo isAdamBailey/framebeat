@@ -29,7 +29,7 @@ fun nextBarBoundary(anchor: Double, barDuration: Double, notBefore: Double): Dou
  * anchor + index * duration rather than by adding onto a running total, so
  * bar boundaries land exactly where a re-anchor expects.
  */
-class Streams(var shape: Shape, var anchorTime: Double, var bIdx: Int = 0, var tIdx: Int = 0) {
+class Streams(val shape: Shape, val anchorTime: Double, var bIdx: Int = 0, var tIdx: Int = 0) {
     fun bottomStepTime(i: Int) = anchorTime + i * shape.beat
 
     fun topStepTime(i: Int) = anchorTime + i * shape.barDuration / shape.topCount

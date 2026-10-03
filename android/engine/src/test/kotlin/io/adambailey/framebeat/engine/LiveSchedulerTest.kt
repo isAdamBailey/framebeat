@@ -40,14 +40,20 @@ class LiveSchedulerTest {
             .filter { it.time < until - tolerance }
     }
 
-    private fun ScheduledEvent.shifted(by: Double) = when (this) {
-        is ScheduledEvent.Bell -> copy(time = time + by)
-        is ScheduledEvent.Step -> copy(time = time + by)
+    private fun ScheduledEvent.withTime(t: Double) = when (this) {
+        is ScheduledEvent.Bell -> copy(time = t)
+        is ScheduledEvent.Step -> copy(time = t)
     }
 
-    private fun ScheduledEvent.untimed() = when (this) {
-        is ScheduledEvent.Bell -> copy(time = 0.0)
-        is ScheduledEvent.Step -> copy(time = 0.0)
+    private fun ScheduledEvent.shifted(by: Double) = withTime(time + by)
+
+    private fun ScheduledEvent.untimed() = withTime(0.0)
+
+    /** The time of the first tick at or after [t]: ticks land on whole multiples of 25 ms from 0. */
+    private fun firstTickAtOrAfter(t: Double): Double {
+        var tickTime = 0.0
+        while (tickTime < t) tickTime += tick
+        return tickTime
     }
 
     private fun assertBooked(expected: List<ScheduledEvent>) {
@@ -63,11 +69,8 @@ class LiveSchedulerTest {
     }
 
     /** The first old-pattern bar boundary at or after the horizon of the first tick at or after [changeAt]. */
-    private fun boundaryAfter(changeAt: Double, anchor: Double, bar: Double): Double {
-        var t = 0.0
-        while (t < changeAt) t += tick
-        return nextBarBoundary(anchor, bar, t + LiveScheduler.LOOK_AHEAD)
-    }
+    private fun boundaryAfter(changeAt: Double, anchor: Double, bar: Double): Double =
+        nextBarBoundary(anchor, bar, firstTickAtOrAfter(changeAt) + LiveScheduler.LOOK_AHEAD)
 
     @Test
     fun steadyPlayBooksTheOfflineEvents() {
@@ -104,8 +107,7 @@ class LiveSchedulerTest {
     fun aChangeWhoseHorizonCrossesABoundaryWaitsForTheNextOne() {
         val bar = default.shape.barDuration
         // The first tick whose horizon passes the end of bar 1, but whose clock has not.
-        var t = 0.0
-        while (t + LiveScheduler.LOOK_AHEAD <= start + bar) t += tick
+        val t = firstTickAtOrAfter(start + bar - LiveScheduler.LOOK_AHEAD + tolerance)
         assertTrue(t < start + bar)
         val slower = default.copy(bpm = 60)
         scheduler.start(default)
@@ -258,14 +260,7 @@ class LiveSchedulerTest {
             block.copyInto(out, offset, 0, minOf(block.size, out.size - offset))
             offset += block.size
         }
-        val offline = Mixer.renderOffline(
-            rate,
-            out.size,
-            segment(default, start, 3.0).filter { it !is ScheduledEvent.Step || it.audible }.map {
-                Math.round(it.time * rate) to if (it is ScheduledEvent.Step) Voices.forSound(it.sound) else Voices.ding
-            },
-            NoiseTable.make(rate, Random(3)),
-        )
+        val offline = renderEvents(rate, out.size, segment(default, start, 3.0), NoiseTable.make(rate, Random(3)))
         assertArrayEquals(offline, out, 0f)
         assertEquals(0f, out.take((start * rate).toInt()).maxOf { abs(it) })
     }
