@@ -18,7 +18,8 @@ class Mixer(
     maxBlockFrames: Int = 4096,
 ) {
     private val pending = ConcurrentLinkedQueue<Voice>()
-    private val active = ArrayList<Voice>(64)
+    // Room for far more voices than can overlap, so adding one never resizes on the audio thread.
+    private val active = ArrayList<Voice>(512)
     private val mix = DoubleArray(maxBlockFrames)
 
     /** Frames rendered so far: the frame the next [render] call starts on. */
