@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.PathParser
+import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.unit.dp
 
 /**
@@ -50,7 +50,7 @@ object Icons {
             .apply {
                 for (d in paths) {
                     addPath(
-                        pathData = PathParser().parsePathString(d).toNodes(),
+                        pathData = addPathNodes(d),
                         fill = if (filled) SolidColor(Color.Black) else null,
                         stroke = SolidColor(Color.Black),
                         strokeLineWidth = 2f,

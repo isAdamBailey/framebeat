@@ -33,16 +33,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -55,10 +55,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
-import io.adambailey.framebeat.engine.Line
 import io.adambailey.framebeat.engine.LineId
 import io.adambailey.framebeat.engine.Ranges
 import io.adambailey.framebeat.engine.Sound
+import io.adambailey.framebeat.session.Playback
 import io.adambailey.framebeat.session.Session
 
 // Port of TransportControls.vue, Sequencer.vue, SequencerLine.vue,
@@ -74,11 +74,11 @@ private fun Modifier.focusRing(focused: Boolean, shape: Shape): Modifier =
     if (focused) border(2.dp, Palette.BassSky, shape) else this
 
 /**
- * The panel: transport on top, then both step lines. [playing] and
- * [onTogglePlay] drive the Play button; every other control edits [session].
+ * The panel: transport on top, then both step lines. Play and Pause drive
+ * [playback]; every other control edits [session].
  */
 @Composable
-fun Panel(session: Session, playing: Boolean, onTogglePlay: () -> Unit, expanded: Boolean, modifier: Modifier = Modifier) {
+fun Panel(session: Session, playback: Playback, expanded: Boolean, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(12.dp)
     Column(
         modifier
@@ -88,35 +88,38 @@ fun Panel(session: Session, playing: Boolean, onTogglePlay: () -> Unit, expanded
             .border(1.dp, Palette.PanelBorder, shape)
             .padding(if (expanded) 24.dp else 16.dp),
     ) {
-        Transport(session, playing, onTogglePlay, expanded)
+        Transport(session, playback, expanded)
         Spacer(Modifier.height(32.dp))
-        Sequencer(session, expanded)
+        StepLines(session, playback, expanded)
     }
 }
 
 @Composable
-private fun Transport(session: Session, playing: Boolean, onTogglePlay: () -> Unit, expanded: Boolean) {
-    val tempo = @Composable { modifier: Modifier ->
-        Row(modifier, horizontalArrangement = Arrangement.spacedBy(if (expanded) 24.dp else 16.dp), verticalAlignment = Alignment.Bottom) {
-            Tempo(session.bpm, session::changeBpm, Modifier.weight(1f))
-            TogglePill(
-                pressed = session.chimeOnOne,
-                onToggle = { session.chimeOnOne = it },
-                icon = if (session.chimeOnOne) Icons.Bell else Icons.BellOff,
-                text = "Chime on 1",
-            )
-        }
-    }
+private fun Transport(session: Session, playback: Playback, expanded: Boolean) {
     if (expanded) {
         Row(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalAlignment = Alignment.CenterVertically) {
-            PlayButton(playing, onTogglePlay, Modifier.width(176.dp))
-            tempo(Modifier.weight(1f))
+            PlayButton(playback.playing, playback::toggle, Modifier.width(176.dp))
+            TempoRow(session, expanded, Modifier.weight(1f))
         }
     } else {
         Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
-            PlayButton(playing, onTogglePlay, Modifier.fillMaxWidth())
-            tempo(Modifier.fillMaxWidth())
+            PlayButton(playback.playing, playback::toggle, Modifier.fillMaxWidth())
+            TempoRow(session, expanded, Modifier.fillMaxWidth())
         }
+    }
+}
+
+/** The tempo slider and its readout, then Chime on 1. */
+@Composable
+private fun TempoRow(session: Session, expanded: Boolean, modifier: Modifier) {
+    Row(modifier, horizontalArrangement = Arrangement.spacedBy(if (expanded) 24.dp else 16.dp), verticalAlignment = Alignment.Bottom) {
+        Tempo(session.bpm, session::changeBpm, Modifier.weight(1f))
+        TogglePill(
+            pressed = session.chimeOnOne,
+            onToggle = { session.chimeOnOne = it },
+            icon = if (session.chimeOnOne) Icons.Bell else Icons.BellOff,
+            text = "Chime on 1",
+        )
     }
 }
 
@@ -213,20 +216,19 @@ private fun TogglePill(
 
 @Composable
 private fun Icon(icon: ImageVector, tint: Color, size: Dp) {
-    Image(rememberVectorPainter(icon), contentDescription = null, Modifier.size(size), colorFilter = ColorFilter.tint(tint))
+    Image(icon, contentDescription = null, Modifier.size(size), colorFilter = ColorFilter.tint(tint))
 }
 
 @Composable
-private fun Sequencer(session: Session, expanded: Boolean) {
+private fun StepLines(session: Session, playback: Playback, expanded: Boolean) {
     val inset = Modifier.padding(horizontal = if (expanded) 40.dp else 24.dp)
     Column {
-        LineHeader("Top line", LineId.Top, session.top, session, expanded, inset)
+        LineHeader("Top line", LineId.Top, session, expanded, inset)
         Column(inset.padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
-            StepLine(LineId.Top, session.top, current = null, onToggle = { session.toggleDot(LineId.Top, it) })
-            StepLine(LineId.Bottom, session.bottom, current = null, onToggle = { session.toggleDot(LineId.Bottom, it) })
+            for (id in LineId.entries) StepLine(id, session, playback)
         }
         Spacer(Modifier.height(16.dp))
-        LineHeader("Bottom line — sets the pulse", LineId.Bottom, session.bottom, session, expanded, inset)
+        LineHeader("Bottom line — sets the pulse", LineId.Bottom, session, expanded, inset)
     }
 }
 
@@ -236,7 +238,8 @@ private fun Sequencer(session: Session, expanded: Boolean) {
  * and Mute shows its icon only, as the web does below 640px.
  */
 @Composable
-private fun LineHeader(label: String, id: LineId, line: Line, session: Session, expanded: Boolean, modifier: Modifier) {
+private fun LineHeader(label: String, id: LineId, session: Session, expanded: Boolean, modifier: Modifier) {
+    val line = session.line(id)
     Column(modifier.padding(bottom = 12.dp)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             BasicText(label.uppercase(), Modifier.weight(1f), style = LabelStyle)
@@ -250,7 +253,7 @@ private fun LineHeader(label: String, id: LineId, line: Line, session: Session, 
             )
         }
         Spacer(Modifier.height(8.dp))
-        val count = @Composable {
+        Row(horizontalArrangement = Arrangement.spacedBy(if (expanded) 20.dp else 16.dp), verticalAlignment = Alignment.CenterVertically) {
             BasicText(
                 "${line.count}",
                 // The web's `w-[1.4ch]`: two digits spill evenly into the gap.
@@ -258,21 +261,10 @@ private fun LineHeader(label: String, id: LineId, line: Line, session: Session, 
                 style = numeralStyle(if (expanded) 48.sp else 36.sp, FontWeight.Black, Palette.textFor(line.sound)),
                 softWrap = false,
             )
+            Slider(line.count, Ranges.count, { session.changeCount(id, it) }, label = "$label step count", modifier = Modifier.weight(1f))
+            if (expanded) SoundPicker(line.sound, { session.changeSound(id, it) }, label, fill = false)
         }
-        val slider = @Composable { m: Modifier ->
-            Slider(line.count, Ranges.count, { session.changeCount(id, it) }, label = "$label step count", modifier = m)
-        }
-        if (expanded) {
-            Row(horizontalArrangement = Arrangement.spacedBy(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                count()
-                slider(Modifier.weight(1f))
-                SoundPicker(line.sound, { session.changeSound(id, it) }, label, fill = false)
-            }
-        } else {
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                count()
-                slider(Modifier.weight(1f))
-            }
+        if (!expanded) {
             Spacer(Modifier.height(12.dp))
             SoundPicker(line.sound, { session.changeSound(id, it) }, label, fill = true)
         }
@@ -330,25 +322,30 @@ private fun SoundPicker(sound: Sound, onChange: (Sound) -> Unit, label: String, 
  * touch target is up to 36dp wide but never wider than its step's slot.
  */
 @Composable
-private fun StepLine(id: LineId, line: Line, current: Int?, onToggle: (Int) -> Unit) {
+private fun StepLine(id: LineId, session: Session, playback: Playback) {
+    val line = session.line(id)
+    val current = if (id == LineId.Top) playback.playhead.top else playback.playhead.bottom
     BoxWithConstraints(
         Modifier
             .fillMaxWidth()
             .height(48.dp)
-            .alpha(if (line.muted) 0.4f else 1f),
+            // Fades each draw rather than an offscreen layer, which would clip the first dot at the edge.
+            .graphicsLayer {
+                alpha = if (line.muted) 0.4f else 1f
+                compositingStrategy = CompositingStrategy.ModulateAlpha
+            },
         contentAlignment = Alignment.CenterStart,
     ) {
         Box(Modifier.fillMaxWidth().height(4.dp).background(Palette.ControlFillPressed, Pill))
         val slot = maxWidth / line.count
         val hit = min(36.dp, slot)
-        val name = if (id == LineId.Top) "Top" else "Bottom"
         for (i in 0 until line.count) {
             StepDot(
                 on = line.dots[i],
                 current = current == i,
                 color = Palette.dotFor(line.sound),
-                description = "$name line step ${i + 1}",
-                onToggle = { onToggle(i) },
+                description = "${id.name} line step ${i + 1}",
+                onToggle = { session.toggleDot(id, i) },
                 modifier = Modifier.offset(x = slot * i - hit / 2).width(hit),
             )
         }

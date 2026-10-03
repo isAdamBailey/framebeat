@@ -1,9 +1,6 @@
 package io.adambailey.framebeat.session
 
 import android.app.Application
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import io.adambailey.framebeat.audio.AudioOutput
 import io.adambailey.framebeat.engine.Sound
@@ -15,14 +12,7 @@ import io.adambailey.framebeat.engine.Sound
 class SessionViewModel(application: Application) : AndroidViewModel(application) {
     val session = Session()
     val output = AudioOutput(application)
-
-    /** Whether the Play button reads Pause. The sequencer is not wired to it yet. */
-    var playing by mutableStateOf(false)
-        private set
-
-    fun togglePlay() {
-        playing = !playing
-    }
+    val playback = Playback()
 
     /** Plays a hand strike on the drum now. The drum animates it. */
     fun strike(sound: Sound) = output.play(sound)

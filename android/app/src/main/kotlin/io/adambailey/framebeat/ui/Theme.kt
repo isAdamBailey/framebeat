@@ -14,11 +14,11 @@ object Palette {
     /** `colors.stage` (slate-950): the page background. Also `@color/stage`, for the window and launcher icon. */
     val Stage = Color(0xFF020617)
 
-    /** `colors.panel` (slate-900) at 70%: the panel's surface. */
-    val Panel = Color(0xB30F172A)
-
     /** The panel's own color, opaque: fills an off step dot (`bg-slate-900`). */
     val PanelSolid = Color(0xFF0F172A)
+
+    /** `colors.panel` (slate-900) at 70%: the panel's surface. */
+    val Panel = PanelSolid.copy(alpha = 0.7f)
 
     /** `colors.panel-border` (slate-800): the panel's hairline, and an active sound segment's fill. The stage glow is this at 55%. */
     val PanelBorder = Color(0xFF1E293B)

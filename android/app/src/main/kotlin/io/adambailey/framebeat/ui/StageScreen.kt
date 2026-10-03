@@ -80,7 +80,7 @@ fun StageScreen(model: SessionViewModel) {
                 stageFor = { room -> StageLayout.of(windowWidth, contentWidth, room) },
                 header = { Header(expanded) },
                 stage = { stage -> Stage(stage, model) },
-                panel = { Panel(model.session, model.playing, model::togglePlay, expanded) },
+                panel = { Panel(model.session, model.playback, expanded) },
             )
         }
     }
