@@ -34,12 +34,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.offset
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -66,12 +71,45 @@ import io.adambailey.framebeat.session.Session
 
 private val Pill = RoundedCornerShape(50)
 
+/** Half the widest dot target: how far a step line's end dots reach past it. */
+private val DOT_BLEED = 18.dp
+
 /** DESIGN.md's Label style: 11sp, semibold, tracked, uppercase. */
 private val LabelStyle = TextStyle(color = Palette.Label, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, letterSpacing = 0.14.em)
 
-/** A sky ring while a control has keyboard focus. Touch never focuses a control, so it shows for keyboards only. */
-private fun Modifier.focusRing(focused: Boolean, shape: Shape): Modifier =
-    if (focused) border(2.dp, Palette.BassSky, shape) else this
+/**
+ * A ring around a round control, outside its edge as Tailwind's `ring` draws
+ * one: a [width] stroke, [gap] past the edge. Put it before any clip.
+ */
+private fun Modifier.outerRing(show: Boolean, color: Color, width: Dp = 2.dp, gap: Dp = 0.dp): Modifier =
+    if (!show) {
+        this
+    } else {
+        drawWithContent {
+            drawContent()
+            val inset = (gap + width / 2).toPx()
+            drawRoundRect(
+                color,
+                Offset(-inset, -inset),
+                Size(size.width + 2 * inset, size.height + 2 * inset),
+                CornerRadius(size.height / 2 + inset),
+                style = Stroke(width.toPx()),
+            )
+        }
+    }
+
+/** The sky focus ring, 2dp out (`ring-offset-2`). Touch never focuses a control, so it shows for keyboards only. */
+private fun Modifier.focusRing(focused: Boolean): Modifier = outerRing(focused, Palette.BassSky, gap = 2.dp)
+
+/**
+ * Widens this element's layer by [bleed] on each side without moving its
+ * content, so an offscreen layer (a group fade) has room for what is drawn past its edges.
+ */
+private fun Modifier.bleed(bleed: Dp): Modifier = layout { measurable, constraints ->
+    val extra = bleed.roundToPx()
+    val placeable = measurable.measure(constraints.offset(horizontal = 2 * extra))
+    layout(placeable.width - 2 * extra, placeable.height) { placeable.place(-extra, 0) }
+}
 
 /**
  * The panel: transport on top, then both step lines. Play and Pause drive
@@ -83,8 +121,8 @@ fun Panel(session: Session, playback: Playback, expanded: Boolean, modifier: Mod
     Column(
         modifier
             .fillMaxWidth()
-            .clip(shape)
-            .background(Palette.Panel)
+            // No clip: the Play button's glow spills past the panel, as on the web.
+            .background(Palette.Panel, shape)
             .border(1.dp, Palette.PanelBorder, shape)
             .padding(if (expanded) 24.dp else 16.dp),
     ) {
@@ -135,9 +173,9 @@ private fun PlayButton(playing: Boolean, onClick: () -> Unit, modifier: Modifier
             .scale(if (pressed) 0.97f else 1f)
             .height(64.dp)
             .dropShadow(Pill, Shadow(radius = 24.dp, color = Palette.BassSky.copy(alpha = 0.35f), offset = DpOffset(0.dp, 8.dp)))
+            .focusRing(focused)
             .clip(Pill)
             .background(Palette.BassSky)
-            .focusRing(focused, Pill)
             .clickable(interaction, indication = null, role = Role.Button, onClick = onClick)
             .padding(horizontal = 32.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
@@ -199,10 +237,10 @@ private fun TogglePill(
         modifier
             .heightIn(min = 36.dp)
             .widthIn(min = 36.dp)
+            .focusRing(focused)
             .clip(Pill)
             .background(if (pressed) Palette.ControlFillPressed else Color.Transparent)
             .border(1.dp, if (pressed) Palette.Label else Palette.LabelMuted, Pill)
-            .focusRing(focused, Pill)
             .toggleable(pressed, interaction, indication = null, role = Role.Switch, onValueChange = onToggle)
             .semantics { contentDescription = description }
             .padding(horizontal = 14.dp),
@@ -293,10 +331,10 @@ private fun SoundPicker(sound: Sound, onChange: (Sound) -> Unit, label: String, 
             Row(
                 (if (fill) Modifier.weight(1f) else Modifier)
                     .height(32.dp)
+                    .focusRing(focused)
                     .clip(Pill)
                     .background(if (active) Palette.PanelBorder else Color.Transparent)
                     .border(1.dp, if (active) Palette.forSound(candidate) else Color.Transparent, Pill)
-                    .focusRing(focused, Pill)
                     .selectable(active, interaction, indication = null, role = Role.RadioButton) { onChange(candidate) }
                     .padding(horizontal = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
@@ -329,11 +367,11 @@ private fun StepLine(id: LineId, session: Session, playback: Playback) {
         Modifier
             .fillMaxWidth()
             .height(48.dp)
-            // Fades each draw rather than an offscreen layer, which would clip the first dot at the edge.
-            .graphicsLayer {
-                alpha = if (line.muted) 0.4f else 1f
-                compositingStrategy = CompositingStrategy.ModulateAlpha
-            },
+            // Fade the line as one group, like CSS opacity, so the track never
+            // shows through a dot. The layer bleeds past the edges to hold the end dots.
+            .bleed(DOT_BLEED)
+            .graphicsLayer { alpha = if (line.muted) 0.4f else 1f }
+            .padding(horizontal = DOT_BLEED),
         contentAlignment = Alignment.CenterStart,
     ) {
         Box(Modifier.fillMaxWidth().height(4.dp).background(Palette.ControlFillPressed, Pill))
@@ -377,8 +415,8 @@ private fun StepDot(on: Boolean, current: Boolean, color: Color, description: St
                         Modifier.background(Palette.PanelSolid, CircleShape).border(2.dp, Palette.Label, CircleShape)
                     },
                 )
-                .then(if (current) Modifier.border(2.dp, Color.White.copy(alpha = 0.8f), CircleShape) else Modifier)
-                .focusRing(focused, CircleShape),
+                .outerRing(current, Color.White.copy(alpha = 0.8f))
+                .focusRing(focused),
         )
     }
 }

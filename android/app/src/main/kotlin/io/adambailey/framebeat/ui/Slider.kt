@@ -31,6 +31,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
@@ -46,6 +47,8 @@ private val THUMB_RADIUS = 10.dp
 @Composable
 fun Slider(value: Int, range: IntRange, onValueChange: (Int) -> Unit, label: String, modifier: Modifier = Modifier) {
     val change by rememberUpdatedState(onValueChange)
+    // The key handler steps from the newest value, even before a recomposition catches up.
+    val current by rememberUpdatedState(value)
     val interaction = remember { MutableInteractionSource() }
     val focused by interaction.collectIsFocusedAsState()
     val span = (range.last - range.first).coerceAtLeast(1)
@@ -55,6 +58,8 @@ fun Slider(value: Int, range: IntRange, onValueChange: (Int) -> Unit, label: Str
             .height(32.dp)
             .semantics {
                 contentDescription = label
+                // Read the number, not a percentage.
+                stateDescription = "$value"
                 progressBarRangeInfo = ProgressBarRangeInfo(value.toFloat(), range.first.toFloat()..range.last.toFloat(), steps = span - 1)
                 setProgress { target ->
                     change(target.roundToInt().coerceIn(range))
@@ -63,7 +68,7 @@ fun Slider(value: Int, range: IntRange, onValueChange: (Int) -> Unit, label: Str
             }
             .pointerInput(range) {
                 val radius = THUMB_RADIUS.toPx()
-                fun at(x: Float) = range.first + (((x - radius) / (size.width - 2 * radius)).coerceIn(0f, 1f) * span).roundToInt()
+                fun at(x: Float) = range.first + (((x - radius) / (size.width - 2 * radius).coerceAtLeast(1f)).coerceIn(0f, 1f) * span).roundToInt()
                 // Only a tap or a sideways drag sets the value: an up-and-down
                 // drag that starts on the slider still scrolls the column.
                 awaitEachGesture {
@@ -91,7 +96,7 @@ fun Slider(value: Int, range: IntRange, onValueChange: (Int) -> Unit, label: Str
                     Key.DirectionRight, Key.DirectionUp -> 1
                     else -> return@onKeyEvent false
                 }
-                change((value + step).coerceIn(range))
+                change((current + step).coerceIn(range))
                 true
             }
             .focusable(interactionSource = interaction)
