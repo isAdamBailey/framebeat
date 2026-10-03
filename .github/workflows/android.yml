@@ -1,17 +1,12 @@
 name: Android
 
+# Runs on every push and pull request so the required check always reports.
+# A path filter here would leave the check pending on PRs that don't touch
+# Android, so the job decides for itself whether to run Gradle.
 on:
   push:
     branches: [main]
-    paths:
-      - 'android/**'
-      - 'spec/**'
-      - '.github/workflows/android.yml'
   pull_request:
-    paths:
-      - 'android/**'
-      - 'spec/**'
-      - '.github/workflows/android.yml'
   workflow_dispatch:
 
 concurrency:
@@ -20,6 +15,7 @@ concurrency:
 
 jobs:
   android:
+    # The main ruleset requires this check by name; rename both together.
     name: Android (test + lint + debug build)
     runs-on: ubuntu-latest
     defaults:
@@ -27,9 +23,33 @@ jobs:
         working-directory: android
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Pull requests run Gradle only when they change android/, spec/, or
+      # this workflow. Pushes to main and manual runs always do.
+      - name: Check for Android changes
+        id: changes
+        working-directory: .
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD")
+          if echo "$changed" | grep -qE '^(android/|spec/|\.github/workflows/android\.yml$)'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No changes under android/ or spec/; skipping Gradle."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/setup-java@v4
+        if: steps.changes.outputs.run == 'true'
         with:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
-      - run: ./gradlew test lint assembleDebug
+        if: steps.changes.outputs.run == 'true'
+      - if: steps.changes.outputs.run == 'true'
+        run: ./gradlew test lint assembleDebug
