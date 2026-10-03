@@ -13,7 +13,9 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -39,10 +41,13 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import io.adambailey.framebeat.engine.DrumGeometry
+import io.adambailey.framebeat.engine.LineId
 import io.adambailey.framebeat.engine.MalletSwing
 import io.adambailey.framebeat.engine.Side
 import io.adambailey.framebeat.engine.Sound
+import io.adambailey.framebeat.engine.Strikes
 import kotlin.math.hypot
+import kotlin.random.Random
 
 // Port of src/components/drum/DrumCanvas.vue and Mallet.vue: layered gradients
 // standing in for a wood-and-hide frame drum, two independently animated
@@ -78,6 +83,9 @@ private class DrumAnimations {
     }
 }
 
+/** DrumCanvas.vue's ±0.06 spread, so repeated sequencer hits don't stack on one spot. */
+private fun jitter() = (Random.nextDouble() - 0.5) * 0.12
+
 /** `SOUND_META[sound].ripple`: the sound's color, partly transparent. */
 private fun rippleColor(sound: Sound): Color =
     Palette.forSound(sound).copy(alpha = if (sound == Sound.Click) 0.6f else 0.55f)
@@ -88,12 +96,33 @@ private fun rippleColor(sound: Sound): Color =
  * onto it. Every finger strikes, so two hands can drum together. A tap in the
  * empty corners of the box does nothing.
  *
+ * Each new strike in [strikes] (the sequencer's, already heard) animates the
+ * same way without sounding: the top line on the left mallet, the bottom on
+ * the right, aimed at its sound's zone with a little jitter.
+ *
  * The caller sizes it at the web's 32:30 aspect. [scale] shrinks the mallets'
  * fixed-size parts along with a scaled-down stage.
  */
 @Composable
-fun DrumView(onStrike: (Sound) -> Unit, modifier: Modifier = Modifier, scale: Float = 1f) {
+fun DrumView(onStrike: (Sound) -> Unit, strikes: () -> Strikes, modifier: Modifier = Modifier, scale: Float = 1f) {
     val animations = remember { DrumAnimations() }
+    // Watched outside composition, so a sequencer hit animates without
+    // recomposing the drum. The strikes on hand at the start, such as from
+    // before a rotation, are already seen and do not replay.
+    val latestStrikes by rememberUpdatedState(strikes)
+    LaunchedEffect(Unit) {
+        var seen = latestStrikes()
+        snapshotFlow { latestStrikes() }.collect { now ->
+            for (line in LineId.entries) {
+                val strike = now[line]
+                if (strike == null || strike == seen[line]) continue
+                val side = if (line == LineId.Top) Side.Left else Side.Right
+                val zone = DrumGeometry.zonePoint(strike.sound, side)
+                animations.strike(strike.sound, side, zone.x + jitter(), zone.y + jitter())
+            }
+            seen = now
+        }
+    }
     // Every way of striking the drum plays the sound and animates the same way.
     fun hit(sound: Sound, side: Side, dx: Double, dy: Double) {
         onStrike(sound)
