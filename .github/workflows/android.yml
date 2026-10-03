@@ -1,17 +1,12 @@
 name: Android
 
+# Runs on every push and pull request so the required check always reports.
+# A path filter here would leave the check pending on PRs that don't touch
+# Android, so the job decides for itself whether to run Gradle.
 on:
   push:
     branches: [main]
-    paths:
-      - 'android/**'
-      - 'spec/**'
-      - '.github/workflows/android.yml'
   pull_request:
-    paths:
-      - 'android/**'
-      - 'spec/**'
-      - '.github/workflows/android.yml'
   workflow_dispatch:
 
 concurrency:
@@ -20,6 +15,7 @@ concurrency:
 
 jobs:
   android:
+    # The main ruleset requires this check by name; rename both together.
     name: Android (test + lint + debug build)
     runs-on: ubuntu-latest
     defaults:
@@ -27,9 +23,41 @@ jobs:
         working-directory: android
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Run Gradle only when android/, spec/, or this workflow changed: for a
+      # pull request against its base, for a push since the previous head.
+      # Manual runs always build.
+      - name: Check for Android changes
+        id: changes
+        working-directory: .
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          case "$EVENT" in
+            pull_request) range="origin/$BASE_REF...HEAD" ;;
+            push) range="$BEFORE..HEAD" ;;
+            *) echo "run=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+          if ! changed=$(git diff --name-only "$range" 2>/dev/null); then
+            echo "Could not diff $range; building."
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif echo "$changed" | grep -qE '^(android/|spec/|\.github/workflows/android\.yml$)'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No changes under android/ or spec/; skipping Gradle."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/setup-java@v4
+        if: steps.changes.outputs.run == 'true'
         with:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
-      - run: ./gradlew test lint assembleDebug
+        if: steps.changes.outputs.run == 'true'
+      - if: steps.changes.outputs.run == 'true'
+        run: ./gradlew test lint assembleDebug
