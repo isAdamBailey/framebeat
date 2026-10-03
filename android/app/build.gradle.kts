@@ -40,14 +40,12 @@ android {
 
     lint {
         // targetSdk follows Play's floor, not the newest platform (issue #16).
-        disable += "OldTargetApi"
+        // Version checks change with the calendar, not the code, so they
+        // would fail CI on main the day a newer release ships.
+        disable += listOf("OldTargetApi", "GradleDependency", "AndroidGradlePluginVersion", "NewerVersionAvailable")
         warningsAsErrors = true
         abortOnError = true
     }
-}
-
-kotlin {
-    jvmToolchain(17)
 }
 
 dependencies {

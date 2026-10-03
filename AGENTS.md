@@ -40,7 +40,7 @@ Leave these on one side:
 - Web only: `src/components/site/`, SEO in `index.html`, `public/robots.txt`, `public/sitemap.xml`, the Smart App Banner. App Store and privacy URLs live in `src/lib/links.ts`; update `index.html`'s `apple-itunes-app` meta tag with them when the app ID changes. Marketing copy stays sourced from the codebase or `src/views/PrivacyView.vue` — no price or iPhone claims. App Store CTAs stay neutral (no sound colors, no glow).
 - Native only: Mac menu bar and window chrome, the iOS `AVAudioSession` in `RealtimeAudio.swift`, signing and `project.yml`.
 - Android only: Gradle build files, the manifest, `AudioTrack` output, and Play signing. Android ships with no permissions, no network, no analytics, and no third-party SDKs.
-- Keep Android pull requests separate from Apple ones: a PR that touches `src/` or `macos/` contains no Android code, and an Android PR touches neither.
+- While issue #16 builds the Android app, its port PRs stay apart from Apple code: an Android port PR touches neither `src/` nor `macos/`, so it never needs the shipped Mac and iPad apps re-tested. Once Android has caught up, a behavior change lands on all three in one change, as above.
 
 `VoiceSpec.swift` is the native source of truth for voice parameters, shared by the offline renderer and live playback. Those numbers are copied from `src/lib/drumAudio.ts`. Android copies the same numbers from `drumAudio.ts`, not from Swift. Neither native triangle oscillator nor noise table is sample-identical to Web Audio; judge voices against the parameter spec and by ear. Details are in `macos/README.md`.
 

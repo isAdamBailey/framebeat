@@ -3,16 +3,17 @@ package io.adambailey.framebeat.ui
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import io.adambailey.framebeat.R
 
-/** Tokens from DESIGN.md. */
+/** Colors from DESIGN.md and the web header. */
 object Palette {
     /** `colors.stage` (slate-950): the page background. */
     val Stage = Color(0xFF020617)
 
-    /** The title's ink (stone-200), matching the web header. */
+    /** The title's ink: stone-200, from `HomeView.vue`'s header (not a DESIGN.md token). */
     val Title = Color(0xFFE7E5E4)
 }
 
@@ -26,7 +27,8 @@ object Fonts {
         Font(
             R.font.fraunces,
             weight = FontWeight.SemiBold,
-            variationSettings = FontVariation.Settings(FontVariation.weight(600)),
+            // Pin the variable font's wght axis to the same weight (its default is 900).
+            variationSettings = FontVariation.Settings(FontWeight.SemiBold, FontStyle.Normal),
         ),
     )
 }
