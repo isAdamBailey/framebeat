@@ -42,6 +42,16 @@ class Mixer(
 
     fun triggerDing(atFrame: Long) = trigger(Voices.ding, atFrame)
 
+    /**
+     * Drops every voice, sounding or waiting, without moving [frame]. Call it
+     * from the [render] thread: the live output clears as each start begins, so
+     * a tail cut off by the last stop does not resume mid-sound.
+     */
+    fun clear() {
+        pending.clear()
+        active.clear()
+    }
+
     /** Renders the next [frames] frames into [out] from [offset], and advances [frame]. */
     fun render(out: FloatArray, offset: Int = 0, frames: Int = out.size - offset) {
         var done = 0

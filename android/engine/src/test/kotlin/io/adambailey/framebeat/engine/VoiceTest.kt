@@ -122,6 +122,20 @@ class VoiceTest {
     }
 
     @Test
+    fun clearSilencesSoundingAndWaitingVoicesAndKeepsTheClock() {
+        val mixer = Mixer(rate, noise)
+        mixer.triggerDing(0)
+        mixer.render(FloatArray(256))
+        mixer.trigger(Sound.Bass, 1000)
+        mixer.clear()
+        assertEquals(0, mixer.activeVoices)
+        assertEquals(256L, mixer.frame)
+        val after = FloatArray(4096).also { mixer.render(it) }
+        assertEquals(0f, after.peak())
+        assertEquals(256L + 4096, mixer.frame)
+    }
+
+    @Test
     fun triangleIsBandLimitedAndMatchesTheSeriesAtLowPitch() {
         // A constant 100 Hz triangle at full gain has harmonics well past 20 kHz
         // in the series, so it should be within ~1% of the ideal shape.

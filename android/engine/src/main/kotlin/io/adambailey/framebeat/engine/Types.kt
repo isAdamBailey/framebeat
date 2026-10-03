@@ -45,4 +45,10 @@ data class Line(
 data class Strike(val sound: Sound, val line: LineId, val id: Int)
 
 /** The most recent strike per line. */
-data class Strikes(val top: Strike? = null, val bottom: Strike? = null)
+data class Strikes(val top: Strike? = null, val bottom: Strike? = null) {
+    /** The web's `strikes[line]`. */
+    operator fun get(line: LineId): Strike? = if (line == LineId.Top) top else bottom
+
+    /** These strikes with [strike] as the latest on its line. */
+    fun with(strike: Strike): Strikes = if (strike.line == LineId.Top) copy(top = strike) else copy(bottom = strike)
+}
