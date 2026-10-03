@@ -202,9 +202,16 @@ private fun Stage(layout: StageLayout, model: SessionViewModel) {
         DrumView(
             onStrike = model::strike,
             strikes = { model.session.strikes },
+            onShortcut = model::shortcut,
+            playing = { model.playback.playing },
             modifier = Modifier.size(layout.drumWidth.dp, layout.drumHeight.dp),
             scale = layout.stageScale,
         )
-        BellView(trigger = model.session.bellTrigger, onRing = model::ringBell, scale = layout.bellScale)
+        BellView(
+            trigger = model.session.bellTrigger,
+            onRing = model::ringBell,
+            onShortcut = model::shortcut,
+            scale = layout.bellScale,
+        )
     }
 }

@@ -4,6 +4,16 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.platform.LocalInputModeManager
+import io.adambailey.framebeat.engine.DRUM_KEYS
+import io.adambailey.framebeat.engine.InstrumentShortcut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -16,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.drop
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -100,12 +111,33 @@ private fun rippleColor(sound: Sound): Color =
  * same way without sounding: the top line on the left mallet, the bottom on
  * the right, aimed at its sound's zone with a little jitter.
  *
+ * With keyboard focus, `DRUM_KEYS` strike too (Q W E and I O P by zone, the
+ * arrows a Tone per side), and Space and B go to [onShortcut]. It takes
+ * focus each time [playing] turns true, so the keys are ready alongside the
+ * sequencer, as DrumCanvas.vue does. The focus ring shows only
+ * while the keyboard is in use, as `:focus-visible` does on the web.
+ *
  * The caller sizes it at the web's 32:30 aspect. [scale] shrinks the mallets'
  * fixed-size parts along with a scaled-down stage.
  */
 @Composable
-fun DrumView(onStrike: (Sound) -> Unit, strikes: () -> Strikes, modifier: Modifier = Modifier, scale: Float = 1f) {
+fun DrumView(
+    onStrike: (Sound) -> Unit,
+    strikes: () -> Strikes,
+    onShortcut: (InstrumentShortcut) -> Unit,
+    playing: () -> Boolean,
+    modifier: Modifier = Modifier,
+    scale: Float = 1f,
+) {
     val animations = remember { DrumAnimations() }
+    val interaction = remember { MutableInteractionSource() }
+    val focused by interaction.collectIsFocusedAsState()
+    val ring = focused && LocalInputModeManager.current.inputMode == InputMode.Keyboard
+    val focus = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        // Skips the value on hand, so a rotation while playing doesn't take focus.
+        snapshotFlow(playing).drop(1).collect { if (it) focus.requestFocus() }
+    }
     // Watched outside composition, so a sequencer hit animates without
     // recomposing the drum. The strikes on hand at the start, such as from
     // before a rotation, are already seen and do not replay.
@@ -130,6 +162,22 @@ fun DrumView(onStrike: (Sound) -> Unit, strikes: () -> Strikes, modifier: Modifi
     }
     Box(
         modifier
+            .drawWithContent {
+                drawContent()
+                // The web's ring-2 with ring-offset-4, around the drum's oval.
+                if (ring) {
+                    val out = 5.dp.toPx()
+                    drawOval(Palette.BassSky, Offset(-out, -out), Size(size.width + 2 * out, size.height + 2 * out), style = Stroke(2.dp.toPx()))
+                }
+            }
+            .focusRequester(focus)
+            .instrumentKeys(onShortcut) { _, name ->
+                val key = DRUM_KEYS[name] ?: return@instrumentKeys false
+                val zone = DrumGeometry.zonePoint(key.sound, key.side)
+                hit(key.sound, key.side, zone.x, zone.y)
+                true
+            }
+            .focusable(interactionSource = interaction)
             .semantics {
                 contentDescription = "Frame drum"
                 role = Role.Button

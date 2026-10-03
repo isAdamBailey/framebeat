@@ -29,7 +29,7 @@ Port these together. The web file is the reference:
 | `src/types/drum.ts` | `Sound.swift` | `Types.kt` |
 | `src/lib/voiceSpec.ts`, `src/lib/drumAudio.ts` | `VoiceSpec.swift`, `DrumSynth.swift`, `LiveAudioEngine.swift` | `VoiceSpec.kt`, `Envelope.kt`, `Biquad.kt`, `NoiseTable.kt`, `Voice.kt`, `Mixer.kt`, `audio/AudioOutput.kt` |
 | `src/lib/schedule.ts`, `src/composables/useSequencer.ts` | `Sequencer.swift`, `LiveSequencer.swift`, `LiveScheduleMath.swift` | `Schedule.kt`, `LiveScheduler.kt`, `session/Playback.kt` |
-| `src/lib/controls.ts` | `macos/FrameBeat/Model/AppState.swift`, `macos/FrameBeat/Views/Drum/DrumView.swift`, the panel sliders | `Controls.kt` |
+| `src/lib/controls.ts` | `macos/FrameBeat/Model/AppState.swift`, `macos/FrameBeat/Views/Drum/DrumView.swift`, the panel sliders | `Controls.kt`, `ui/Keyboard.kt` |
 | `src/lib/geometry.ts` | `Geometry.swift` | `Geometry.kt` |
 | `src/views/HomeView.vue` (state) | `macos/FrameBeat/Model/AppState.swift` | `session/Session.kt`, `session/SessionViewModel.kt`, `session/Playback.kt` |
 | `src/components/drum/` | `macos/FrameBeat/Views/` | `ui/StageScreen.kt`, `ui/StageLayout.kt`, `ui/DrumView.kt`, `ui/BellView.kt`, `ui/Drawing.kt`, `ui/Panel.kt`, `ui/Slider.kt`, `ui/Icons.kt` |

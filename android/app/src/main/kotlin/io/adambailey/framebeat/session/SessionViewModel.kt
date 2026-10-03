@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import io.adambailey.framebeat.audio.AudioOutput
+import io.adambailey.framebeat.engine.InstrumentShortcut
 import io.adambailey.framebeat.engine.Sound
 import io.adambailey.framebeat.engine.book
 import io.adambailey.framebeat.engine.seconds
@@ -34,6 +35,12 @@ class SessionViewModel(application: Application) : AndroidViewModel(application)
     fun ringBell() {
         output.playDing()
         session.recordBell()
+    }
+
+    /** Space or B on the focused drum or bell, as `HomeView.vue`'s `handleShortcut` does. */
+    fun shortcut(shortcut: InstrumentShortcut) = when (shortcut) {
+        InstrumentShortcut.PlayPause -> playback.toggle()
+        InstrumentShortcut.Bell -> ringBell()
     }
 
     /** Stops the sequencer and the audio: the app has left the screen, or is gone. */

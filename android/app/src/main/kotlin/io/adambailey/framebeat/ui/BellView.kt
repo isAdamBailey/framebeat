@@ -4,6 +4,17 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.platform.LocalInputModeManager
+import io.adambailey.framebeat.engine.InstrumentShortcut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
@@ -47,12 +58,22 @@ private val BrassDark = Color(0xFF8F6319)
 
 /**
  * The bell, [scale] × its base art, with the "Bell" caption below. A touch
- * rings it through [onRing]. Each change of [trigger] after the first
+ * rings it through [onRing], and so does Enter while it has keyboard focus;
+ * Space and B go to [onShortcut]. Each change of [trigger] after the first
  * composition plays the ring animation, whether the bell was struck by hand
  * or rang on the one.
  */
 @Composable
-fun BellView(trigger: Int, onRing: () -> Unit, scale: Float, modifier: Modifier = Modifier) {
+fun BellView(
+    trigger: Int,
+    onRing: () -> Unit,
+    onShortcut: (InstrumentShortcut) -> Unit,
+    scale: Float,
+    modifier: Modifier = Modifier,
+) {
+    val interaction = remember { MutableInteractionSource() }
+    val focused by interaction.collectIsFocusedAsState()
+    val ring = focused && LocalInputModeManager.current.inputMode == InputMode.Keyboard
     val body = remember { Animatable(1f) }
     val clapper = remember { Animatable(1f) }
     val shine = remember { Animatable(1f) }
@@ -74,6 +95,27 @@ fun BellView(trigger: Int, onRing: () -> Unit, scale: Float, modifier: Modifier 
         Canvas(
             Modifier
                 .size((StageLayout.BELL_WIDTH * scale).dp, (StageLayout.BELL_HEIGHT * scale).dp)
+                .drawWithContent {
+                    drawContent()
+                    // The web's ring-2 with ring-offset-4, around the bell's rounded box.
+                    if (ring) {
+                        val out = 5.dp.toPx()
+                        drawRoundRect(
+                            Palette.BassSky,
+                            Offset(-out, -out),
+                            Size(size.width + 2 * out, size.height + 2 * out),
+                            CornerRadius(16.dp.toPx() * scale + out),
+                            style = Stroke(2.dp.toPx()),
+                        )
+                    }
+                }
+                .instrumentKeys(onShortcut) { event, _ ->
+                    // Enter is the bell button's click on the web; a held Enter rings once.
+                    val enter = event.key == Key.Enter || event.key == Key.NumPadEnter
+                    if (enter && event.nativeKeyEvent.repeatCount == 0) onRing()
+                    enter
+                }
+                .focusable(interactionSource = interaction)
                 .semantics {
                     contentDescription = "Bell"
                     role = Role.Button
