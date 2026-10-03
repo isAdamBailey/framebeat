@@ -35,6 +35,13 @@ class StageLayoutTest {
     }
 
     @Test
+    fun compactRowUsesTheContentWidth() {
+        // A 640dp window with 48dp of cutout stays expanded; the compact row is sized from the content.
+        assertTrue(StageLayout.of(640f, contentWidth = 592f).expanded)
+        assertEquals(264f, StageLayout.of(380f, contentWidth = 360f).drumWidth, 0.001f)
+    }
+
+    @Test
     fun compactIgnoresHeight() {
         assertEquals(1f, StageLayout.of(412f, stageRoom = 10f).stageScale)
     }

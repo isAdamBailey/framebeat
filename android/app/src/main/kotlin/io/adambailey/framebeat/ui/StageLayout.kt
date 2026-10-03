@@ -54,13 +54,15 @@ data class StageLayout(
         const val MIN_STAGE_SCALE = 0.45f
 
         /**
-         * The layout for a window [windowWidth] wide, with [stageRoom] of height
-         * left for the drum once everything else in the column is placed. Only
-         * an expanded window reads [stageRoom].
+         * The layout for a window [windowWidth] wide, which picks compact or
+         * expanded, with [contentWidth] of it clear of system bars and cutouts
+         * for the column, and [stageRoom] of height left for the drum once
+         * everything else in the column is placed. Only an expanded window
+         * reads [stageRoom].
          */
-        fun of(windowWidth: Float, stageRoom: Float = Float.POSITIVE_INFINITY): StageLayout {
+        fun of(windowWidth: Float, contentWidth: Float = windowWidth, stageRoom: Float = Float.POSITIVE_INFINITY): StageLayout {
             if (windowWidth < BREAKPOINT) {
-                val row = windowWidth - 2 * COMPACT_GUTTER
+                val row = contentWidth - 2 * COMPACT_GUTTER
                 val drum = (row - COMPACT_GAP - BELL_WIDTH * BELL_MIN_SCALE).coerceIn(0f, DRUM_MAX)
                 val bell = ((row - COMPACT_GAP - drum) / BELL_WIDTH).coerceIn(BELL_MIN_SCALE, BELL_COMPACT_MAX_SCALE)
                 return StageLayout(false, drum, bell, stageScale = 1f)

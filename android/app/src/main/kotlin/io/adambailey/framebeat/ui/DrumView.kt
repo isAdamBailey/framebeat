@@ -113,23 +113,26 @@ fun DrumView(onStrike: (Sound) -> Unit, modifier: Modifier = Modifier, scale: Fl
             .pointerInput(onStrike) {
                 awaitPointerEventScope {
                     while (true) {
+                        // Every change is consumed, the web's `touch-none`: a finger
+                        // that lands on the drum strikes it and never scrolls the page.
                         for (change in awaitPointerEvent().changes) {
-                            if (!change.changedToDown()) continue
-                            val hit = DrumGeometry.classify(
+                            val down = change.changedToDown()
+                            change.consume()
+                            if (!down) continue
+                            val tapped = DrumGeometry.classify(
                                 change.position.x.toDouble() / size.width,
                                 change.position.y.toDouble() / size.height,
                             ) ?: continue
-                            change.consume()
-                            hit(hit.sound, hit.side, hit.dx, hit.dy)
+                            hit(tapped.sound, tapped.side, tapped.dx, tapped.dy)
                         }
                     }
                 }
             },
     ) {
         // Its own layer, so ripple and mallet frames do not redraw the static art.
-        Canvas(Modifier.fillMaxSize().graphicsLayer()) { drawDrum() }
+        Canvas(Modifier.fillMaxSize().graphicsLayer()) { drawDrum(scale) }
         for (ripple in animations.ripples) {
-            key(ripple) { RippleView(ripple, onDone = { animations.ripples.remove(ripple) }) }
+            key(ripple) { RippleView(ripple, scale, onDone = { animations.ripples.remove(ripple) }) }
         }
         MalletView(Side.Left, animations.left, scale)
         MalletView(Side.Right, animations.right, scale)
@@ -137,7 +140,7 @@ fun DrumView(onStrike: (Sound) -> Unit, modifier: Modifier = Modifier, scale: Fl
 }
 
 @Composable
-private fun RippleView(ripple: Ripple, onDone: () -> Unit) {
+private fun RippleView(ripple: Ripple, scale: Float, onDone: () -> Unit) {
     val progress = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
         progress.animateTo(1f, tween(RIPPLE_MS, easing = EaseOut))
@@ -155,7 +158,7 @@ private fun RippleView(ripple: Ripple, onDone: () -> Unit) {
             color = ripple.color.copy(alpha = ripple.color.alpha * 0.85f * (1 - p)),
             topLeft = center - Offset(ring.width / 2, ring.height / 2),
             size = ring,
-            style = Stroke(2.dp.toPx() * grow),
+            style = Stroke(2.dp.toPx() * scale * grow),
         )
     }
 }
@@ -243,13 +246,13 @@ private fun DrawScope.drawStick(foot: Offset, width: Float, height: Float, scale
 
 // The drum's layers, top to bottom of DrumCanvas.vue, as fractions of the box.
 
-private fun DrawScope.drawDrum() {
+private fun DrawScope.drawDrum(scale: Float) {
     val w = size.width
     val h = size.height
     fun box(left: Float, top: Float, width: Float, height: Float) = Rect(w * left, h * top, w * (left + width), h * (top + height))
 
     // Ground shadow.
-    softOval(box(0.04f, 0.78f, 0.92f, 0.16f), Color.Black.copy(alpha = 0.5f), 12.dp.toPx())
+    softOval(box(0.04f, 0.78f, 0.92f, 0.16f), Color.Black.copy(alpha = 0.5f), 12.dp.toPx() * scale)
 
     // Shell depth: dark wood layers peeking out below the frame.
     val lower = box(0f, 0.18f, 1f, 0.68f)
@@ -261,30 +264,34 @@ private fun DrawScope.drawDrum() {
     val frame = box(0f, 0.06f, 1f, 0.68f)
     val grainCenter = Offset(frame.center.x, frame.top + frame.height * 0.4f)
     drawOval(Brush.sweepGradient(*woodGrain, center = grainCenter), frame.topLeft, frame.size)
-    insetRim(frame, Color(0x38FFECC8), fromTop = true, depth = 6.dp.toPx())
-    insetRim(frame, Color(0x80000000), fromTop = false, depth = 10.dp.toPx())
+    insetRim(frame, Color(0x38FFECC8), fromTop = true, depth = 6.dp.toPx() * scale)
+    insetRim(frame, Color(0x80000000), fromTop = false, depth = 10.dp.toPx() * scale)
 
     // Drumhead skin, lit from the upper left.
     val skin = box(0.09f, 0.12f, 0.82f, 0.56f)
-    ellipticalRadial(
-        skin,
-        focus = Offset(0.38f, 0.3f),
-        0f to Color(0xFFF2E5CB),
-        0.42f to Color(0xFFE4CDA2),
-        0.74f to Color(0xFFC9A878),
-        1f to Color(0xFFAB8757),
+    drawOval(
+        cssRadialGradient(
+            skin,
+            focus = Offset(0.38f, 0.3f),
+            0f to Color(0xFFF2E5CB),
+            0.42f to Color(0xFFE4CDA2),
+            0.74f to Color(0xFFC9A878),
+            1f to Color(0xFFAB8757),
+        ),
+        skin.topLeft,
+        skin.size,
     )
-    insetRim(skin, Color(0x733C230A), fromTop = true, depth = 10.dp.toPx())
-    insetRim(skin, Color(0x40FFF0D2), fromTop = false, depth = 4.dp.toPx())
+    insetRim(skin, Color(0x733C230A), fromTop = true, depth = 10.dp.toPx() * scale)
+    insetRim(skin, Color(0x40FFF0D2), fromTop = false, depth = 4.dp.toPx() * scale)
 
     // Tension ring and skin wrinkle hints.
     val ring = Color(0x3378350F)
     for (r in listOf(box(0.13f, 0.15f, 0.74f, 0.5f), box(0.31f, 0.26f, 0.38f, 0.28f))) {
-        drawOval(ring, r.topLeft, r.size, style = Stroke(1.dp.toPx()))
+        drawOval(ring, r.topLeft, r.size, style = Stroke(1.dp.toPx() * scale))
     }
 
     // Sheen.
-    softOval(box(0.16f, 0.16f, 0.34f, 0.22f), Color.White.copy(alpha = 0.1f), 2.dp.toPx())
+    softOval(box(0.16f, 0.16f, 0.34f, 0.22f), Color.White.copy(alpha = 0.1f), 2.dp.toPx() * scale)
 }
 
 /** `repeating-conic-gradient(#8a5224 0deg, #9a6130 9deg, #714119 18deg, #8a5224 27deg)`, as sweep stops. */

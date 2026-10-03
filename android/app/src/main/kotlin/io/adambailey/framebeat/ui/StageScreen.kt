@@ -25,6 +25,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -50,6 +52,8 @@ private enum class Slot { Header, Stage, Panel }
  */
 @Composable
 fun StageScreen(model: SessionViewModel) {
+    // Compact or expanded comes from the whole window, as Android's window size classes do.
+    val windowWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp().value }
     BoxWithConstraints(
         Modifier
             .fillMaxSize()
@@ -57,8 +61,8 @@ fun StageScreen(model: SessionViewModel) {
             .windowInsetsPadding(WindowInsets.safeDrawing),
         contentAlignment = Alignment.TopCenter,
     ) {
-        val windowWidth = maxWidth.value
-        val expanded = windowWidth >= StageLayout.BREAKPOINT
+        val contentWidth = maxWidth.value
+        val expanded = StageLayout.of(windowWidth, contentWidth).expanded
         val top = if (expanded) 56.dp else 24.dp
         val bottom = if (expanded) 40.dp else 32.dp
         val viewportHeight = maxHeight - top - bottom
@@ -67,16 +71,15 @@ fun StageScreen(model: SessionViewModel) {
                 .verticalScroll(rememberScrollState())
                 .widthIn(max = StageLayout.COLUMN_MAX.dp)
                 .fillMaxWidth()
-                .padding(horizontal = (if (expanded) StageLayout.EXPANDED_GUTTER else StageLayout.COMPACT_GUTTER).dp)
+                .padding(horizontal = StageLayout.of(windowWidth, contentWidth).gutter.dp)
                 .padding(top = top, bottom = bottom),
         ) {
             StageColumn(
-                windowWidth = windowWidth,
+                expanded = expanded,
                 viewportHeight = viewportHeight,
+                stageFor = { room -> StageLayout.of(windowWidth, contentWidth, room) },
                 header = { Header(expanded) },
-                stage = { layout ->
-                    Stage(layout, model)
-                },
+                stage = { stage -> Stage(stage, model) },
                 panel = {},
             )
         }
@@ -90,8 +93,9 @@ fun StageScreen(model: SessionViewModel) {
  */
 @Composable
 private fun StageColumn(
-    windowWidth: Float,
+    expanded: Boolean,
     viewportHeight: Dp,
+    stageFor: (stageRoom: Float) -> StageLayout,
     header: @Composable () -> Unit,
     stage: @Composable (StageLayout) -> Unit,
     panel: @Composable () -> Unit,
@@ -100,14 +104,13 @@ private fun StageColumn(
         val loose = constraints.copy(minWidth = 0, minHeight = 0)
         val headers = subcompose(Slot.Header, header).map { it.measure(loose) }
         val panels = subcompose(Slot.Panel, panel).map { it.measure(loose) }
-        val expanded = windowWidth >= StageLayout.BREAKPOINT
         val headerGap = (if (expanded) 24.dp else 16.dp).roundToPx()
         // The web's `mb-8` under the stage row, when there is a panel to space from.
         val panelGap = if (panels.isEmpty()) 0 else 32.dp.roundToPx()
         val used = headers.sumOf { it.height } + headerGap + panelGap + panels.sumOf { it.height }
         val room = (viewportHeight.roundToPx() - used).toDp().value - 2 * ROW_PADDING
-        val layout = StageLayout.of(windowWidth, stageRoom = room)
-        val stages = subcompose(Slot.Stage) { stage(layout) }.map { it.measure(loose) }
+        val sized = stageFor(room)
+        val stages = subcompose(Slot.Stage) { stage(sized) }.map { it.measure(loose) }
 
         val width = constraints.maxWidth
         val height = used + stages.sumOf { it.height }
@@ -157,8 +160,8 @@ private fun Header(expanded: Boolean) {
 
 /**
  * The drum and the bell in one row, under the stage glow: the web's
- * `radial-gradient(ellipse at center, rgba(30,41,59,0.55), transparent 65%)`,
- * which shrinks with the row.
+ * `radial-gradient(ellipse at center, rgba(30,41,59,0.55), transparent 65%)`
+ * across the row, narrowed by the stage scale as the row's height shrinks.
  */
 @Composable
 private fun Stage(layout: StageLayout, model: SessionViewModel) {
@@ -166,11 +169,17 @@ private fun Stage(layout: StageLayout, model: SessionViewModel) {
         Modifier
             .fillMaxWidth()
             .drawBehind {
-                ellipticalRadial(
-                    Rect(Offset.Zero, size),
-                    focus = Offset(0.5f, 0.5f),
-                    0f to Palette.PanelBorder.copy(alpha = 0.55f),
-                    0.65f to Palette.PanelBorder.copy(alpha = 0f),
+                val halfWidth = size.width * layout.stageScale / 2
+                val glow = Rect(center.x - halfWidth, 0f, center.x + halfWidth, size.height)
+                drawRect(
+                    cssRadialGradient(
+                        glow,
+                        focus = Offset(0.5f, 0.5f),
+                        0f to Palette.PanelBorder.copy(alpha = 0.55f),
+                        0.65f to Palette.PanelBorder.copy(alpha = 0f),
+                    ),
+                    glow.topLeft,
+                    glow.size,
                 )
             }
             .padding(vertical = ROW_PADDING.dp),

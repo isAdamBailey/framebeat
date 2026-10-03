@@ -7,8 +7,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.RadialGradientShader
+import androidx.compose.ui.graphics.Shader
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.util.lerp
-import kotlin.math.hypot
+import android.graphics.Matrix
+import kotlin.math.sqrt
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -58,12 +62,20 @@ internal fun DrawScope.softOval(r: Rect, color: Color, blur: Float) {
     }
 }
 
-/** An ellipse filling [r] with a CSS `radial-gradient(ellipse at focus, ...)`, sized to the farthest corner. */
-internal fun DrawScope.ellipticalRadial(r: Rect, focus: Offset, vararg stops: Pair<Float, Color>) {
-    // Draw a circle-shaped gradient in a square, then squash the square to the box.
-    scale(1f, r.height / r.width, pivot = r.topLeft) {
-        val center = r.topLeft + Offset(r.width * focus.x, r.width * focus.y)
-        val reach = r.width * hypot(maxOf(focus.x, 1 - focus.x), maxOf(focus.y, 1 - focus.y))
-        drawOval(Brush.radialGradient(*stops, center = center, radius = reach), r.topLeft, Size(r.width, r.width))
+/**
+ * CSS `radial-gradient(ellipse farthest-corner at focus, ...)` over [r]: an
+ * ellipse with the farthest side's proportions, grown to pass through the
+ * farthest corner. [focus] is a fraction of [r].
+ */
+internal fun cssRadialGradient(r: Rect, focus: Offset, vararg stops: Pair<Float, Color>): Brush = object : ShaderBrush() {
+    override fun createShader(size: Size): Shader {
+        val center = Offset(r.left + r.width * focus.x, r.top + r.height * focus.y)
+        val rx = r.width * maxOf(focus.x, 1 - focus.x) * SQRT2
+        val ry = r.height * maxOf(focus.y, 1 - focus.y) * SQRT2
+        return RadialGradientShader(center, rx, stops.map { it.second }, stops.map { it.first }).apply {
+            setLocalMatrix(Matrix().apply { setScale(1f, ry / rx, center.x, center.y) })
+        }
     }
 }
+
+private val SQRT2 = sqrt(2f)

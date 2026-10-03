@@ -85,11 +85,10 @@ fun BellView(trigger: Int, onRing: () -> Unit, scale: Float, modifier: Modifier 
                 .pointerInput(onRing) {
                     awaitPointerEventScope {
                         while (true) {
+                            // Consume the whole gesture, as the drum does, so it never scrolls the page.
                             val changes = awaitPointerEvent().changes
-                            if (changes.any { it.changedToDown() }) {
-                                changes.forEach { it.consume() }
-                                onRing()
-                            }
+                            if (changes.any { it.changedToDown() }) onRing()
+                            changes.forEach { it.consume() }
                         }
                     }
                 },
