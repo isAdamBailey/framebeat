@@ -4,6 +4,7 @@ import io.adambailey.framebeat.engine.LineId
 import io.adambailey.framebeat.engine.LiveScheduler
 import io.adambailey.framebeat.engine.ScheduledEvent
 import io.adambailey.framebeat.engine.Sound
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -30,6 +31,8 @@ class PlaybackTest {
         clock = { testScheduler.currentTime / 1000.0 },
         book = { booked += it },
         latency = { 0.0 },
+        // Tick on the test's virtual clock, not a real thread.
+        tickContext = EmptyCoroutineContext,
     )
 
     @Test

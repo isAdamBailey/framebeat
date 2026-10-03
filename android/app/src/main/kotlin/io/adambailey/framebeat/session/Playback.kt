@@ -8,7 +8,9 @@ import io.adambailey.framebeat.engine.LineId
 import io.adambailey.framebeat.engine.LiveScheduler
 import io.adambailey.framebeat.engine.Playhead
 import io.adambailey.framebeat.engine.ScheduledEvent
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -21,11 +23,15 @@ import kotlinx.coroutines.launch
  * playhead moving every frame redraws the playhead and nothing else.
  *
  * Play books against [clock] (the mixer's, in seconds) through [book], ticking
- * in [scope] every [LiveScheduler.TICK_MS]. Call [frame] once per display
- * frame while playing: it lights the steps being heard, [latency] seconds
- * behind the clock, and hands their strikes and chimes to [session].
+ * in [scope] on [tickContext] every [LiveScheduler.TICK_MS]. Call [frame]
+ * once per display frame while playing: it lights the steps being heard,
+ * [latency] seconds behind the clock, and hands their strikes and chimes to
+ * [session].
  *
- * Threads: everything here, and the ticks in [scope], run on the main thread.
+ * Threads: call [start], [stop], and [frame] from the main thread. The ticks
+ * run off it, so a stalled main thread (a rotation, a long layout) cannot
+ * starve the look-ahead and leave steps late; a lock keeps them and [frame]
+ * from using the scheduler at once.
  */
 class Playback(
     private val session: Session,
@@ -33,6 +39,7 @@ class Playback(
     clock: () -> Double,
     book: (ScheduledEvent) -> Unit,
     private val latency: () -> Double,
+    private val tickContext: CoroutineContext = Dispatchers.Default,
 ) {
     private val scheduler = LiveScheduler(clock, book)
     private var ticker: Job? = null
@@ -59,12 +66,12 @@ class Playback(
 
     fun start() {
         if (playing) return
-        scheduler.start(session.pattern)
+        synchronized(scheduler) { scheduler.start(session.pattern) }
         playing = true
-        ticker = scope.launch {
+        ticker = scope.launch(tickContext) {
             while (isActive) {
                 delay(LiveScheduler.TICK_MS)
-                scheduler.tick(session.pattern)
+                synchronized(scheduler) { scheduler.tick(session.pattern) }
             }
         }
     }
@@ -73,14 +80,16 @@ class Playback(
     fun stop() {
         ticker?.cancel()
         ticker = null
-        scheduler.stop()
+        // A tick already under way finishes first, then finds the scheduler stopped.
+        synchronized(scheduler) { scheduler.stop() }
         playing = false
         show(Playhead.Stopped)
     }
 
     fun frame() {
         if (!playing) return
-        show(scheduler.frame(session.pattern, latency(), onStep, onDing))
+        val latency = latency()
+        show(synchronized(scheduler) { scheduler.frame(session.pattern, latency, onStep, onDing) })
     }
 
     private fun show(playhead: Playhead) {

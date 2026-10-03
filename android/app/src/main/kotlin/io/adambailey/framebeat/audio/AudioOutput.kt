@@ -75,17 +75,22 @@ class AudioOutput(context: Context) {
     /**
      * Seconds from the mixer's clock to the frame being heard now: the web's
      * `outputLatency + baseLatency`, which the sequencer's frame sync adds so
-     * a step lights up when it is heard. 0 while stopped.
+     * a step lights up when it is heard. 0 while stopped, and 0 once the
+     * audio thread has given up on a failed track and released it.
      */
     val latency: Double
         get() {
             val track = track ?: return 0.0
             val pending = mixer.frame - startFrame
-            val heard = if (track.getTimestamp(timestamp)) {
-                timestamp.framePosition + (System.nanoTime() - timestamp.nanoTime) * sampleRate / 1e9
-            } else {
-                // No timestamp yet (the first few blocks): assume the buffer is full.
-                (pending - track.bufferSizeInFrames).toDouble()
+            val heard = try {
+                if (track.getTimestamp(timestamp)) {
+                    timestamp.framePosition + (System.nanoTime() - timestamp.nanoTime) * sampleRate / 1e9
+                } else {
+                    // No timestamp yet (the first few blocks): assume the buffer is full.
+                    (pending - track.bufferSizeInFrames).toDouble()
+                }
+            } catch (_: IllegalStateException) {
+                return 0.0
             }
             return max(0.0, (pending - heard) / sampleRate)
         }

@@ -31,6 +31,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.zIndex
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -426,11 +430,16 @@ private fun StepLine(id: LineId, session: Session, playback: Playback) {
 @Composable
 private fun StepDot(on: Boolean, current: () -> Boolean, color: Color, description: String, onToggle: () -> Unit, modifier: Modifier) {
     // Only the dot that lights and the one that dims recompose on a step.
-    val isCurrent by remember { derivedStateOf(current) }
+    val latestCurrent by rememberUpdatedState(current)
+    val isCurrent by remember { derivedStateOf { latestCurrent() } }
+    // The web's `transition-all duration-150` on the playing dot.
+    val lift by animateFloatAsState(if (isCurrent) 1f else 0f, tween(150), label = "current step")
     val interaction = remember { MutableInteractionSource() }
     val focused by interaction.collectIsFocusedAsState()
     Box(
         modifier
+            // Above its neighbours while it plays, the web's `z-10`, so the next dot can't cover it.
+            .zIndex(if (isCurrent) 1f else 0f)
             .height(36.dp)
             .toggleable(on, interaction, indication = null, role = Role.Checkbox) { onToggle() }
             .semantics { contentDescription = description },
@@ -439,7 +448,10 @@ private fun StepDot(on: Boolean, current: () -> Boolean, color: Color, descripti
         val dot = if (on) 24.dp else 20.dp
         Box(
             Modifier
-                .scale(if (isCurrent) 1.25f else 1f)
+                .graphicsLayer {
+                    scaleX = 1f + 0.25f * lift
+                    scaleY = scaleX
+                }
                 .size(dot)
                 .then(
                     if (on) {
@@ -450,7 +462,7 @@ private fun StepDot(on: Boolean, current: () -> Boolean, color: Color, descripti
                         Modifier.background(Palette.PanelSolid, CircleShape).border(2.dp, Palette.Label, CircleShape)
                     },
                 )
-                .outerRing(isCurrent, Color.White.copy(alpha = 0.8f))
+                .outerRing(lift > 0f, Color.White.copy(alpha = 0.8f * lift))
                 .focusRing(focused),
         )
     }

@@ -13,6 +13,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -108,9 +109,10 @@ fun DrumView(onStrike: (Sound) -> Unit, strikes: () -> Strikes, modifier: Modifi
     // Watched outside composition, so a sequencer hit animates without
     // recomposing the drum. The strikes on hand at the start, such as from
     // before a rotation, are already seen and do not replay.
+    val latestStrikes by rememberUpdatedState(strikes)
     LaunchedEffect(Unit) {
-        var seen = strikes()
-        snapshotFlow(strikes).collect { now ->
+        var seen = latestStrikes()
+        snapshotFlow { latestStrikes() }.collect { now ->
             for (line in LineId.entries) {
                 val strike = now[line]
                 if (strike == null || strike == seen[line]) continue
