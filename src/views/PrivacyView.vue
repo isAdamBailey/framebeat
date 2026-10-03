@@ -9,7 +9,7 @@ useHead({
     {
       name: 'description',
       content:
-        'The FrameBeat website uses Google Analytics. The Mac and iPad apps do not collect personal data or usage data.',
+        'The FrameBeat website uses Google Analytics. The Mac, iPad, and Android apps do not collect personal data or usage data.',
     },
   ],
 })
@@ -27,8 +27,8 @@ useHead({
       <div class="mt-8 max-w-[62ch] space-y-5 text-pretty text-sm leading-relaxed text-stone-400 sm:text-base">
         <p>This website uses Google Analytics to count visits.</p>
         <p>
-          The Mac and iPad apps do not collect, store, transmit, or share personal data or usage data. They have no
-          accounts, no network access, no analytics, and no third-party SDKs. Audio is synthesized on the device, and
+          The Mac, iPad, and Android apps do not collect, store, transmit, or share personal data or usage data.
+          They have no accounts, no network access, no analytics, and no third-party SDKs. Audio is synthesized on the device, and
           the pattern you program stays in memory for the current session.
         </p>
         <p>
@@ -39,7 +39,7 @@ useHead({
           >adamjbailey7@gmail.com</a>.
         </p>
       </div>
-      <p class="mt-16 text-xs text-slate-600">Last updated September 27, 2026.</p>
+      <p class="mt-16 text-xs text-slate-600">Last updated October 2, 2026.</p>
     </div>
   </div>
 </template>
