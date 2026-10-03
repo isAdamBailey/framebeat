@@ -35,7 +35,7 @@ final class SharedSpecGeometryTests: XCTestCase {
             }
             let actual = try XCTUnwrap(hit, c.note)
             XCTAssertEqual(actual.sound, try SharedSpec.sound(expected.sound), c.note)
-            XCTAssertEqual(actual.side, SharedSpec.side(expected.side), c.note)
+            XCTAssertEqual(actual.side, try SharedSpec.side(expected.side), c.note)
             XCTAssertEqual(actual.dx, expected.dx, accuracy: spec.tolerance, c.note)
             XCTAssertEqual(actual.dy, expected.dy, accuracy: spec.tolerance, c.note)
         }
@@ -45,7 +45,7 @@ final class SharedSpecGeometryTests: XCTestCase {
         let spec = try spec()
         XCTAssertEqual(spec.zonePoint.count, Sound.allCases.count * 2)
         for c in spec.zonePoint {
-            let point = DrumGeometry.zonePoint(sound: try SharedSpec.sound(c.sound), side: SharedSpec.side(c.side))
+            let point = DrumGeometry.zonePoint(sound: try SharedSpec.sound(c.sound), side: try SharedSpec.side(c.side))
             XCTAssertEqual(point.x, c.x, accuracy: spec.tolerance, "\(c.sound) \(c.side)")
             XCTAssertEqual(point.y, c.y, accuracy: spec.tolerance, "\(c.sound) \(c.side)")
         }
@@ -56,7 +56,7 @@ final class SharedSpecGeometryTests: XCTestCase {
         XCTAssertFalse(spec.swing.isEmpty)
         for c in spec.swing {
             let label = "\(c.side) to (\(c.gx), \(c.gy))"
-            let swing = DrumGeometry.swing(side: SharedSpec.side(c.side), gx: c.gx, gy: c.gy)
+            let swing = DrumGeometry.swing(side: try SharedSpec.side(c.side), gx: c.gx, gy: c.gy)
             XCTAssertEqual(swing.rotationDegrees, c.rotation, accuracy: spec.tolerance, label)
             XCTAssertEqual(swing.dx, c.x, accuracy: spec.swingTolerance, label)
             XCTAssertEqual(swing.dy, c.y, accuracy: spec.swingTolerance, label)

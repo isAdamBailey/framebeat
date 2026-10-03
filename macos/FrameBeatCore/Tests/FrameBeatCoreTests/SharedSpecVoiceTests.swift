@@ -69,11 +69,13 @@ final class SharedSpecVoiceTests: XCTestCase {
             let index = try XCTUnwrap(Int(parts[1]), c.part)
             let voice = try components(c.voice)
             let envelope: Envelope
-            if parts[0] == "noises" {
-                envelope = voice.noises[index].gain
-            } else {
-                let osc = voice.oscillators[index]
-                envelope = parts[2] == "freq" ? osc.freq : osc.gain
+            switch (parts[0], parts[2]) {
+            case ("oscillators", "freq"): envelope = voice.oscillators[index].freq
+            case ("oscillators", "gain"): envelope = voice.oscillators[index].gain
+            case ("noises", "gain"): envelope = voice.noises[index].gain
+            default:
+                XCTFail("unknown envelope part \(c.part)")
+                continue
             }
             for s in c.samples {
                 XCTAssertEqual(envelope.value(at: s.t), s.value, accuracy: spec.tolerance, "\(c.voice) \(c.part) at \(s.t)")

@@ -23,8 +23,17 @@ enum SharedSpec {
         try XCTUnwrap(Sound(rawValue: name), "unknown sound \(name)")
     }
 
-    static func side(_ name: String) -> DrumGeometry.Side {
-        name == "left" ? .left : .right
+    static func side(_ name: String) throws -> DrumGeometry.Side {
+        switch name {
+        case "left": return .left
+        case "right": return .right
+        default: throw SpecError(message: "unknown side \(name)")
+        }
+    }
+
+    struct SpecError: Error, CustomStringConvertible {
+        let message: String
+        var description: String { message }
     }
 
     struct SpecLine: Decodable {

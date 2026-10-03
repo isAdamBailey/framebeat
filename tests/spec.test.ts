@@ -59,8 +59,10 @@ describe('voices', () => {
   test.each(voices.envelopes)('$voice $part', ({ voice, part, samples }) => {
     const [kind, index, param] = part.split('.')
     const spec = VOICES[voice as Voice]
-    const component = kind === 'noises' ? spec.noises[Number(index)] : spec.oscillators[Number(index)]
-    const points: Breakpoints = param === 'freq' && 'freq' in component ? component.freq : component.gain
+    let points: Breakpoints
+    if (kind === 'oscillators' && (param === 'freq' || param === 'gain')) points = spec.oscillators[Number(index)][param]
+    else if (kind === 'noises' && param === 'gain') points = spec.noises[Number(index)].gain
+    else throw new Error(`unknown envelope part ${part}`)
     for (const { t, value } of samples) close(envelopeValue(points, t), value, voices.tolerance)
   })
 })

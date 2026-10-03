@@ -1,6 +1,6 @@
 import { onUnmounted, ref, watch, type Ref } from 'vue'
 import { getAudioContext, triggerDrumSound, triggerDing } from '../lib/drumAudio'
-import { barDuration, barsUntil, bookSteps, shapeFor, stepEvents, type Shape, type Streams } from '../lib/schedule'
+import { barDuration, barsUntil, bookSteps, nextBarBoundary, shapeFor, stepEvents, type Shape, type Streams } from '../lib/schedule'
 import type { Line, Sound } from '../types/drum'
 
 interface UseSequencerArgs {
@@ -75,7 +75,7 @@ export function useSequencer({ top, bottom, bpm, chimeOnOne, onStep, onDing }: U
       const { anchorTime, shape } = streams
       const bars = barsUntil(anchorTime, barDuration(shape), horizon)
       book(Infinity, bars * shape.bottomCount, bars * shape.topCount)
-      anchor(anchorTime + bars * barDuration(shape))
+      anchor(nextBarBoundary(anchorTime, barDuration(shape), horizon))
     }
     book(horizon)
   }
