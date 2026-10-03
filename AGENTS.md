@@ -26,11 +26,11 @@ Port these together. The web file is the reference:
 
 | Web | Native | Android |
 | --- | --- | --- |
-| `src/types/drum.ts` | `Sound.swift` | |
+| `src/types/drum.ts` | `Sound.swift` | `Types.kt` |
 | `src/lib/voiceSpec.ts`, `src/lib/drumAudio.ts` | `VoiceSpec.swift`, `DrumSynth.swift`, `LiveAudioEngine.swift` | |
 | `src/lib/schedule.ts`, `src/composables/useSequencer.ts` | `Sequencer.swift`, `LiveSequencer.swift`, `LiveScheduleMath.swift` | |
-| `src/lib/controls.ts` | `macos/FrameBeat/Model/AppState.swift`, `macos/FrameBeat/Views/Drum/DrumView.swift`, the panel sliders | |
-| `src/lib/geometry.ts` | `Geometry.swift` | |
+| `src/lib/controls.ts` | `macos/FrameBeat/Model/AppState.swift`, `macos/FrameBeat/Views/Drum/DrumView.swift`, the panel sliders | `Controls.kt` |
+| `src/lib/geometry.ts` | `Geometry.swift` | `Geometry.kt` |
 | `src/components/drum/` | `macos/FrameBeat/Views/` | |
 | `DESIGN.md` | `macos/FrameBeat/Design/Theme.swift` | `ui/Theme.kt` |
 
