@@ -19,6 +19,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -54,6 +56,11 @@ private enum class Slot { Header, Stage, Panel }
 fun StageScreen(model: SessionViewModel) {
     // Compact or expanded comes from the whole window, as Android's window size classes do.
     val windowWidth = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp().value }
+    // The web's requestAnimationFrame loop: light the steps as they are heard.
+    val playing = model.playback.playing
+    LaunchedEffect(playing) {
+        while (playing) withFrameNanos { model.playback.frame() }
+    }
     BoxWithConstraints(
         Modifier
             .fillMaxSize()
@@ -188,6 +195,7 @@ private fun Stage(layout: StageLayout, model: SessionViewModel) {
     ) {
         DrumView(
             onStrike = model::strike,
+            strikes = model.session.strikes,
             modifier = Modifier.size(layout.drumWidth.dp, layout.drumHeight.dp),
             scale = layout.stageScale,
         )

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -65,6 +67,7 @@ import io.adambailey.framebeat.engine.Ranges
 import io.adambailey.framebeat.engine.Sound
 import io.adambailey.framebeat.session.Playback
 import io.adambailey.framebeat.session.Session
+import kotlin.math.roundToInt
 
 // Port of TransportControls.vue, Sequencer.vue, SequencerLine.vue,
 // LineHeader.vue, and TogglePill.vue: the flat control panel under the stage.
@@ -262,11 +265,40 @@ private fun StepLines(session: Session, playback: Playback, expanded: Boolean) {
     val inset = Modifier.padding(horizontal = if (expanded) 40.dp else 24.dp)
     Column {
         LineHeader("Top line", LineId.Top, session, expanded, inset)
-        Column(inset.padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
-            for (id in LineId.entries) StepLine(id, session, playback)
+        Box(inset) {
+            PlayheadBar({ playback.progress }, Modifier.matchParentSize())
+            Column(Modifier.padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                for (id in LineId.entries) StepLine(id, session, playback)
+            }
         }
         Spacer(Modifier.height(16.dp))
         LineHeader("Bottom line — sets the pulse", LineId.Bottom, session, expanded, inset)
+    }
+}
+
+/**
+ * The thin bar sweeping both lines through the bar, under their dots, with
+ * DESIGN.md's playhead glow. [progress] is read only to place it, so the
+ * bar moves every frame without recomposing anything.
+ */
+@Composable
+private fun PlayheadBar(progress: () -> Double, modifier: Modifier) {
+    Layout(
+        content = {
+            Box(
+                Modifier
+                    .fillMaxHeight()
+                    .width(4.dp)
+                    .dropShadow(Pill, Shadow(radius = 12.dp, color = Palette.BassSky.copy(alpha = 0.9f)))
+                    .background(Palette.BassSky, Pill),
+            )
+        },
+        modifier = modifier,
+    ) { measurables, constraints ->
+        val bar = measurables.single().measure(constraints.copy(minWidth = 0))
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            bar.placeRelative((progress() * constraints.maxWidth).roundToInt() - bar.width / 2, 0)
+        }
     }
 }
 
@@ -362,7 +394,7 @@ private fun SoundPicker(sound: Sound, onChange: (Sound) -> Unit, label: String, 
 @Composable
 private fun StepLine(id: LineId, session: Session, playback: Playback) {
     val line = session.line(id)
-    val current = if (id == LineId.Top) playback.playhead.top else playback.playhead.bottom
+    val current = if (id == LineId.Top) playback.currentTop else playback.currentBottom
     BoxWithConstraints(
         Modifier
             .fillMaxWidth()
