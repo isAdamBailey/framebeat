@@ -12,11 +12,7 @@ import kotlin.math.sin
  *
  * Stateful (oscillator phase, filter memory): frames come out in order, once.
  */
-internal class Voice(spec: VoiceSpec, sampleRate: Int, noise: DoubleArray, startFrame: Long) {
-    /** The first frame this voice sounds on. The mixer moves a late strike up to the block it lands in. */
-    var startFrame: Long = startFrame
-        internal set
-
+internal class Voice(spec: VoiceSpec, sampleRate: Int, noise: DoubleArray, private val startFrame: Long) {
     // An array, read by index: the audio thread does not allocate an iterator per frame.
     private val parts: Array<Part> = (
         spec.oscillators.map { OscillatorPart(it, sampleRate) } +
@@ -31,7 +27,10 @@ internal class Voice(spec: VoiceSpec, sampleRate: Int, noise: DoubleArray, start
 
     val finished: Boolean get() = position >= length
 
-    /** Adds this voice into [mix], where `mix[0]` is frame [blockStart] and [frames] frames are due. */
+    /**
+     * Adds this voice into [mix], where `mix[0]` is frame [blockStart] and [frames] frames are due.
+     * A voice whose start frame has already passed starts at the top of the block.
+     */
     fun mixInto(mix: DoubleArray, blockStart: Long, frames: Int) {
         var i = max(0L, startFrame - blockStart)
         while (i < frames && position < length) {

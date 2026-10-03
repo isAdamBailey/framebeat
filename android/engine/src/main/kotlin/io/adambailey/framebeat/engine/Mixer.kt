@@ -53,19 +53,19 @@ class Mixer(
 
     private fun renderBlock(out: FloatArray, offset: Int, frames: Int) {
         val blockStart = frame
-        while (true) {
-            val voice = pending.poll() ?: break
-            if (voice.startFrame < blockStart) voice.startFrame = blockStart
-            active.add(voice)
+        while (true) active.add(pending.poll() ?: break)
+        if (active.isEmpty()) {
+            out.fill(0f, offset, offset + frames)
+        } else {
+            for (v in active.indices) active[v].mixInto(mix, blockStart, frames)
+            for (i in 0 until frames) {
+                // The master gain, then a soft clip in place of the web's
+                // DynamicsCompressorNode: a safety net, not a timbral match.
+                out[offset + i] = tanh(mix[i] * MASTER_GAIN).toFloat()
+                mix[i] = 0.0
+            }
+            active.removeAll { it.finished }
         }
-        for (v in active.indices) active[v].mixInto(mix, blockStart, frames)
-        for (i in 0 until frames) {
-            // The master gain, then a soft clip in place of the web's
-            // DynamicsCompressorNode: a safety net, not a timbral match.
-            out[offset + i] = tanh(mix[i] * MASTER_GAIN).toFloat()
-            mix[i] = 0.0
-        }
-        active.removeAll { it.finished }
         frame = blockStart + frames
     }
 
