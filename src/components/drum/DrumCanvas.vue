@@ -2,6 +2,7 @@
 import { reactive, ref, watch } from 'vue'
 import { triggerDrumSound } from '../../lib/drumAudio'
 import { SOUND_META } from '../../lib/drumSounds'
+import { DRUM_KEYS } from '../../lib/controls'
 import { classify, swingFor, zonePoint } from '../../lib/geometry'
 import Mallet from './Mallet.vue'
 import SoundDot from './SoundDot.vue'
@@ -71,22 +72,6 @@ function watchLineStrikes(line: 'top' | 'bottom') {
 watchLineStrikes('top')
 watchLineStrikes('bottom')
 
-// Q W E / I O P mirror the qwerty row's own left-right symmetry outward-in:
-// Q and P sit at the outer ends, so they play the rim Click zone; E and I
-// sit innermost (closest to the row's centre), so they play the centre
-// Bass zone; W and O in between play Tone — matching the drum's own
-// centre-to-rim zone layout. The arrows are a quick tone strike per side.
-const KEY_MAP: Partial<Record<string, { side: 'left' | 'right'; sound: keyof typeof SOUND_META }>> = {
-  q: { side: 'left', sound: 'click' },
-  w: { side: 'left', sound: 'edge' },
-  e: { side: 'left', sound: 'bass' },
-  arrowleft: { side: 'left', sound: 'edge' },
-  i: { side: 'right', sound: 'bass' },
-  o: { side: 'right', sound: 'edge' },
-  p: { side: 'right', sound: 'click' },
-  arrowright: { side: 'right', sound: 'edge' },
-}
-
 // Bound to the drum element itself (not window) so it only fires while the
 // drum is focused — arrow/letter keys still behave normally everywhere else,
 // including for screen-reader virtual-cursor navigation of the rest of the page.
@@ -97,7 +82,7 @@ function keyStrike(side: 'left' | 'right', sound: keyof typeof SOUND_META) {
 }
 
 function handleKeydown(e: KeyboardEvent) {
-  const mapped = KEY_MAP[e.key.toLowerCase()]
+  const mapped = DRUM_KEYS[e.key.toLowerCase()]
   if (mapped) {
     e.preventDefault()
     keyStrike(mapped.side, mapped.sound)

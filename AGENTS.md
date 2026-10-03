@@ -55,9 +55,10 @@ npm run build        # vue-tsc -b && vite-ssg build (type-check, then prerender 
 npm run preview
 npm run lint         # eslint ., type-aware strict + strictTypeChecked
 npx vue-tsc --noEmit
+npm test             # vitest: the shared spec/ cases
 ```
 
-The web app has no test script. ESLint will catch `any`, unused vars, and unsafe conditionals. Fix the root cause rather than adding `eslint-disable` or widening a type to `any`.
+`spec/` holds shared JSON test cases (geometry, voice parameters and envelopes, sequencer timing, defaults, ranges, key map), taken from the web reference. `npm test` runs them against `src/lib/`, and the `SharedSpec*Tests` classes in `macos/FrameBeatCore/Tests/` run them in Swift. When a reference value changes, update the case in `spec/` in the same change. ESLint will catch `any`, unused vars, and unsafe conditionals. Fix the root cause rather than adding `eslint-disable` or widening a type to `any`.
 
 Native engine, from `macos/FrameBeatCore`:
 

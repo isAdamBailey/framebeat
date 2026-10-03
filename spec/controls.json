@@ -1,0 +1,179 @@
+{
+  "about": "Starting state, ranges, and keyboard shortcuts from src/lib/controls.ts. Drum keys work while the drum has focus; instrument shortcuts work while the drum or bell has focus. Keys are KeyboardEvent.key, lowercased.",
+  "defaults": {
+    "bpm": 90,
+    "top": {
+      "count": 3,
+      "sound": "edge",
+      "dots": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "muted": false
+    },
+    "bottom": {
+      "count": 4,
+      "sound": "bass",
+      "dots": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "muted": false
+    },
+    "chimeOnOne": true
+  },
+  "ranges": {
+    "bpm": {
+      "min": 40,
+      "max": 200
+    },
+    "count": {
+      "min": 1,
+      "max": 16
+    }
+  },
+  "drumKeys": {
+    "q": {
+      "side": "left",
+      "sound": "click"
+    },
+    "w": {
+      "side": "left",
+      "sound": "edge"
+    },
+    "e": {
+      "side": "left",
+      "sound": "bass"
+    },
+    "arrowleft": {
+      "side": "left",
+      "sound": "edge"
+    },
+    "i": {
+      "side": "right",
+      "sound": "bass"
+    },
+    "o": {
+      "side": "right",
+      "sound": "edge"
+    },
+    "p": {
+      "side": "right",
+      "sound": "click"
+    },
+    "arrowright": {
+      "side": "right",
+      "sound": "edge"
+    }
+  },
+  "instrumentShortcuts": [
+    {
+      "key": " ",
+      "repeat": false,
+      "metaKey": false,
+      "ctrlKey": false,
+      "altKey": false,
+      "expected": "playPause"
+    },
+    {
+      "key": "b",
+      "repeat": false,
+      "metaKey": false,
+      "ctrlKey": false,
+      "altKey": false,
+      "expected": "bell"
+    },
+    {
+      "key": "B",
+      "repeat": false,
+      "metaKey": false,
+      "ctrlKey": false,
+      "altKey": false,
+      "expected": "bell"
+    },
+    {
+      "key": " ",
+      "repeat": true,
+      "metaKey": false,
+      "ctrlKey": false,
+      "altKey": false,
+      "expected": null
+    },
+    {
+      "key": "b",
+      "repeat": true,
+      "metaKey": false,
+      "ctrlKey": false,
+      "altKey": false,
+      "expected": null
+    },
+    {
+      "key": "b",
+      "repeat": false,
+      "metaKey": false,
+      "ctrlKey": true,
+      "altKey": false,
+      "expected": null
+    },
+    {
+      "key": " ",
+      "repeat": false,
+      "metaKey": false,
+      "ctrlKey": false,
+      "altKey": true,
+      "expected": null
+    },
+    {
+      "key": "b",
+      "repeat": false,
+      "metaKey": true,
+      "ctrlKey": false,
+      "altKey": false,
+      "expected": null
+    },
+    {
+      "key": "q",
+      "repeat": false,
+      "metaKey": false,
+      "ctrlKey": false,
+      "altKey": false,
+      "expected": null
+    },
+    {
+      "key": "Enter",
+      "repeat": false,
+      "metaKey": false,
+      "ctrlKey": false,
+      "altKey": false,
+      "expected": null
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Volume2, VolumeX } from '@lucide/vue'
+import { RANGES } from '../../lib/controls'
 import { SOUND_META } from '../../lib/drumSounds'
 import TogglePill from './TogglePill.vue'
 import type { Sound } from '../../types/drum'
@@ -38,8 +39,8 @@ const emit = defineEmits<{
 
       <input
         type="range"
-        min="1"
-        max="16"
+        :min="RANGES.count.min"
+        :max="RANGES.count.max"
         :value="count"
         class="h-2 min-w-0 flex-1 cursor-pointer accent-sky-400"
         :aria-label="`${label} step count`"

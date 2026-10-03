@@ -1,0 +1,928 @@
+{
+  "about": "Voice parameters from src/lib/drumAudio.ts (via src/lib/voiceSpec.ts). Breakpoints are [seconds after the strike, value]: the first is a setValueAtTime, the rest exponential ramps. q 1 is the Web Audio default. Envelope samples are the value Web Audio gives at t, held before the first point and after the last.",
+  "tolerance": 1e-9,
+  "voices": {
+    "bass": {
+      "oscillators": [
+        {
+          "waveform": "sine",
+          "freq": [
+            [
+              0,
+              100
+            ],
+            [
+              0.3,
+              58
+            ]
+          ],
+          "gain": [
+            [
+              0,
+              0.0001
+            ],
+            [
+              0.008,
+              0.9
+            ],
+            [
+              0.55,
+              0.0001
+            ]
+          ]
+        }
+      ],
+      "noises": [
+        {
+          "filter": "lowpass",
+          "frequency": 350,
+          "q": 1,
+          "gain": [
+            [
+              0,
+              0.5
+            ],
+            [
+              0.06,
+              0.0001
+            ]
+          ]
+        }
+      ]
+    },
+    "edge": {
+      "oscillators": [
+        {
+          "waveform": "sine",
+          "freq": [
+            [
+              0,
+              220
+            ],
+            [
+              0.18,
+              150
+            ]
+          ],
+          "gain": [
+            [
+              0,
+              0.0001
+            ],
+            [
+              0.006,
+              0.75
+            ],
+            [
+              0.34,
+              0.0001
+            ]
+          ]
+        },
+        {
+          "waveform": "sine",
+          "freq": [
+            [
+              0,
+              350
+            ],
+            [
+              0.12,
+              240
+            ]
+          ],
+          "gain": [
+            [
+              0,
+              0.0001
+            ],
+            [
+              0.004,
+              0.22
+            ],
+            [
+              0.16,
+              0.0001
+            ]
+          ]
+        }
+      ],
+      "noises": [
+        {
+          "filter": "bandpass",
+          "frequency": 700,
+          "q": 0.9,
+          "gain": [
+            [
+              0,
+              0.35
+            ],
+            [
+              0.04,
+              0.0001
+            ]
+          ]
+        }
+      ]
+    },
+    "click": {
+      "oscillators": [
+        {
+          "waveform": "triangle",
+          "freq": [
+            [
+              0,
+              1450
+            ],
+            [
+              0.07,
+              1050
+            ]
+          ],
+          "gain": [
+            [
+              0,
+              0.55
+            ],
+            [
+              0.09,
+              0.0001
+            ]
+          ]
+        },
+        {
+          "waveform": "sine",
+          "freq": [
+            [
+              0,
+              2400
+            ]
+          ],
+          "gain": [
+            [
+              0,
+              0.25
+            ],
+            [
+              0.035,
+              0.0001
+            ]
+          ]
+        }
+      ],
+      "noises": [
+        {
+          "filter": "highpass",
+          "frequency": 2200,
+          "q": 1,
+          "gain": [
+            [
+              0,
+              1
+            ],
+            [
+              0.03,
+              0.0001
+            ]
+          ]
+        }
+      ]
+    },
+    "ding": {
+      "oscillators": [
+        {
+          "waveform": "sine",
+          "freq": [
+            [
+              0,
+              329.6
+            ]
+          ],
+          "gain": [
+            [
+              0,
+              0.0001
+            ],
+            [
+              0.005,
+              0.07
+            ],
+            [
+              1.8,
+              0.0001
+            ]
+          ]
+        },
+        {
+          "waveform": "sine",
+          "freq": [
+            [
+              0,
+              659.3
+            ]
+          ],
+          "gain": [
+            [
+              0,
+              0.0001
+            ],
+            [
+              0.005,
+              0.2
+            ],
+            [
+              1.4,
+              0.0001
+            ]
+          ]
+        },
+        {
+          "waveform": "sine",
+          "freq": [
+            [
+              0,
+              790
+            ]
+          ],
+          "gain": [
+            [
+              0,
+              0.0001
+            ],
+            [
+              0.005,
+              0.06
+            ],
+            [
+              0.9,
+              0.0001
+            ]
+          ]
+        },
+        {
+          "waveform": "sine",
+          "freq": [
+            [
+              0,
+              988
+            ]
+          ],
+          "gain": [
+            [
+              0,
+              0.0001
+            ],
+            [
+              0.005,
+              0.045
+            ],
+            [
+              0.7,
+              0.0001
+            ]
+          ]
+        },
+        {
+          "waveform": "sine",
+          "freq": [
+            [
+              0,
+              1318.5
+            ]
+          ],
+          "gain": [
+            [
+              0,
+              0.0001
+            ],
+            [
+              0.005,
+              0.04
+            ],
+            [
+              0.5,
+              0.0001
+            ]
+          ]
+        }
+      ],
+      "noises": []
+    }
+  },
+  "envelopes": [
+    {
+      "voice": "bass",
+      "part": "oscillators.0.freq",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 100
+        },
+        {
+          "t": 0,
+          "value": 100
+        },
+        {
+          "t": 0.15,
+          "value": 76.157731058639
+        },
+        {
+          "t": 0.3,
+          "value": 58
+        },
+        {
+          "t": 0.4,
+          "value": 58
+        }
+      ]
+    },
+    {
+      "voice": "bass",
+      "part": "oscillators.0.gain",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 0.0001
+        },
+        {
+          "t": 0,
+          "value": 0.0001
+        },
+        {
+          "t": 0.004,
+          "value": 0.009486832981
+        },
+        {
+          "t": 0.008,
+          "value": 0.9
+        },
+        {
+          "t": 0.279,
+          "value": 0.009486832981
+        },
+        {
+          "t": 0.55,
+          "value": 0.0001
+        },
+        {
+          "t": 0.65,
+          "value": 0.0001
+        }
+      ]
+    },
+    {
+      "voice": "bass",
+      "part": "noises.0.gain",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 0.5
+        },
+        {
+          "t": 0,
+          "value": 0.5
+        },
+        {
+          "t": 0.03,
+          "value": 0.007071067812
+        },
+        {
+          "t": 0.06,
+          "value": 0.0001
+        },
+        {
+          "t": 0.16,
+          "value": 0.0001
+        }
+      ]
+    },
+    {
+      "voice": "edge",
+      "part": "oscillators.0.freq",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 220
+        },
+        {
+          "t": 0,
+          "value": 220
+        },
+        {
+          "t": 0.09,
+          "value": 181.65902124585
+        },
+        {
+          "t": 0.18,
+          "value": 150
+        },
+        {
+          "t": 0.28,
+          "value": 150
+        }
+      ]
+    },
+    {
+      "voice": "edge",
+      "part": "oscillators.0.gain",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 0.0001
+        },
+        {
+          "t": 0,
+          "value": 0.0001
+        },
+        {
+          "t": 0.003,
+          "value": 0.008660254038
+        },
+        {
+          "t": 0.006,
+          "value": 0.75
+        },
+        {
+          "t": 0.173,
+          "value": 0.008660254038
+        },
+        {
+          "t": 0.34,
+          "value": 0.0001
+        },
+        {
+          "t": 0.44000000000000006,
+          "value": 0.0001
+        }
+      ]
+    },
+    {
+      "voice": "edge",
+      "part": "oscillators.1.freq",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 350
+        },
+        {
+          "t": 0,
+          "value": 350
+        },
+        {
+          "t": 0.06,
+          "value": 289.827534923789
+        },
+        {
+          "t": 0.12,
+          "value": 240
+        },
+        {
+          "t": 0.22,
+          "value": 240
+        }
+      ]
+    },
+    {
+      "voice": "edge",
+      "part": "oscillators.1.gain",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 0.0001
+        },
+        {
+          "t": 0,
+          "value": 0.0001
+        },
+        {
+          "t": 0.002,
+          "value": 0.00469041576
+        },
+        {
+          "t": 0.004,
+          "value": 0.22
+        },
+        {
+          "t": 0.082,
+          "value": 0.00469041576
+        },
+        {
+          "t": 0.16,
+          "value": 0.0001
+        },
+        {
+          "t": 0.26,
+          "value": 0.0001
+        }
+      ]
+    },
+    {
+      "voice": "edge",
+      "part": "noises.0.gain",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 0.35
+        },
+        {
+          "t": 0,
+          "value": 0.35
+        },
+        {
+          "t": 0.02,
+          "value": 0.005916079783
+        },
+        {
+          "t": 0.04,
+          "value": 0.0001
+        },
+        {
+          "t": 0.14,
+          "value": 0.0001
+        }
+      ]
+    },
+    {
+      "voice": "click",
+      "part": "oscillators.0.freq",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 1450
+        },
+        {
+          "t": 0,
+          "value": 1450
+        },
+        {
+          "t": 0.035,
+          "value": 1233.896267925307
+        },
+        {
+          "t": 0.07,
+          "value": 1050
+        },
+        {
+          "t": 0.17,
+          "value": 1050
+        }
+      ]
+    },
+    {
+      "voice": "click",
+      "part": "oscillators.0.gain",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 0.55
+        },
+        {
+          "t": 0,
+          "value": 0.55
+        },
+        {
+          "t": 0.045,
+          "value": 0.007416198487
+        },
+        {
+          "t": 0.09,
+          "value": 0.0001
+        },
+        {
+          "t": 0.19,
+          "value": 0.0001
+        }
+      ]
+    },
+    {
+      "voice": "click",
+      "part": "oscillators.1.freq",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 2400
+        },
+        {
+          "t": 0,
+          "value": 2400
+        },
+        {
+          "t": 0.1,
+          "value": 2400
+        }
+      ]
+    },
+    {
+      "voice": "click",
+      "part": "oscillators.1.gain",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 0.25
+        },
+        {
+          "t": 0,
+          "value": 0.25
+        },
+        {
+          "t": 0.0175,
+          "value": 0.005
+        },
+        {
+          "t": 0.035,
+          "value": 0.0001
+        },
+        {
+          "t": 0.135,
+          "value": 0.0001
+        }
+      ]
+    },
+    {
+      "voice": "click",
+      "part": "noises.0.gain",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 1
+        },
+        {
+          "t": 0,
+          "value": 1
+        },
+        {
+          "t": 0.015,
+          "value": 0.01
+        },
+        {
+          "t": 0.03,
+          "value": 0.0001
+        },
+        {
+          "t": 0.13,
+          "value": 0.0001
+        }
+      ]
+    },
+    {
+      "voice": "ding",
+      "part": "oscillators.0.freq",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 329.6
+        },
+        {
+          "t": 0,
+          "value": 329.6
+        },
+        {
+          "t": 0.1,
+          "value": 329.6
+        }
+      ]
+    },
+    {
+      "voice": "ding",
+      "part": "oscillators.0.gain",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 0.0001
+        },
+        {
+          "t": 0,
+          "value": 0.0001
+        },
+        {
+          "t": 0.0025,
+          "value": 0.002645751311
+        },
+        {
+          "t": 0.005,
+          "value": 0.07
+        },
+        {
+          "t": 0.9025,
+          "value": 0.002645751311
+        },
+        {
+          "t": 1.8,
+          "value": 0.0001
+        },
+        {
+          "t": 1.9000000000000001,
+          "value": 0.0001
+        }
+      ]
+    },
+    {
+      "voice": "ding",
+      "part": "oscillators.1.freq",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 659.3
+        },
+        {
+          "t": 0,
+          "value": 659.3
+        },
+        {
+          "t": 0.1,
+          "value": 659.3
+        }
+      ]
+    },
+    {
+      "voice": "ding",
+      "part": "oscillators.1.gain",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 0.0001
+        },
+        {
+          "t": 0,
+          "value": 0.0001
+        },
+        {
+          "t": 0.0025,
+          "value": 0.004472135955
+        },
+        {
+          "t": 0.005,
+          "value": 0.2
+        },
+        {
+          "t": 0.7025,
+          "value": 0.004472135955
+        },
+        {
+          "t": 1.4,
+          "value": 0.0001
+        },
+        {
+          "t": 1.5,
+          "value": 0.0001
+        }
+      ]
+    },
+    {
+      "voice": "ding",
+      "part": "oscillators.2.freq",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 790
+        },
+        {
+          "t": 0,
+          "value": 790
+        },
+        {
+          "t": 0.1,
+          "value": 790
+        }
+      ]
+    },
+    {
+      "voice": "ding",
+      "part": "oscillators.2.gain",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 0.0001
+        },
+        {
+          "t": 0,
+          "value": 0.0001
+        },
+        {
+          "t": 0.0025,
+          "value": 0.002449489743
+        },
+        {
+          "t": 0.005,
+          "value": 0.06
+        },
+        {
+          "t": 0.4525,
+          "value": 0.002449489743
+        },
+        {
+          "t": 0.9,
+          "value": 0.0001
+        },
+        {
+          "t": 1,
+          "value": 0.0001
+        }
+      ]
+    },
+    {
+      "voice": "ding",
+      "part": "oscillators.3.freq",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 988
+        },
+        {
+          "t": 0,
+          "value": 988
+        },
+        {
+          "t": 0.1,
+          "value": 988
+        }
+      ]
+    },
+    {
+      "voice": "ding",
+      "part": "oscillators.3.gain",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 0.0001
+        },
+        {
+          "t": 0,
+          "value": 0.0001
+        },
+        {
+          "t": 0.0025,
+          "value": 0.002121320344
+        },
+        {
+          "t": 0.005,
+          "value": 0.045
+        },
+        {
+          "t": 0.3525,
+          "value": 0.002121320344
+        },
+        {
+          "t": 0.7,
+          "value": 0.0001
+        },
+        {
+          "t": 0.7999999999999999,
+          "value": 0.0001
+        }
+      ]
+    },
+    {
+      "voice": "ding",
+      "part": "oscillators.4.freq",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 1318.5
+        },
+        {
+          "t": 0,
+          "value": 1318.5
+        },
+        {
+          "t": 0.1,
+          "value": 1318.5
+        }
+      ]
+    },
+    {
+      "voice": "ding",
+      "part": "oscillators.4.gain",
+      "samples": [
+        {
+          "t": -0.01,
+          "value": 0.0001
+        },
+        {
+          "t": 0,
+          "value": 0.0001
+        },
+        {
+          "t": 0.0025,
+          "value": 0.002
+        },
+        {
+          "t": 0.005,
+          "value": 0.04
+        },
+        {
+          "t": 0.2525,
+          "value": 0.002
+        },
+        {
+          "t": 0.5,
+          "value": 0.0001
+        },
+        {
+          "t": 0.6,
+          "value": 0.0001
+        }
+      ]
+    }
+  ]
+}
