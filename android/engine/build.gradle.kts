@@ -18,4 +18,15 @@ kotlin {
 
 dependencies {
     testImplementation(libs.junit)
+    // Test-only: parses the shared spec/ cases. Nothing here ships in the app.
+    testImplementation(libs.kotlinx.serialization.json)
+}
+
+// The shared JSON cases at the repo root. Declared as an input so a spec/
+// change reruns the tests instead of reusing a cached result.
+val specDir = rootProject.layout.projectDirectory.dir("../spec")
+
+tasks.test {
+    inputs.dir(specDir).withPropertyName("spec").withPathSensitivity(PathSensitivity.RELATIVE)
+    systemProperty("framebeat.specDir", specDir.asFile.absolutePath)
 }
