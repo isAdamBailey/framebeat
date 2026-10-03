@@ -33,3 +33,8 @@ macos/**/xcuserdata/
 macos/**/DerivedData/
 macos/**/*.moved-aside
 .vite-ssg-temp
+
+# Android signing: never commit an upload key or its passwords
+*.jks
+*.keystore
+keystore.properties
