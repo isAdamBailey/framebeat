@@ -40,6 +40,8 @@ class Session {
     var bellTrigger by mutableIntStateOf(0)
         private set
 
+    fun line(id: LineId): Line = if (id == LineId.Top) top else bottom
+
     /** Everything the sequencer reads, as of now. */
     val pattern: Pattern get() = Pattern(bpm, top, bottom, chimeOnOne)
 

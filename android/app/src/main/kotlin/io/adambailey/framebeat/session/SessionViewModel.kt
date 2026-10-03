@@ -12,6 +12,7 @@ import io.adambailey.framebeat.engine.Sound
 class SessionViewModel(application: Application) : AndroidViewModel(application) {
     val session = Session()
     val output = AudioOutput(application)
+    val playback = Playback()
 
     /** Plays a hand strike on the drum now. The drum animates it. */
     fun strike(sound: Sound) = output.play(sound)
