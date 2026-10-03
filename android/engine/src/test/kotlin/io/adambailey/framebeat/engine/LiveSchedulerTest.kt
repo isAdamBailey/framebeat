@@ -208,6 +208,15 @@ class LiveSchedulerTest {
     }
 
     @Test
+    fun startingWhilePlayingChangesNothing() {
+        scheduler.start(default)
+        play(1.0) { default }
+        scheduler.start(default)
+        play(4.0) { default }
+        assertBooked(segment(default, start, horizon))
+    }
+
+    @Test
     fun frameFiresStepsAndTheChimeWhenTheyAreHeard() {
         val pattern = default.copy(top = default.top.copy(muted = true))
         val heard = mutableListOf<Pair<Sound, LineId>>()

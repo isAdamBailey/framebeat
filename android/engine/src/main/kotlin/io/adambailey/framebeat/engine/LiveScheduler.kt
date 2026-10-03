@@ -72,7 +72,9 @@ class LiveScheduler(
         }
     }
 
+    /** Starts playback. Does nothing while already playing, as the web only starts from a stop. */
     fun start(pattern: Pattern) {
+        if (playing) return
         anchor(clock() + START_DELAY, pattern)
         lastBottom = Heard.Bottom(streams.anchorTime, 0, streams.shape)
         queue.clear()
