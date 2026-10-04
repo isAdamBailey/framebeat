@@ -16,7 +16,7 @@ The web app in `src/` is Vue 3, TypeScript, and Vite. It is also the marketing s
 
 The Mac and iPad apps live in `macos/`. They are one SwiftUI codebase — the same screens and the same `FrameBeatCore` synth and scheduler — built as two targets. Build and signing notes are in [`macos/README.md`](macos/README.md).
 
-An Android app for phones and tablets is in progress in `android/`: native Kotlin and Jetpack Compose, not a WebView. Its pure-JVM `:engine` module holds the geometry, voices, and sequencer; the instrument UI comes next. The plan is [issue #16](https://github.com/isAdamBailey/framebeat/issues/16).
+An Android app for phones and tablets is in progress in `android/`: native Kotlin and Jetpack Compose, not a WebView. Its pure-JVM `:engine` module holds the geometry, voices, and sequencer, and `:app` is the Compose instrument; building and Play signing are in [`android/README.md`](android/README.md). The plan is [issue #16](https://github.com/isAdamBailey/framebeat/issues/16).
 
 All three implementations run the same test cases from `spec/`, so their constants, voices, and timing stay in agreement.
 
