@@ -1,6 +1,17 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+}
+
+// The Play upload key lives outside the repo; keystore.properties points at it
+// and is gitignored. Without it, debug builds still work and release builds stop
+// at checkReleaseBundle. See android/README.md.
+val releaseApplicationId = "io.adambailey.framebeat"
+val keystoreFile = rootProject.file("keystore.properties")
+val keystore = Properties().apply {
+    if (keystoreFile.isFile) keystoreFile.inputStream().use(::load)
 }
 
 android {
@@ -14,7 +25,7 @@ android {
 
     defaultConfig {
         // Permanent after the first bundle upload.
-        applicationId = "io.adambailey.framebeat"
+        applicationId = releaseApplicationId
         // First API level with AudioTrack low-latency performance mode. Do not lower.
         minSdk = 26
         // Play requires targetSdk 36 for new apps and updates since 2026-08-31.
@@ -23,9 +34,21 @@ android {
         versionName = "1.0.0"
     }
 
+    signingConfigs {
+        if (keystoreFile.isFile) {
+            create("release") {
+                storeFile = rootProject.file(keystore.getProperty("storeFile"))
+                storePassword = keystore.getProperty("storePassword")
+                keyAlias = keystore.getProperty("keyAlias")
+                keyPassword = keystore.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 
@@ -47,6 +70,41 @@ android {
         warningsAsErrors = true
         abortOnError = true
     }
+}
+
+// Fails a release build before it packages anything Play would reject, or
+// anything that would lock in the wrong application id on first upload.
+abstract class CheckReleaseBundle : DefaultTask() {
+    @get:Input abstract val applicationId: Property<String>
+    @get:Input abstract val expectedApplicationId: Property<String>
+    @get:Input abstract val signed: Property<Boolean>
+
+    @TaskAction
+    fun check() {
+        val actual = applicationId.get()
+        val expected = expectedApplicationId.get()
+        check(actual == expected) {
+            "Release application id is $actual, expected $expected. It is permanent after the first Play upload."
+        }
+        check(signed.get()) {
+            "No upload key: create android/keystore.properties as described in android/README.md."
+        }
+    }
+}
+
+val checkReleaseBundle = tasks.register<CheckReleaseBundle>("checkReleaseBundle") {
+    expectedApplicationId.set(releaseApplicationId)
+    signed.set(keystoreFile.isFile)
+}
+
+androidComponents {
+    onVariants(selector().withBuildType("release")) { variant ->
+        checkReleaseBundle.configure { applicationId.set(variant.applicationId) }
+    }
+}
+
+tasks.matching { it.name == "bundleRelease" || it.name == "assembleRelease" }.configureEach {
+    dependsOn(checkReleaseBundle)
 }
 
 dependencies {

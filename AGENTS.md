@@ -14,7 +14,7 @@ Four apps, three implementations:
 
 iPhone stays out of scope, including in the Android work.
 
-`README.md` is the public introduction. Native build, signing, fonts, and known audio differences are in `macos/README.md`.
+`README.md` is the public introduction. Native build, signing, fonts, and known audio differences are in `macos/README.md`. Android build, Play signing, and versioning are in `android/README.md`.
 
 `spec/` at the repo root holds shared JSON test cases (geometry, envelopes, sequencer timing, defaults, ranges, key map). The web, Swift, and Android test suites each run them; that is how the three copies of every constant stay in agreement. Only tests read `spec/` — shipping code keeps its own constants.
 
@@ -34,6 +34,7 @@ Port these together. The web file is the reference:
 | `src/views/HomeView.vue` (state) | `macos/FrameBeat/Model/AppState.swift` | `session/Session.kt`, `session/SessionViewModel.kt`, `session/Playback.kt` |
 | `src/components/drum/` | `macos/FrameBeat/Views/` | `ui/StageScreen.kt`, `ui/StageLayout.kt`, `ui/DrumView.kt`, `ui/BellView.kt`, `ui/Drawing.kt`, `ui/Panel.kt`, `ui/Slider.kt`, `ui/Icons.kt` |
 | `DESIGN.md` | `macos/FrameBeat/Design/Theme.swift` | `ui/Theme.kt` |
+| `src/main.ts`, `src/App.vue` | `macos/FrameBeat/App/FrameBeatApp.swift` | `MainActivity.kt` |
 
 Swift files in that table live under `macos/FrameBeatCore/Sources/FrameBeatCore/` unless the path says otherwise. Android files live under `android/app/src/main/kotlin/io/adambailey/framebeat/` (UI, theme, audio output) or `android/engine/src/main/kotlin/io/adambailey/framebeat/engine/` (everything else). An empty Android cell is not ported yet; add the file to the table in the PR that creates it.
 
