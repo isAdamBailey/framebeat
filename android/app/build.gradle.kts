@@ -30,8 +30,8 @@ android {
         minSdk = 26
         // Play requires targetSdk 36 for new apps and updates since 2026-08-31.
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.1"
     }
 
     signingConfigs {
@@ -47,7 +47,12 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 shrinks, optimizes, and obfuscates the release DEX; Play flags
+            // bundles below its optimization threshold. AndroidX and Compose ship
+            // their own keep rules, so proguard-rules.pro only needs app-specific ones.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.findByName("release")
         }
     }
