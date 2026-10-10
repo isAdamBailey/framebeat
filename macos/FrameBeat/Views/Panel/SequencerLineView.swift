@@ -33,10 +33,14 @@ struct SequencerLineView: View {
         let isCurrent = current == i
         let isHovered = hovered == i
         let x = geo.size.width * (line.count <= 1 ? 0.5 : CGFloat(i) / CGFloat(line.count))
-        let size: CGFloat = on ? 24 : 20
+        let slot = geo.size.width / CGFloat(max(line.count, 1))
+        let fullSize: CGFloat = on ? 24 : 20
+        // DESIGN.md's narrow rows: under a 28pt slot both dots shrink by
+        // (slot - 4pt) / 24pt, so neighbours keep a 4pt gap (Slide Over).
+        let size = fullSize * min(1, max(0, (slot - 4) / 24))
         // Hit area 8pt past the dot on each side (the web's 36px target), but
         // never wider than one step's slot, so neighbours can't overlap.
-        let hitWidth = min(size + 16, geo.size.width / CGFloat(max(line.count, 1)))
+        let hitWidth = min(fullSize + 16, slot)
 
         return Button {
             line.dots[i].toggle()
@@ -48,7 +52,7 @@ struct SequencerLineView: View {
                 .brightness(on && isHovered ? 0.1 : 0)
                 .frame(width: size, height: size)
                 .scaleEffect(isCurrent ? 1.25 : (isHovered && !on ? 1.1 : 1))
-                .frame(width: hitWidth, height: size + 16)
+                .frame(width: hitWidth, height: fullSize + 16)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

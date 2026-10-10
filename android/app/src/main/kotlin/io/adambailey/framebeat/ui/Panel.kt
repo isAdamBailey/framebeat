@@ -369,7 +369,8 @@ private fun SoundPicker(sound: Sound, onChange: (Sound) -> Unit, label: String, 
 /**
  * One line of step dots on a thin track. Step i of n sits at i/n of the bar,
  * so a playhead sweeping the bar crosses each dot as it plays. Each dot's
- * touch target is up to 36dp wide but never wider than its step's slot.
+ * touch target is up to 36dp wide but never wider than its step's slot, and
+ * the dot itself shrinks to keep a 4dp gap when the slot is narrow.
  */
 @Composable
 private fun StepLine(id: LineId, session: Session, playback: Playback) {
@@ -395,6 +396,7 @@ private fun StepLine(id: LineId, session: Session, playback: Playback) {
                 color = Palette.dotFor(line.sound),
                 description = "${id.name} line step ${i + 1}",
                 onToggle = { session.toggleDot(id, i) },
+                slot = slot,
                 modifier = Modifier.offset(x = slot * i - hit / 2).width(hit),
             )
         }
@@ -402,7 +404,7 @@ private fun StepLine(id: LineId, session: Session, playback: Playback) {
 }
 
 @Composable
-private fun StepDot(on: Boolean, current: () -> Boolean, color: Color, description: String, onToggle: () -> Unit, modifier: Modifier) {
+private fun StepDot(on: Boolean, current: () -> Boolean, color: Color, description: String, onToggle: () -> Unit, slot: Dp, modifier: Modifier) {
     // Only the dot that lights and the one that dims recompose on a step.
     val latestCurrent by rememberUpdatedState(current)
     val isCurrent by remember { derivedStateOf { latestCurrent() } }
@@ -419,7 +421,10 @@ private fun StepDot(on: Boolean, current: () -> Boolean, color: Color, descripti
             .semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) {
-        val dot = if (on) 24.dp else 20.dp
+        // DESIGN.md's narrow rows: under a 28dp slot both dots shrink by
+        // (slot - 4dp) / 24dp, so neighbours keep a 4dp gap.
+        val fit = ((slot - 4.dp) / 24.dp).coerceIn(0f, 1f)
+        val dot = (if (on) 24.dp else 20.dp) * fit
         Box(
             Modifier
                 .graphicsLayer {
