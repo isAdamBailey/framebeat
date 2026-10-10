@@ -1,0 +1,64 @@
+name: Tester bug
+description: A bug found during the Google Play closed test.
+title: "[Tester bug] "
+labels:
+  - bug
+  - closed-testing
+body:
+  - type: markdown
+    attributes:
+      value: |
+        One bug per issue. Do not include email addresses or other contact details.
+        After filing, link this issue from the Bug log on #35.
+  - type: input
+    id: reporter
+    attributes:
+      label: Reporter
+      description: First name or handle only.
+      placeholder: e.g. Sam, or PrimeTestLab report 8458
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device model
+      placeholder: e.g. Pixel 7 Pro
+    validations:
+      required: true
+  - type: input
+    id: android-version
+    attributes:
+      label: Android version
+      placeholder: e.g. Android 17
+    validations:
+      required: true
+  - type: input
+    id: app-version
+    attributes:
+      label: App version
+      description: versionName (versionCode), from Settings > Apps > FrameBeat or the Play Console.
+      placeholder: e.g. 1.0.1 (2)
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open FrameBeat
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+      description: What happened instead. Screenshots or recordings help.
+    validations:
+      required: true
