@@ -184,6 +184,7 @@ Circles and pills dominate: the Play/Pause button, every step dot, every sound-p
 - **On:** filled circle (`h-6 w-6`) in the line's current sound color, with a soft shadow.
 - **Off:** hollow ring (`h-5 w-5`, `border-2 border-slate-400`, `bg-slate-900`), brightening to white on hover; the hit area extends 8px past the drawn dot.
 - **Current/playhead step:** scales to 1.25× with a white ring overlay, regardless of on/off state.
+- **Narrow rows:** a dot never fills its step's slot (the row's width ÷ the step count). When the slot is narrower than 28px, both dots shrink by the same factor, `(slot − 4px) ÷ 24px`, so neighbours always keep at least a 4px gap. That is 16 steps on a phone, or the iPad in Slide Over. Wide rows keep the full 24px and 20px.
 - **Track:** a thin (`h-1`) `slate-700` line connecting all steps.
 
 ### Sound Picker (per line)

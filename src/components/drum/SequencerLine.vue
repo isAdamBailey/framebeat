@@ -17,6 +17,10 @@ const meta = computed(() => SOUND_META[props.sound])
 // at i/n), so the playhead sweeps exactly over a dot the moment it fires.
 const leftPct = (i: number) => (i / props.dots.length) * 100
 const hitWidth = computed(() => `min(36px, ${100 / props.dots.length}%)`)
+// The dot's width, relative to its button. Once the button narrows to one
+// step's slot, both dots shrink by (slot - 4px) / 24px, so neighbours keep a
+// 4px gap (16 steps on a phone). Wider rows keep the full 24px and 20px.
+const dotWidth = (on: boolean) => (on ? 'min(24px, calc(100% - 4px))' : 'min(20px, calc((100% - 4px) * 5 / 6))')
 </script>
 
 <template>
@@ -39,13 +43,14 @@ const hitWidth = computed(() => `min(36px, ${100 / props.dots.length}%)`)
       @click="emit('toggle', i)"
     >
       <span
-        class="rounded-full transition-all duration-150 group-focus-visible:ring-2 group-focus-visible:ring-sky-400 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-slate-900"
+        class="aspect-square shrink-0 rounded-full transition-all duration-150 group-focus-visible:ring-2 group-focus-visible:ring-sky-400 group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-slate-900"
         :class="[
           on
-            ? `h-6 w-6 ${meta.dot} shadow-lg group-hover:brightness-110`
-            : 'h-5 w-5 border-2 border-slate-400 bg-slate-900 group-hover:scale-110 group-hover:border-white group-hover:bg-slate-700',
+            ? `${meta.dot} shadow-lg group-hover:brightness-110`
+            : 'border-2 border-slate-400 bg-slate-900 group-hover:scale-110 group-hover:border-white group-hover:bg-slate-700',
           current === i ? 'scale-125 ring-2 ring-white/80' : '',
         ]"
+        :style="{ width: dotWidth(on) }"
       />
     </button>
   </div>
