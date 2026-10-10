@@ -30,8 +30,8 @@ android {
         minSdk = 26
         // Play requires targetSdk 36 for new apps and updates since 2026-08-31.
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
     }
 
     signingConfigs {
