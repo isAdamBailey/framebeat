@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useHead } from '@unhead/vue'
+import { ChevronDown } from '@lucide/vue'
 import DrumCanvas from '../components/drum/DrumCanvas.vue'
 import Bell from '../components/drum/Bell.vue'
 import Sequencer from '../components/drum/Sequencer.vue'
 import TransportControls from '../components/drum/TransportControls.vue'
 import SoundBanner from '../components/drum/SoundBanner.vue'
 import Kbd from '../components/drum/Kbd.vue'
-import AppStoreLink from '../components/site/AppStoreLink.vue'
+import StoreBadges from '../components/site/StoreBadges.vue'
 import AboutSections from '../components/site/AboutSections.vue'
 import { useSequencer } from '../composables/useSequencer'
+import { useAnimate } from '../composables/useAnimate'
 import { DEFAULTS, defaultLine, instrumentShortcut } from '../lib/controls'
 import { subscribeAudioState, isAudioBlocked, triggerDing } from '../lib/drumAudio'
 import type { Line, Strikes } from '../types/drum'
@@ -61,12 +63,27 @@ function handleShortcut(e: KeyboardEvent) {
   else ringBell()
 }
 
+// The "Try it now" chevron dips toward the drum a few times after load, then
+// rests, so the live instrument below reads as something to play.
+const nudge = ref<HTMLElement | null>(null)
+const { replay: replayNudge } = useAnimate(nudge)
+
 let unsubscribeAudioState: (() => void) | undefined
 onMounted(() => {
   unsubscribeAudioState = subscribeAudioState(() => {
     soundBlocked.value = isAudioBlocked()
   })
   window.addEventListener('keydown', handleShortcut)
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    replayNudge(
+      [
+        { transform: 'translateY(0)' },
+        { transform: 'translateY(4px)', offset: 0.35 },
+        { transform: 'translateY(0)' },
+      ],
+      { duration: 900, delay: 800, iterations: 3, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+    )
+  }
 })
 onUnmounted(() => {
   unsubscribeAudioState?.()
@@ -98,29 +115,37 @@ function patchLine(line: 'top' | 'bottom', patch: Partial<Line>) {
   <div class="min-h-screen bg-slate-950 text-slate-100">
     <div class="mx-auto max-w-3xl px-4 pb-8 pt-6 sm:pb-10 sm:pt-14">
       <header class="mb-4 text-center sm:mb-6">
-        <h1 class="font-heading text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-stone-200 sm:text-5xl">
+        <h1 class="font-heading text-balance text-5xl font-semibold leading-none tracking-tight text-stone-100 sm:text-7xl">
           FrameBeat
-          <span class="mt-1.5 block text-lg font-medium tracking-normal text-stone-400 sm:mt-2 sm:text-2xl">
+          <span class="mt-2 block text-lg font-medium tracking-normal text-stone-400 sm:mt-3 sm:text-2xl">
             Frame Drum <span class="italic text-stone-500">&amp;</span> Step Sequencer
           </span>
         </h1>
         <p class="mx-auto mt-4 max-w-[44ch] text-pretty text-sm leading-relaxed text-stone-400 sm:mt-5 sm:text-base">
           Strike it by hand, or program two lines that count the same bar in different numbers. Play it right here
-          in your browser — or take it with you on Mac and iPad.
+          in your browser — or take it with you on Mac and iPad, with Android on the way.
         </p>
-        <div class="mt-5 flex justify-center sm:mt-6">
-          <AppStoreLink />
+        <StoreBadges class="mt-5 justify-center sm:mt-6" />
+        <div class="mt-6 flex flex-col items-center gap-2 sm:mt-9">
+          <p class="flex items-center gap-2 text-base text-stone-300 sm:gap-3 sm:text-xl">
+            <span class="hidden h-px w-12 bg-gradient-to-r from-transparent to-stone-600 sm:block" aria-hidden="true" />
+            <span><strong class="font-semibold text-stone-100">Try it now</strong> — click or tap the drum</span>
+            <span ref="nudge" class="inline-flex" aria-hidden="true">
+              <ChevronDown class="h-5 w-5 text-stone-200 sm:h-6 sm:w-6" />
+            </span>
+            <span class="hidden h-px w-12 bg-gradient-to-l from-transparent to-stone-600 sm:block" aria-hidden="true" />
+          </p>
+          <p class="hidden text-sm text-stone-400 sm:block">
+            or drum along on
+            <Kbd>Q W E</Kbd>
+            /
+            <Kbd>I O P</Kbd>,
+            <span class="whitespace-nowrap">
+              and ring the bell on
+              <Kbd>B</Kbd>
+            </span>
+          </p>
         </div>
-        <p class="mt-5 text-xs text-stone-500 sm:mt-8 sm:text-sm">
-          Click the drum, or focus it and drum along on
-          <Kbd>Q W E</Kbd>
-          /
-          <Kbd>I O P</Kbd>,
-          <span class="whitespace-nowrap">
-            and ring the bell on
-            <Kbd>B</Kbd>
-          </span>
-        </p>
       </header>
 
       <SoundBanner v-if="soundBlocked" />

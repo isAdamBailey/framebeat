@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppStoreLink from './AppStoreLink.vue'
+import StoreBadges from './StoreBadges.vue'
 import PolyrhythmFigure from './PolyrhythmFigure.vue'
 
 const facts: { title: string; body: string }[] = [
@@ -41,10 +41,10 @@ const facts: { title: string; body: string }[] = [
             Take the drum with you, on Mac and iPad.
           </h2>
           <p class="mt-4 max-w-[52ch] text-pretty text-sm leading-relaxed text-slate-400 sm:text-base">
-            FrameBeat is also a native app — the same instrument, rebuilt in SwiftUI, with one App Store listing for both.
+            FrameBeat is also a native app — the same instrument, rebuilt in SwiftUI, with one App Store listing for both. An Android app for phones and tablets is on its way.
           </p>
         </div>
-        <AppStoreLink variant="solid" class="self-start sm:self-auto" />
+        <StoreBadges class="shrink-0 sm:justify-end" />
       </div>
 
       <dl class="mt-12 grid gap-8 sm:grid-cols-3 sm:gap-10">
